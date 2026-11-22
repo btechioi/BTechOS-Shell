@@ -1,9 +1,0 @@
-diff a/home.nix b/home.nix	(rejected hunks)
-@@ -25,6 +25,7 @@
- 		./home/fastfetch.nix
- 		./home/clipboard.nix
- 		./home/deck.nix
-+		./home/editors.nix
- 	];
- 
- 	home.username = osConfig.nihil.user.name;
