@@ -605,6 +605,15 @@ apply_plan() {
     cp -r "$template/." "$etc/"
     chmod -R u+w "$etc"
 
+    # If a host profile was selected, overlay its config files
+    if [ -n "$hostProfile" ] && [ -d "/etc/nihil/hosts/$hostProfile" ]; then
+        for f in local.nix home.nix hardware-configuration.nix; do
+            if [ -f "/etc/nihil/hosts/$hostProfile/$f" ]; then
+                cp "/etc/nihil/hosts/$hostProfile/$f" "$etc/$f"
+            fi
+        done
+    fi
+
     outputs='{}'
     for connector in /sys/class/drm/card*-*; do
         [ "$(cat "$connector/status" 2>/dev/null)" = connected ] || continue
@@ -626,25 +635,45 @@ apply_plan() {
         fingerprint=true
     fi
 
-    jq -n \
-        --arg name "$username" --arg fullName "$fullname" --arg host "$hostname" \
-        --arg language "$lang" --arg locale "$locale" --arg zone "$zone" \
-        --arg layout "$layout" --arg model "$model" \
-        --argjson outputs "$outputs" --argjson fingerprint "$fingerprint" \
-        '{
-            version: 1,
-            user: { name: $name, fullName: $fullName },
-            host: { name: $host },
-            language: $language,
-            locale: $locale,
-            timeZone: $zone,
-            keyboard: { layout: $layout, variant: "", model: $model },
-            outputs: $outputs,
-            wallpaper: "night",
-            nilo: { enable: false, acceleration: "cpu", integratedGpu: false },
-            fingerprint: $fingerprint,
-            ssh: false
-        }' > "$etc/settings.json"
+    # Detect GPU vendor early
+    gpuVendor="none"
+    if lspci -nn 2>/dev/null | grep -Ei 'vga|3d|display' | grep -qiE 'amd|ati'; then
+        gpuVendor="amd"
+    elif lspci -nn 2>/dev/null | grep -Ei 'vga|3d|display' | grep -qi intel; then
+        gpuVendor="intel"
+    fi
+
+    if [ -n "$hostProfile" ]; then
+        jq --arg host "$hostname" --arg name "$username" --arg fullName "$fullname" \
+            --arg language "$lang" --arg locale "$locale" --arg zone "$zone" \
+            --arg layout "$layout" --arg model "$model" --arg gpu "$gpuVendor" \
+            '.host.name = $host | .user.name = $name | .user.fullName = $fullName |
+             .language = $language | .locale = $locale | .timeZone = $zone |
+             .keyboard.layout = $layout | .keyboard.model = $model |
+             .gpu = $gpu' \
+            "/etc/nihil/hosts/$hostProfile/settings.json" > "$etc/settings.json"
+    else
+        jq -n \
+            --arg name "$username" --arg fullName "$fullname" --arg host "$hostname" \
+            --arg language "$lang" --arg locale "$locale" --arg zone "$zone" \
+            --arg layout "$layout" --arg model "$model" \
+            --argjson outputs "$outputs" --argjson fingerprint "$fingerprint" \
+            '{
+                version: 1,
+                user: { name: $name, fullName: $fullName },
+                host: { name: $host },
+                language: $language,
+                locale: $locale,
+                timeZone: $zone,
+                keyboard: { layout: $layout, variant: "", model: $model },
+                outputs: $outputs,
+                wallpaper: "night",
+                nilo: { enable: false, acceleration: "cpu", integratedGpu: false },
+                fingerprint: $fingerprint,
+                ssh: false,
+                gpu: $gpuVendor
+            }' > "$etc/settings.json"
+    fi
 
     # The graphics the firmware showed the boot on, by the driver this live system gave it: early
     # KMS for that one only. Names matched nothing reliable ("compatible", "Corporation" read as ATI).
@@ -1038,8 +1067,25 @@ main_tui() {
         fi
         dim "$(t insMismatch)"
     done
+# Host profile selection (if available)
+hostProfile=""
+if [ -d /etc/nihil/hosts ]; then
+    hosts=()
+    for d in /etc/nihil/hosts/*/; do
+        [ -f "$d/settings.json" ] || continue
+        hosts+=("$(basename "$d")")
+    done
+    if [ ${#hosts[@]} -gt 0 ]; then
+        choice=$(gum choose --header "Host profile / Perfil de equipo" "Custom (auto-detect)" "${hosts[@]}")
+        if [ "$choice" != "Custom (auto-detect)" ]; then
+            hostProfile="$choice"
+            hostname=$(jq -r '.host.name // "nihil"' "/etc/nihil/hosts/$hostProfile/settings.json")
+        fi
+    fi
+fi
+
     until [[ ${hostname:-} =~ ^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$ ]]; do
-        hostname=$(gum input --header "$(t cfgHost)" --value "nihil")
+        hostname=$(gum input --header "$(t cfgHost)" --value "${hostname:-nihil}")
     done
 
     mapfile -t disk_candidates < <(list_disks)

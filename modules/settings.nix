@@ -10,7 +10,7 @@ let
     sshKeys = get [ "sshKeys" ] [ ];
     known = [ "version" "user" "host" "language" "locale" "timeZone" "keyboard" "outputs" "primaryOutput"
         "wallpaper" "nilo" "binds" "gestures" "programs" "fingerprint" "ssh" "sshKeys" "generations" "deck"
-        "clipboard" "bootSound" ];
+        "clipboard" "bootSound" "gpu" ];
     unknown = lib.subtractLists known (builtins.attrNames s);
 in
 {
@@ -66,6 +66,13 @@ in
             type = lib.types.bool;
             default = get [ "fingerprint" ] false;
             description = "Fingerprint reader for sudo, polkit and the greeter (fprintd).";
+        };
+
+        gpu = lib.mkOption
+        {
+            type = lib.types.enum [ "auto" "intel" "amd" "none" ];
+            default = get [ "gpu" ] "auto";
+            description = "GPU vendor: drives Intel/AMD-specific kernel params and drivers.";
         };
     };
 

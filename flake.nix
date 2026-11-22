@@ -25,8 +25,16 @@
 			inputs.nixpkgs.follows = "nixpkgs";
 			inputs.home-manager.follows = "home-manager";
 		};
+
+		nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+		freesmlauncher =
+		{
+			url = "github:FreesmTeam/FreesmLauncher";
+			inputs.nixpkgs.follows = "nixpkgs-unstable";
+		};
 	};
-	outputs = inputs@{ self, nixpkgs, home-manager, stylix, zen-browser, ... }:
+	outputs = inputs@{ self, nixpkgs, home-manager, stylix, zen-browser, nixpkgs-unstable, freesmlauncher, ... }:
 	let
 		system = "x86_64-linux";
 		pkgs = nixpkgs.legacyPackages.${system};
@@ -60,11 +68,12 @@
 
 		# Where NIHIL comes from, for the installer; a machine's flake writes it too, as inputs can't
 		# be worked out.
-		lib.source = "github:poligle/Nihil-Shell";
+		lib.source = "github:btechioi/Nihil-Shell";
 
 		lib.mkSystem = { settings ? { }, modules ? [ ], home ? [ ] }: nixpkgs.lib.nixosSystem
 		{
 			inherit system;
+			specialArgs = { inherit freesmlauncher; system = "x86_64-linux"; };
 			# Unfree packages are the machine's choice, not the module's: local.nix, after, can change it.
 			modules = [ self.nixosModules.default { nihil = { inherit settings home revision; }; nixpkgs.config.allowUnfree = true; } ] ++ modules;
 		};

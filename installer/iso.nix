@@ -153,6 +153,7 @@ in
     environment.etc =
     {
         "nihil/template".source = ../templates/machine;
+        "nihil/hosts".source = ../hosts;
         "nihil/source".text = nihil.lib.source;
         # A tree with changes has no revision: the image would install GitHub's default branch.
         "nihil/rev".text = nihil.rev or (lib.warn "An image from a tree with changes installs GitHub's default branch, not this tree." "");

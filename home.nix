@@ -25,10 +25,15 @@
 		./home/fastfetch.nix
 		./home/clipboard.nix
 		./home/deck.nix
+		./home/editors.nix
 	];
 
 	home.stateVersion = "26.05";
 	programs.home-manager.enable = true;
+
+	home.sessionPath = [ "$HOME/.opencode/bin" "$HOME/.local/bin" ];
+
+	home.sessionVariables.MOZ_DISABLE_RDD_SANDBOX = "1";
 
 	home.packages =
 	[

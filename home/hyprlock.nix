@@ -72,15 +72,19 @@ let
 	percent = part: whole: "${toString (part * 100.0 / whole)}%";
 	glassLook = pkgs.writeText "hyprlock-glass.conf" (lib.hm.generators.toHyprconf
 	{
-		attrs."input-field" = lib.mapAttrsToList (output: o: fieldStyle //
+		attrs."input-field" = lib.mapAttrsToList (output: o:
+			let
+				lw = o.width / o.scale;
+				lh = o.height / o.scale;
+			in fieldStyle //
 		{
 			monitor = output;
-			size = "${percent field.width o.width}, ${percent field.height o.height}";
+			size = "${percent field.width lw}, ${percent field.height lh}";
 			outline_thickness = 1;
 			rounding = -1;
 			outer_color = "rgba(0, 0, 0, 0.0)";
 			inner_color = "rgba(0, 0, 0, 0.0)";
-			position = "0%, ${percent field.y o.height}";
+			position = "0%, ${percent field.y lh}";
 		}) nihil.outputs;
 	});
 
@@ -92,7 +96,7 @@ let
 		runtimeInputs = [ pkgs.coreutils pkgs.findutils pkgs.util-linux ];
 		text = let
 			glass = "${glassPython}/bin/python3 ${./lock/glass.py}";
-			sizes = output: let o = nihil.outputs.${output}; in "--logical ${toString o.width} ${toString o.height}";
+			sizes = output: let o = nihil.outputs.${output}; in "--logical ${toString (o.width / o.scale)} ${toString (o.height / o.scale)}";
 			fieldArgs = "--field ${toString field.width} ${toString field.height} ${toString field.y}";
 			panelArgs = "--panel ${toString panel.x} ${toString panel.y} ${toString panel.width} ${toString panel.height} ${toString panel.radius}";
 		in ''

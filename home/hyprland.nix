@@ -1,6 +1,6 @@
 # hyprland.nix by poligle
 
-{ config, osConfig, pkgs, lib, ... }:
+{ config, osConfig, pkgs, lib, inputs, ... }:
 let
 	lua = lib.generators.mkLuaInline;
 	t = osConfig.nihil.tokens;
@@ -289,13 +289,39 @@ let
 	autostart = ''
 		function()
 			(${keepLidState})()
+			hl.exec_cmd("nm-applet --indicator")
 			hl.exec_cmd("mic-led-sync")
 			hl.exec_cmd("nihil-wallpaper restore")
+			hl.exec_cmd("gnome-keyring-daemon --start --components=secrets")
+			hl.exec_cmd("${inputs.nixpkgs-unstable.legacyPackages.x86_64-linux.hyprpolkitagent}/libexec/hyprpolkitagent")
+			hl.exec_cmd("hyprkvm daemon")
 		end
 	'';
 in
 {
 	stylix.targets.hyprland.enable = false;
+
+	xdg.configFile."hypr/hyprtoolkit.conf".text = ''
+		background = 0xFF${t.base16.base00}
+		base = 0xFF${t.base16.base01}
+		text = 0xFF${t.base16.base06}
+		alternate_base = 0xFF${t.base16.base02}
+		bright_text = 0xFF${t.base16.base07}
+		accent = 0xFF${t.base16.base08}
+		accent_secondary = 0xFF${t.base16.base0D}
+
+		font_family = ${t.fonts.sans}
+		font_family_monospace = ${t.fonts.code}
+		font_size = 11
+		small_font_size = 10
+		h1_size = 19
+		h2_size = 15
+		h3_size = 13
+
+		rounding_large = 0
+		rounding_small = 0
+
+	'';
 
 	# Units of the session, as the shell is: one that falls is started again. nm-applet answers
 	# NetworkManager when a network asks for what the shell doesn't (802.1X, a VPN).
@@ -406,7 +432,7 @@ in
 						brightness = 0.5;
 						contrast = 1.0;
 						noise = 0;
-						xray = false;
+						xray = true;
 						popups = false;
 					};
 				};
@@ -437,7 +463,7 @@ in
 					kb_model = xkb.model;
 					follow_mouse = 1;
 					sensitivity = 0;
-					touchpad.natural_scroll = false;
+					touchpad.natural_scroll = true;
 				};
 			};
 
