@@ -8,7 +8,7 @@ let
         dashboard = "SUPER + D";
         panel = "SUPER + P";
         colourPicker = "SUPER + H";
-        lock = "SUPER + K";
+        lock = "SUPER + L";
         nilo = "SUPER + I";
         settings = "SUPER + O";
         wallpapers = "SUPER + W";
