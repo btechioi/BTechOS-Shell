@@ -9,6 +9,9 @@ in
     stylix = 
     {
         enable = true;
+
+        targets.gtk.enable = false;
+        targets.qt.enable = false;
         image = "${nihil.wallpapers}/${nihil.wallpaper}/${nihil.primaryOutput}.png";
         base16Scheme = tokens.base16;
         polarity = lib.mkDefault "dark";
