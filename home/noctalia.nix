@@ -27,6 +27,8 @@
 
                 templates = {
                     enable_builtin_templates = true;
+                    enable_community_templates = true;
+                    community_ids = [ "zen-browser" ];
                     builtin_ids = [
                         "cava"
                         "hyprland"
