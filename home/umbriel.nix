@@ -13,6 +13,10 @@ in
         settings = {
             general.autostart = [ "noctalia" ];
 
+            input.touchpad.natural_scroll = true;
+
+            output."eDP-1" = { scale = 0.75; };
+
             input.keyboard = {
                 layout = xkb.layout;
                 variant = xkb.variant;
