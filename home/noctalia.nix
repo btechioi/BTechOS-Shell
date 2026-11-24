@@ -18,13 +18,13 @@
 
             bar.main = {
                 position = "left";
-                thickness = 48;
-                radius = 0;
+                thickness = 40;
+                radius = 10;
                 margin_ends = 0;
                 margin_edge = 0;
-                padding = 8;
-                widget_spacing = 4;
-                capsule = false;
+                padding = 6;
+                widget_spacing = 3;
+                capsule = true;
                 start = [ "launcher" "workspaces" ];
                 center = [ "clock" ];
                 end = [ "control-center" "session" ];
