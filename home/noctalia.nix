@@ -10,6 +10,12 @@
         systemd.enable = true;
 
         settings = {
+            shell = {
+                umbriel_overview_type_to_launch_enabled = true;
+                umbriel_overview_close_on_launch_enabled = true;
+                umbriel_audio_provider_enabled = true;
+            };
+
             bar.main = {
                 position = "left";
                 margin_ends = 0;

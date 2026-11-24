@@ -27,11 +27,16 @@ in
             };
 
             window_rule = [
-                { blur = true; }
+                { blur = true; blur_optimized = true; }
+                { match.app_id = "^dev\\.noctalia\\.Noctalia$"; default_floating = true; default_floating_size_px = { width = 1020; height = 900; }; }
                 { match.app_id = "^org\\.pulseaudio\\.pavucontrol$"; default_floating = true; }
                 { match.app_id = "^nm-connection-editor$"; default_floating = true; }
                 { match.app_id = "^blueman-manager$"; default_floating = true; }
                 { match.is_dialog = true; default_floating = true; }
+            ];
+
+            layer_rule = [
+                { match.namespace = "^noctalia-(bar-[^\\\"]+|notification|dock|panel|attached-panel|osd)$"; blur = true; blur_ignore_alpha = 0.6; blur_optimized = false; }
             ];
 
             input.touchpad.natural_scroll = true;
