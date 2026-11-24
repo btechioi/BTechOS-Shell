@@ -92,7 +92,6 @@
                         "umbriel"
                         "emacs"
                         "helix"
-                        "zed"
                         "btop"
                         "luciole"
                         "gtk3"
