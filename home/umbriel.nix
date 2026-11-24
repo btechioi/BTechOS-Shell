@@ -13,6 +13,8 @@ in
         settings = {
             general.autostart = [ "noctalia" ];
 
+            include.optional.files = [ "${config.home.homeDirectory}/.config/umbriel/noctalia.toml" ];
+
             input.touchpad.natural_scroll = true;
 
             output."eDP-1" = { scale = 0.75; };
