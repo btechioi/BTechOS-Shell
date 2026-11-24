@@ -14,6 +14,9 @@
         {
             settings.experimental-features = [ "nix-command" "flakes" ];
             settings.auto-optimise-store = lib.mkDefault true;
+            # Pre-built binaries for the Umbriel/Noctalia ecosystem (avoids local compilation).
+            settings.extra-substituters = lib.mkDefault [ "https://noctalia.cachix.org" ];
+            settings.extra-trusted-public-keys = lib.mkDefault [ "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4=" ];
             gc =
             {
                 automatic = lib.mkDefault true;
