@@ -23,6 +23,12 @@
                     enable_builtin_templates = true;
                     builtin_ids = [
                         "cava"
+                        "hyprland"
+                        "labwc"
+                        "mango"
+                        "niri"
+                        "scroll"
+                        "sway"
                         "umbriel"
                         "emacs"
                         "helix"
