@@ -15,6 +15,25 @@ in
 
             include.optional.files = [ "${config.home.homeDirectory}/.config/umbriel/noctalia.toml" ];
 
+            appearance.blur = {
+                enabled = true;
+                optimized = true;
+                passes = 2;
+                radius = 8;
+                noise = 0.02;
+                brightness = 0.9;
+                contrast = 0.9;
+                saturation = 1.1;
+            };
+
+            window_rule = [
+                { blur = true; }
+                { match.app_id = "^org\\.pulseaudio\\.pavucontrol$"; default_floating = true; }
+                { match.app_id = "^nm-connection-editor$"; default_floating = true; }
+                { match.app_id = "^blueman-manager$"; default_floating = true; }
+                { match.is_dialog = true; default_floating = true; }
+            ];
+
             input.touchpad.natural_scroll = true;
 
             output."eDP-1" = { scale = 0.75; };
