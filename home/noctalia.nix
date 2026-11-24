@@ -28,7 +28,7 @@
                 templates = {
                     enable_builtin_templates = true;
                     enable_community_templates = true;
-                    community_ids = [ "zen-browser" ];
+                    community_ids = [ "zen-browser" "pywalfox" ];
                     builtin_ids = [
                         "cava"
                         "hyprland"
