@@ -10,6 +10,8 @@
         systemd.enable = true;
 
         settings = {
+            bar.main.position = "left";
+
             theme = {
                 mode = "dark";
                 shell_mode = "follow";
