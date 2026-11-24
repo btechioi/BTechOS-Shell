@@ -7,6 +7,6 @@
     # Bluetooth is off while rfkill blocks it, which is how the shell turns it off, and
     # systemd-rfkill keeps that block through restarts, sleep and the adapter coming back.
     hardware.bluetooth.powerOnBoot = lib.mkDefault true;
-    services.blueman.enable = true;
+    services.blueman.enable = false;
     networking.networkmanager.wifi.powersave = lib.mkDefault false;
 }

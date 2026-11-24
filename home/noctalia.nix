@@ -10,7 +10,11 @@
         systemd.enable = true;
 
         settings = {
-            bar.main.position = "left";
+            bar.main = {
+                position = "left";
+                margin_ends = 0;
+                margin_edge = 0;
+            };
 
             theme = {
                 mode = "dark";
