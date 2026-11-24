@@ -35,6 +35,22 @@
                 custom_image_colorize = false;
             };
 
+            widget.workspaces = {
+                show_labels = false;
+            };
+
+            widget.clock = {
+                show_label = false;
+            };
+
+            widget.control-center = {
+                show_label = false;
+            };
+
+            widget.session = {
+                show_label = false;
+            };
+
             theme = {
                 mode = "dark";
                 shell_mode = "follow";
