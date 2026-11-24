@@ -25,9 +25,9 @@
                 padding = 8;
                 widget_spacing = 4;
                 capsule = false;
-                start = [ "launcher" "wallpaper" "workspaces" ];
+                start = [ "launcher" "workspaces" ];
                 center = [ "clock" ];
-                end = [ "media" "tray" "notifications" "clipboard" "network" "bluetooth" "volume" "brightness" "battery" "control-center" "session" ];
+                end = [ "control-center" "session" ];
             };
 
             widget.launcher = {
