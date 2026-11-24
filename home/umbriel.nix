@@ -45,6 +45,7 @@ in
             };
 
             keybinds = {
+                "Mod" = "spawn noctalia msg panel-toggle launcher";
                 "Mod+Space" = "spawn noctalia msg panel-toggle launcher";
                 "Mod+Return" = "spawn kitty";
                 "Mod+E" = "spawn luciole";

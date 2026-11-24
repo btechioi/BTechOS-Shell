@@ -14,6 +14,15 @@
                 position = "left";
                 margin_ends = 0;
                 margin_edge = 0;
+                capsule = false;
+                start = [ "launcher" "wallpaper" "workspaces" ];
+                center = [ "clock" ];
+                end = [ "media" "tray" "notifications" "clipboard" "network" "bluetooth" "volume" "brightness" "battery" "control-center" "session" ];
+            };
+
+            "widget.launcher" = {
+                custom_image = "/run/current-system/sw/share/icons/hicolor/48x48/apps/nix-snowflake.png";
+                custom_image_colorize = false;
             };
 
             theme = {
