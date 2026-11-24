@@ -12,9 +12,10 @@
         ./users.nix
         ./root.nix
         ./packages.nix
-        ./hyprland.nix
-        ./regreet.nix
-        ./greeter.nix
+        ./umbriel.nix
+        ./noctalia.nix
+        ./luciole.nix
+        ./noctalia-greeter.nix
         ./desktop.nix
         ./storage.nix
         ./nix.nix

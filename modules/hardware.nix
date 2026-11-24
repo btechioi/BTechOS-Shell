@@ -56,7 +56,6 @@ in
     boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
     security.pam.services = lib.genAttrs [ "sudo" "su" "login" "polkit-1" "greetd" ] skipFingerprint //
     {
-        hyprlock.fprintAuth = false;
         greetd.enableGnomeKeyring = true;
     };
     zramSwap.enable = lib.mkDefault true;
@@ -100,7 +99,7 @@ in
 
     # Power management
     services.tlp = {
-        enable = true;
+        enable = false;
         settings = {
             CPU_SCALING_GOVERNOR_ON_AC = "performance";
             CPU_SCALING_GOVERNOR_ON_BAT = "powersave";

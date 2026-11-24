@@ -53,7 +53,7 @@ in
         services.greetd.settings.initial_session =
         {
             inherit user;
-            command = "${config.programs.uwsm.package}/bin/uwsm start -e -D Hyprland hyprland.desktop";
+            command = "${config.programs.umbriel.package}/bin/start-umbriel";
         };
 
         environment.systemPackages = [ player ];

@@ -33,8 +33,29 @@
 			url = "github:FreesmTeam/FreesmLauncher";
 			inputs.nixpkgs.follows = "nixpkgs-unstable";
 		};
+
+		noctalia =
+		{
+			url = "github:noctalia-dev/noctalia";
+		};
+
+		umbriel =
+		{
+			url = "github:noctalia-dev/umbriel";
+		};
+
+		luciole =
+		{
+			url = "github:noctalia-dev/luciole";
+		};
+
+		noctalia-greeter =
+		{
+			url = "github:noctalia-dev/noctalia-greeter";
+			inputs.nixpkgs.follows = "nixpkgs";
+		};
 	};
-	outputs = inputs@{ self, nixpkgs, home-manager, stylix, zen-browser, nixpkgs-unstable, freesmlauncher, ... }:
+	outputs = inputs@{ self, nixpkgs, home-manager, stylix, zen-browser, nixpkgs-unstable, freesmlauncher, noctalia, umbriel, luciole, noctalia-greeter, ... }:
 	let
 		system = "x86_64-linux";
 		pkgs = nixpkgs.legacyPackages.${system};
@@ -73,7 +94,7 @@
 		lib.mkSystem = { settings ? { }, modules ? [ ], home ? [ ] }: nixpkgs.lib.nixosSystem
 		{
 			inherit system;
-			specialArgs = { inherit freesmlauncher; system = "x86_64-linux"; };
+			specialArgs = { inherit freesmlauncher inputs; system = "x86_64-linux"; };
 			# Unfree packages are the machine's choice, not the module's: local.nix, after, can change it.
 			modules = [ self.nixosModules.default { nihil = { inherit settings home revision; }; nixpkgs.config.allowUnfree = true; } ] ++ modules;
 		};

@@ -49,6 +49,6 @@ in
 	{
 		enable = true;
 		defaultApplications = lib.genAttrs text (_: "nihil-editor.desktop")
-			// { "inode/directory" = "thunar.desktop"; };
+			// { "inode/directory" = "luciole.desktop"; };
 	};
 }
