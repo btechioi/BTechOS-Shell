@@ -66,6 +66,9 @@
                 umbriel_overview_type_to_launch_enabled = true;
                 umbriel_overview_close_on_launch_enabled = true;
                 umbriel_audio_provider_enabled = true;
+                setup_wizard_enabled = false;
+                avatar_path = "~/.face";
+                circular_avatar = true;
             };
 
             theme = {
