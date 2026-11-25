@@ -16,6 +16,7 @@
 		./home/cli.nix
 		./home/fastfetch.nix
 		./home/editors.nix
+		./home/avatar.nix
 		./home/noctalia.nix
 		./home/umbriel.nix
 		./home/luciole.nix
