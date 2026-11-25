@@ -16,7 +16,7 @@ Singleton {
     readonly property string path: {
         const home = Quickshell.env("HOME") ?? "";
         const state = Quickshell.env("XDG_STATE_HOME") || (home + "/.local/state");
-        return state + "/nihil/tasks.json";
+        return state + "/btechos/tasks.json";
     }
 
     function inColumn(column: int): var {
@@ -171,7 +171,7 @@ Singleton {
         // The deck's board, from a file of this user's: as an argument it couldn't pass 128 KiB.
         function syncFile(path: string): string {
             const runtime = Quickshell.env("XDG_RUNTIME_DIR") ?? "";
-            if (runtime === "" || !path.startsWith(runtime + "/nihil-deck-tasks-") || path.includes("/../")) return "";
+            if (runtime === "" || !path.startsWith(runtime + "/btechos-deck-tasks-") || path.includes("/../")) return "";
             incoming.path = path;
             incoming.reload();
             const text = incoming.text();

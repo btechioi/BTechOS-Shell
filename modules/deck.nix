@@ -2,16 +2,16 @@
 
 { config, lib, pkgs, ... }:
 let
-    cfg = config.nihil.deck;
+    cfg = config.btechos.deck;
 in
 {
-    options.nihil.deck =
+    options.btechos.deck =
     {
         enable = lib.mkOption
         {
             type = lib.types.bool;
             default = false;
-            description = "Devices as decks: NIHIL for Android, paired from Preferences, opens apps and pages here (docs/deck.md).";
+            description = "Devices as decks: BTechOS for Android, paired from Preferences, opens apps and pages here (docs/deck.md).";
         };
 
         port = lib.mkOption
@@ -49,34 +49,34 @@ in
         [
             (pkgs.writeTextFile
             {
-                name = "nihil-deck-udev-rules";
-                destination = "/etc/udev/rules.d/72-nihil-deck.rules";
+                name = "btechos-deck-udev-rules";
+                destination = "/etc/udev/rules.d/72-btechos-deck.rules";
                 text = ''
                     KERNEL=="uinput", SUBSYSTEM=="misc", TAG+="uaccess", OPTIONS+="static_node=uinput"
-                    SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="NIHIL deck trackpad", ENV{ID_INPUT_TOUCHPAD_INTEGRATION}="external"
+                    SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="BTechOS deck trackpad", ENV{ID_INPUT_TOUCHPAD_INTEGRATION}="external"
                 '';
             })
         ];
 
-        # Announced as NIHIL, not by the computer's own name, which goes with it from network to
+        # Announced as BTechOS, not by the computer's own name, which goes with it from network to
         # network: the phone finds it by its pin, and has its name from the QR.
         services.avahi =
         {
             enable = true;
-            hostName = lib.mkDefault "nihil";
+            hostName = lib.mkDefault "btechos";
             allowInterfaces = lib.mkIf (cfg.interfaces != [ ]) cfg.interfaces;
             publish =
             {
                 enable = true;
                 addresses = true;
             };
-            extraServiceFiles.nihil-deck = ''
+            extraServiceFiles.btechos-deck = ''
                 <?xml version="1.0" standalone="no"?>
                 <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
                 <service-group>
-                  <name>NIHIL</name>
+                  <name>BTechOS</name>
                   <service>
-                    <type>_nihil-deck._tcp</type>
+                    <type>_btechos-deck._tcp</type>
                     <port>${toString cfg.port}</port>
                     <txt-record>v=1</txt-record>
                   </service>

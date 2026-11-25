@@ -3,7 +3,7 @@
 { config, pkgs, lib, ... }:
 let
 	glass = pkgs.writeShellScript "kitty-glass" ''
-		if [ "$(cat "${config.xdg.stateHome}/nihil/glass" 2> /dev/null)" = on ]; then
+		if [ "$(cat "${config.xdg.stateHome}/btechos/glass" 2> /dev/null)" = on ]; then
 			echo "background_opacity 0.8"
 		fi
 	'';

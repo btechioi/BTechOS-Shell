@@ -15,7 +15,7 @@ Singleton {
     readonly property bool shown: Drawers.current === "clipboard" || Drawers.waiting?.name === "clipboard"
     readonly property bool enabled: Config.clipboard > 0
     // Never /tmp, where another user could make the folder first: with no runtime folder, no pictures.
-    readonly property string dir: (Quickshell.env("XDG_RUNTIME_DIR") ?? "") !== "" ? Quickshell.env("XDG_RUNTIME_DIR") + "/nihil-clipboard" : ""
+    readonly property string dir: (Quickshell.env("XDG_RUNTIME_DIR") ?? "") !== "" ? Quickshell.env("XDG_RUNTIME_DIR") + "/btechos-clipboard" : ""
 
     readonly property var keyParts: String(Config.binds.clipboard ?? "").split("+").map(part => part.trim()).filter(part => part !== "")
     readonly property string modifier: {
@@ -99,10 +99,10 @@ Singleton {
 
     function released(from: string): void {
         if (phase === "held") {
-            console.info("nihil: clipboard: let go (" + from + "), pasting what is on the clipboard");
+            console.info("btechos: clipboard: let go (" + from + "), pasting what is on the clipboard");
             finish(null);
         } else if (phase === "out") {
-            console.info("nihil: clipboard: let go (" + from + ")");
+            console.info("btechos: clipboard: let go (" + from + ")");
             paste();
         }
     }
@@ -240,14 +240,14 @@ Singleton {
             const item = job.item;
             if (item === null) {
                 if (elsewhere) {
-                    console.info("nihil: clipboard: another window has the keyboard, nothing pasted");
+                    console.info("btechos: clipboard: another window has the keyboard, nothing pasted");
                     return;
                 }
-                console.info("nihil: clipboard: pasting what is on the clipboard with SHIFT + Insert");
+                console.info("btechos: clipboard: pasting what is on the clipboard with SHIFT + Insert");
                 Quickshell.execDetached([Config.cmd.clipboard, "keys", "paste"]);
                 return;
             }
-            console.info("nihil: clipboard: " + (elsewhere ? "copied " + item.id + ", another window has the keyboard"
+            console.info("btechos: clipboard: " + (elsewhere ? "copied " + item.id + ", another window has the keyboard"
                                                            : "pasting " + item.id + " with SHIFT + Insert"));
             Quickshell.execDetached([Config.cmd.clipboard, elsewhere ? "copy" : "paste", item.id, item.mime]);
         }
@@ -265,65 +265,65 @@ Singleton {
     }
 
     GlobalShortcut {
-        name: "nihil-clipboard"
-        description: "NIHIL: paste, or the clipboard history held down"
+        name: "btechos-clipboard"
+        description: "BTechOS: paste, or the clipboard history held down"
         onPressed: root.press()
     }
 
     GlobalShortcut {
-        name: "nihil-clipboard-next"
-        description: "NIHIL: the next copy in the clipboard history"
+        name: "btechos-clipboard-next"
+        description: "BTechOS: the next copy in the clipboard history"
         onPressed: root.step(1)
     }
 
     GlobalShortcut {
-        name: "nihil-clipboard-back"
-        description: "NIHIL: the copy before in the clipboard history"
+        name: "btechos-clipboard-back"
+        description: "BTechOS: the copy before in the clipboard history"
         onPressed: root.step(-1)
     }
 
     GlobalShortcut {
-        name: "nihil-clipboard-forget"
-        description: "NIHIL: forget the copy chosen in the clipboard history"
+        name: "btechos-clipboard-forget"
+        description: "BTechOS: forget the copy chosen in the clipboard history"
         onPressed: root.forgetChosen()
     }
 
     GlobalShortcut {
-        name: "nihil-clipboard-paste"
-        description: "NIHIL: paste the copy chosen in the clipboard history"
+        name: "btechos-clipboard-paste"
+        description: "BTechOS: paste the copy chosen in the clipboard history"
         onPressed: root.paste()
     }
 
     GlobalShortcut {
-        name: "nihil-clipboard-cancel"
-        description: "NIHIL: leave the clipboard history, pasting nothing"
+        name: "btechos-clipboard-cancel"
+        description: "BTechOS: leave the clipboard history, pasting nothing"
         onPressed: root.cancel()
     }
 
     GlobalShortcut {
-        name: "nihil-super"
-        description: "NIHIL: SUPER down and up, for the clipboard history"
+        name: "btechos-super"
+        description: "BTechOS: SUPER down and up, for the clipboard history"
         onPressed: root.track("super", true)
         onReleased: root.track("super", false)
     }
 
     GlobalShortcut {
-        name: "nihil-ctrl"
-        description: "NIHIL: CTRL down and up, for the clipboard history"
+        name: "btechos-ctrl"
+        description: "BTechOS: CTRL down and up, for the clipboard history"
         onPressed: root.track("ctrl", true)
         onReleased: root.track("ctrl", false)
     }
 
     GlobalShortcut {
-        name: "nihil-alt"
-        description: "NIHIL: ALT down and up, for the clipboard history"
+        name: "btechos-alt"
+        description: "BTechOS: ALT down and up, for the clipboard history"
         onPressed: root.track("alt", true)
         onReleased: root.track("alt", false)
     }
 
     GlobalShortcut {
-        name: "nihil-shift"
-        description: "NIHIL: SHIFT down and up, for the clipboard history"
+        name: "btechos-shift"
+        description: "BTechOS: SHIFT down and up, for the clipboard history"
         onPressed: root.track("shift", true)
         onReleased: root.track("shift", false)
     }
@@ -334,7 +334,7 @@ Singleton {
         function open(): void { root.press(); }
         function next(): void { root.step(1); }
         function previous(): void { root.step(-1); }
-        function released(): void { root.released("nihil-ipc"); }
+        function released(): void { root.released("btechos-ipc"); }
         function paste(): void { root.paste(); }
         function cancel(): void { root.cancel(); }
     }

@@ -3,11 +3,11 @@
 { config, osConfig, pkgs, lib, inputs, ... }:
 let
 	lua = lib.generators.mkLuaInline;
-	t = osConfig.nihil.tokens;
-	sound = osConfig.nihil.sounds;
+	t = osConfig.btechos.tokens;
+	sound = osConfig.btechos.sounds;
 	rgb = hex: "rgb(${hex})";
 
-	outputs = osConfig.nihil.outputs;
+	outputs = osConfig.btechos.outputs;
 	panels = lib.filter (lib.hasPrefix "eDP") (builtins.attrNames outputs);
 	internalPanel = if panels != [ ] then lib.head panels else "eDP-1";
 	verticalOutputs = builtins.attrNames (lib.filterAttrs (_: output: lib.elem output.transform [ 1 3 5 7 ]) outputs);
@@ -22,22 +22,22 @@ let
 	focusWorkspace = workspace: ''hl.dsp.focus({ workspace = "${workspace}" })'';
 	moveToWorkspace = workspace: ''hl.dsp.window.move({ workspace = "${workspace}" })'';
 
-	niloBinds = lib.optionals osConfig.nihil.nilo.enable
+	niloBinds = lib.optionals osConfig.btechos.nilo.enable
 	[
-		(bind "SUPER + SHIFT + code:201" (exec "nihil-ipc nilo toggle"))
+		(bind "SUPER + SHIFT + code:201" (exec "btechos-ipc nilo toggle"))
 	];
 
-	keys = osConfig.nihil.binds;
+	keys = osConfig.btechos.binds;
 	actions =
 	{
-		launcher = exec "nihil-ipc drawers toggle launcher";
-		dashboard = exec "nihil-ipc drawers toggle dashboard";
-		panel = exec "nihil-ipc drawers toggle panel";
+		launcher = exec "btechos-ipc drawers toggle launcher";
+		dashboard = exec "btechos-ipc drawers toggle dashboard";
+		panel = exec "btechos-ipc drawers toggle panel";
 		colourPicker = exec "hyprpicker -a";
 		lock = exec "lock-screen";
-		settings = exec "nihil-ipc settings toggle";
-		wallpapers = ''hl.dsp.global("quickshell:nihil-wallpapers")'';
-		overview = ''hl.dsp.global("quickshell:nihil-overview")'';
+		settings = exec "btechos-ipc settings toggle";
+		wallpapers = ''hl.dsp.global("quickshell:btechos-wallpapers")'';
+		overview = ''hl.dsp.global("quickshell:btechos-overview")'';
 		close = "hl.dsp.window.close()";
 		float = ''hl.dsp.window.float({ action = "toggle" })'';
 		maximize = withSound sound.fullscreen ''hl.dsp.window.fullscreen({ mode = "maximized" })'';
@@ -45,24 +45,24 @@ let
 		special = withSound sound.special "hl.dsp.workspace.toggle_special()";
 		toSpecial = ''hl.dsp.window.move({ workspace = "special" })'';
 		nextWorkspace = ''hl.dsp.focus({ workspace = "e+1" })'';
-	} // lib.optionalAttrs osConfig.nihil.nilo.enable
+	} // lib.optionalAttrs osConfig.btechos.nilo.enable
 	{
-		nilo = exec "nihil-ipc nilo toggle";
+		nilo = exec "btechos-ipc nilo toggle";
 	};
 	programBinds = map (program: bind (canonical program.keys) (exec program.exec))
-		(builtins.filter (program: program.keys != null) osConfig.nihil.programs);
+		(builtins.filter (program: program.keys != null) osConfig.btechos.programs);
 
 	actionBinds = lib.mapAttrsToList (name: action:
 			if name == "lock" then bindWith (canonical keys.${name}) action { locked = true; } else bind (canonical keys.${name}) action)
 		(lib.filterAttrs (name: _: keys.${name} or null != null) actions)
 		++ lib.optional (keys.screenshot != null)
-			(bindWith (canonical keys.screenshot) (exec "nihil-shot screen") { locked = true; })
+			(bindWith (canonical keys.screenshot) (exec "btechos-shot screen") { locked = true; })
 		# Not while locked: the lock screen covers the area to choose, and it would wait until
 		# unlocked, to show up then.
 		++ lib.optional (keys.snip or null != null)
-			(bind (canonical keys.snip) (exec "nihil-shot region"))
-		++ lib.optional (recordScreen != null) (bind recordScreen (exec "nihil-record toggle screen"))
-		++ lib.optional (recordRegion != null) (bind recordRegion (exec "nihil-record toggle region"));
+			(bind (canonical keys.snip) (exec "btechos-shot region"))
+		++ lib.optional (recordScreen != null) (bind recordScreen (exec "btechos-record toggle screen"))
+		++ lib.optional (recordRegion != null) (bind recordRegion (exec "btechos-record toggle region"));
 
 	modifierAlias = { WIN = "SUPER"; LOGO = "SUPER"; MOD4 = "SUPER"; META = "SUPER"; CONTROL = "CTRL"; MOD1 = "ALT"; };
 	trim = text: let m = builtins.match "[[:space:]]*(.*[^[:space:]])[[:space:]]*" text; in if m == null then "" else lib.head m;
@@ -77,11 +77,11 @@ let
 	recordRegion = if keys.snip or null != null && !(hasShift keys.snip) then canonical "SHIFT + ${keys.snip}" else null;
 	# Everything a key does, Nilo only when it is on: two on one key would both fire.
 	bound = lib.mapAttrsToList (name: combo: { inherit name combo; })
-			(lib.filterAttrs (name: combo: combo != null && (name != "nilo" || osConfig.nihil.nilo.enable)) keys)
+			(lib.filterAttrs (name: combo: combo != null && (name != "nilo" || osConfig.btechos.nilo.enable)) keys)
 		++ lib.optional (recordScreen != null) { name = "recording the screen"; combo = recordScreen; }
 		++ lib.optional (recordRegion != null) { name = "recording an area"; combo = recordRegion; }
 		++ map (program: { name = program.name; combo = program.keys; })
-			(builtins.filter (program: program.keys != null) osConfig.nihil.programs);
+			(builtins.filter (program: program.keys != null) osConfig.btechos.programs);
 	clashes = lib.filterAttrs (_: same: lib.length same > 1) (lib.groupBy (entry: normal entry.combo) bound);
 	takenBy = name: combo: combo != null && lib.any (entry: entry.name != name && normal entry.combo == normal combo) bound;
 	clipboardKey = keys.clipboard or null;
@@ -144,8 +144,8 @@ let
 	heldDrawers = builtins.filter (drawer: drawer.held) (map heldDrawer [ "overview" "wallpapers" ]);
 
 	watched = lib.unique (lib.optional held pasteModifier ++ map (drawer: drawer.modifier) heldDrawers);
-	leaves = modifier: lib.optional (held && modifier == pasteModifier) "nihil-clipboard"
-		++ map (drawer: "nihil-${drawer.name}") (builtins.filter (drawer: drawer.modifier == modifier) heldDrawers);
+	leaves = modifier: lib.optional (held && modifier == pasteModifier) "btechos-clipboard"
+		++ map (drawer: "btechos-${drawer.name}") (builtins.filter (drawer: drawer.modifier == modifier) heldDrawers);
 	watchBinds = indent: lib.concatMapStringsSep "\n${indent}" (modifier:
 		"for _, sym in ipairs({ ${luaList modifierKeys.${modifier}} }) do hl.bind(sym, watcher(${luaString (lib.toLower modifier)}, { ${luaList (leaves modifier)} }), watch) end") watched;
 	submapKeys = prefix: list: lib.concatMapStringsSep "\n\t\t\t\t" (k: "key(${luaString k.combo}, ${luaString "${prefix}-${k.name}"}, ${lib.boolToString k.leave})") list;
@@ -155,12 +155,12 @@ let
 	holdLua = ''
 		do
 			local function say(name)
-				hl.dispatch(hl.dsp.global("quickshell:nihil-" .. name))
+				hl.dispatch(hl.dsp.global("quickshell:btechos-" .. name))
 			end
 	'' + lib.optionalString clipboardOn ''
 			hl.bind(${luaString (canonical clipboardKey)}, function()
 				say("clipboard")
-				${lib.optionalString held ''hl.dispatch(hl.dsp.submap("nihil-clipboard"))''}
+				${lib.optionalString held ''hl.dispatch(hl.dsp.submap("btechos-clipboard"))''}
 			end)
 	'' + lib.optionalString (watched != [ ]) ''
 			local function watcher(name, submaps)
@@ -177,7 +177,7 @@ let
 			local watch = { ignore_mods = true, transparent = true, non_consuming = true, dont_inhibit = true, locked = true }
 			${watchBinds "\t\t\t"}
 	'' + lib.optionalString held ''
-			hl.define_submap("nihil-clipboard", function()
+			hl.define_submap("btechos-clipboard", function()
 				local function key(combo, name, leave)
 					hl.bind(combo, function()
 						say(name)
@@ -190,7 +190,7 @@ let
 				${watchBinds "\t\t\t\t"}
 			end)
 	'' + lib.concatMapStrings (drawer: ''
-			hl.define_submap("nihil-${drawer.name}", function()
+			hl.define_submap("btechos-${drawer.name}", function()
 				local function key(combo, name, leave)
 					hl.bind(combo, function()
 						say(name)
@@ -206,7 +206,7 @@ let
 		end
 	'';
 
-	fingers = osConfig.nihil.gestures;
+	fingers = osConfig.btechos.gestures;
 
 	maximizeGesture = spread: ''
 		function()
@@ -291,7 +291,7 @@ let
 			(${keepLidState})()
 			hl.exec_cmd("nm-applet --indicator")
 			hl.exec_cmd("mic-led-sync")
-			hl.exec_cmd("nihil-wallpaper restore")
+			hl.exec_cmd("btechos-wallpaper restore")
 			hl.exec_cmd("gnome-keyring-daemon --start --components=secrets")
 			hl.exec_cmd("${inputs.nixpkgs-unstable.legacyPackages.x86_64-linux.hyprpolkitagent}/libexec/hyprpolkitagent")
 			hl.exec_cmd("hyprkvm daemon")
@@ -348,12 +348,12 @@ in
 	};
 
 	warnings = lib.mapAttrsToList (combo: same:
-			"NIHIL: ${(lib.head same).combo} does ${lib.concatMapStringsSep " and " (entry: entry.name) same} at once: give one of them another key in Preferences, Shortcuts.")
+			"BTechOS: ${(lib.head same).combo} does ${lib.concatMapStringsSep " and " (entry: entry.name) same} at once: give one of them another key in Preferences, Shortcuts.")
 			(lib.filterAttrs (_: same: !(lib.any (entry: entry.name == "clipboard" || entry.name == "copy") same)) clashes)
 		++ lib.optional clipboardTaken
-		"NIHIL: ${clipboardKey}, the paste and clipboard history key, is taken by another action or program: give it another in Preferences, Shortcuts."
+		"BTechOS: ${clipboardKey}, the paste and clipboard history key, is taken by another action or program: give it another in Preferences, Shortcuts."
 		++ lib.optional copyTaken
-		"NIHIL: ${copyKey}, the copy key, is taken by another action or program: give it another in Preferences, Shortcuts.";
+		"BTechOS: ${copyKey}, the copy key, is taken by another action or program: give it another in Preferences, Shortcuts.";
 
 	wayland.windowManager.hyprland =
 	{
@@ -470,24 +470,24 @@ in
 			curve =
 			[
 				(bezier "linear" [ [ 0 0 ] [ 1 1 ] ])
-				(bezier "nihilOut" [ [ 0.05 0.7 ] [ 0.1 1.0 ] ])
-				(bezier "nihilInOut" [ [ 0.4 0.0 ] [ 0.2 1.0 ] ])
+				(bezier "btechosOut" [ [ 0.05 0.7 ] [ 0.1 1.0 ] ])
+				(bezier "btechosInOut" [ [ 0.4 0.0 ] [ 0.2 1.0 ] ])
 			];
 
 			animation =
 			[
-				{ leaf = "windows"; enabled = true; speed = 2.6; bezier = "nihilOut"; style = "popin 94%"; }
-				{ leaf = "windowsMove"; enabled = true; speed = 2.4; bezier = "nihilOut"; style = "slide"; }
+				{ leaf = "windows"; enabled = true; speed = 2.6; bezier = "btechosOut"; style = "popin 94%"; }
+				{ leaf = "windowsMove"; enabled = true; speed = 2.4; bezier = "btechosOut"; style = "slide"; }
 				{ leaf = "border"; enabled = true; speed = 4; bezier = "linear"; }
-				{ leaf = "fade"; enabled = true; speed = 2; bezier = "nihilOut"; }
-				{ leaf = "workspaces"; enabled = true; speed = 3; bezier = "nihilInOut"; style = "slide"; }
+				{ leaf = "fade"; enabled = true; speed = 2; bezier = "btechosOut"; }
+				{ leaf = "workspaces"; enabled = true; speed = 3; bezier = "btechosInOut"; style = "slide"; }
 			];
 
 			gesture = lib.filter (gesture: gesture.fingers != null)
 			[
 				{ fingers = fingers.workspaces; direction = "horizontal"; action = "workspace"; }
 				{ fingers = fingers.close; direction = "down"; action = "close"; }
-				{ fingers = fingers.launcher; direction = "up"; action = lua ''function() hl.exec_cmd("nihil-ipc drawers toggle launcher") end''; }
+				{ fingers = fingers.launcher; direction = "up"; action = lua ''function() hl.exec_cmd("btechos-ipc drawers toggle launcher") end''; }
 				{ fingers = fingers.maximize; direction = "pinchin"; action = lua (maximizeGesture true); }
 				{ fingers = fingers.maximize; direction = "pinchout"; action = lua (maximizeGesture false); }
 				{ fingers = fingers.special; direction = "vertical"; action = lua (withSound sound.special "hl.dsp.workspace.toggle_special()"); }
@@ -506,7 +506,7 @@ in
 
 			layer_rule =
 			[
-				{ name = "nihil-shell"; match.namespace = "^nihil-.*$"; no_anim = true; }
+				{ name = "btechos-shell"; match.namespace = "^btechos-.*$"; no_anim = true; }
 			];
 
 			bind =
@@ -546,7 +546,7 @@ in
 			[
 				(onEvent "hyprland.start" autostart)
 				(onEvent "config.reloaded" keepLidState)
-				(onEvent "monitor.added" ''function() (${keepLidState})() hl.exec_cmd("nihil-wallpaper restore") end'')
+				(onEvent "monitor.added" ''function() (${keepLidState})() hl.exec_cmd("btechos-wallpaper restore") end'')
 				(soundOn "workspace.active" sound.switch)
 				(soundOn "window.open" sound.open)
 				(soundOn "window.close" sound.close)

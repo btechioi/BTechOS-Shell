@@ -412,7 +412,7 @@ Scope {
 
         // Under the windows, and over them while arranging: the desktop may be covered.
         WlrLayershell.layer: Machine.arranging ? WlrLayer.Top : WlrLayer.Bottom
-        WlrLayershell.namespace: "nihil-widgets"
+        WlrLayershell.namespace: "btechos-widgets"
         WlrLayershell.keyboardFocus: Machine.arranging ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
         exclusionMode: ExclusionMode.Ignore
 
@@ -1100,7 +1100,7 @@ Scope {
         color: "transparent"
 
         WlrLayershell.layer: WlrLayer.Top
-        WlrLayershell.namespace: "nihil-note"
+        WlrLayershell.namespace: "btechos-note"
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
         exclusionMode: ExclusionMode.Ignore
 

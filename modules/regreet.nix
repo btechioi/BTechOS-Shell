@@ -2,8 +2,8 @@
 
 { config, lib, pkgs, ... }:
 let
-    p = config.nihil.tokens.palette;
-    f = config.nihil.tokens.fonts;
+    p = config.btechos.tokens.palette;
+    f = config.btechos.tokens.fonts;
 in
 {
     programs.regreet =
@@ -13,10 +13,10 @@ in
 
         settings =
         {
-            background.path = lib.mkForce "/var/lib/nihil/greeter/wallpaper.png";
-            appearance.greeting_msg = if config.nihil.user.greeting != ""
-                then lib.replaceStrings [ "%1" ] [ config.nihil.user.greeting ] config.nihil.strings.welHello
-                else config.nihil.strings.welHelloAnon;
+            background.path = lib.mkForce "/var/lib/btechos/greeter/wallpaper.png";
+            appearance.greeting_msg = if config.btechos.user.greeting != ""
+                then lib.replaceStrings [ "%1" ] [ config.btechos.user.greeting ] config.btechos.strings.welHello
+                else config.btechos.strings.welHelloAnon;
 
             widget.clock =
             {
@@ -86,11 +86,11 @@ in
 
     # Through /etc, which follows the generation that runs: a link straight into the store would
     # point at nothing once a collection took it, until the next login copies the user's.
-    environment.etc."nihil/wallpapers".source = config.nihil.wallpapers;
+    environment.etc."btechos/wallpapers".source = config.btechos.wallpapers;
 
     systemd.tmpfiles.rules =
     [
-        "d /var/lib/nihil/greeter 0755 ${config.nihil.user.name} users -"
-        "L /var/lib/nihil/greeter/wallpaper.png - - - - /etc/nihil/wallpapers/${config.nihil.wallpaper}/${config.nihil.primaryOutput}.png"
+        "d /var/lib/btechos/greeter 0755 ${config.btechos.user.name} users -"
+        "L /var/lib/btechos/greeter/wallpaper.png - - - - /etc/btechos/wallpapers/${config.btechos.wallpaper}/${config.btechos.primaryOutput}.png"
     ];
 }

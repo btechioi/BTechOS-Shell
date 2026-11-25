@@ -10,7 +10,7 @@
         systemd.enable = false;
 
         customPalettes = {
-            Nihil = {
+            BTechOS = {
                 version = 2;
                 dark = {
                     primary = "#F2F2F2";
@@ -75,7 +75,7 @@
                 mode = "dark";
                 shell_mode = "follow";
                 source = "custom";
-                custom_palette = "Nihil";
+                custom_palette = "BTechOS";
                 terminal_colors = "palette";
                 sync_color_scheme = true;
                 pure_black_dark = true;

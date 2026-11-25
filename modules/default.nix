@@ -23,8 +23,8 @@
         ./boot-sound.nix
         ./stylix.nix
         ./direnv.nix
-        ./nihil.nix
-        ./nihil-cli.nix
+        ./btechos.nix
+        ./btechos-cli.nix
         ./binds.nix
         ./deck.nix
     ];

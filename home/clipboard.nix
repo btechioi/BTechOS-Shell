@@ -2,13 +2,13 @@
 
 { config, osConfig, pkgs, lib, ... }:
 let
-	size = osConfig.nihil.clipboard;
+	size = osConfig.btechos.clipboard;
 
-	nihil-clipboard = pkgs.writeShellScriptBin "nihil-clipboard" ''
+	btechos-clipboard = pkgs.writeShellScriptBin "btechos-clipboard" ''
 		set -u
 		export PATH="${lib.makeBinPath [ pkgs.cliphist pkgs.wl-clipboard pkgs.wtype pkgs.coreutils pkgs.gnugrep osConfig.programs.hyprland.package ]}:$PATH"
 		# Never /tmp, where another user could make the folder first.
-		dir="''${XDG_RUNTIME_DIR:?}/nihil-clipboard"
+		dir="''${XDG_RUNTIME_DIR:?}/btechos-clipboard"
 		tab=$(printf '\t')
 
 		# The history is kept in memory, in the runtime folder, and goes with the session: what's
@@ -32,7 +32,7 @@ let
 			local found
 			found=$(entry "$1")
 			if [ -z "$found" ]; then
-				echo "nihil-clipboard: no copy $1" >&2
+				echo "btechos-clipboard: no copy $1" >&2
 				exit 1
 			fi
 			if [ -n "$2" ]; then
@@ -48,7 +48,7 @@ let
 				paste) mods=SHIFT ;;
 				copy) mods=CTRL ;;
 				*)
-					echo "Usage: nihil-clipboard keys paste|copy" >&2
+					echo "Usage: btechos-clipboard keys paste|copy" >&2
 					return 2
 					;;
 			esac
@@ -56,9 +56,9 @@ let
 			if [ "$answer" = ok ]; then
 				return 0
 			fi
-			echo "nihil-clipboard: Hyprland said \"$answer\"; typing $mods + Insert with wtype" >&2
+			echo "btechos-clipboard: Hyprland said \"$answer\"; typing $mods + Insert with wtype" >&2
 			if ! wtype -M "''${mods,,}" -k Insert -m "''${mods,,}"; then
-				echo "nihil-clipboard: $mods + Insert could not be typed" >&2
+				echo "btechos-clipboard: $mods + Insert could not be typed" >&2
 				return 1
 			fi
 		}
@@ -104,10 +104,10 @@ let
 				cat "$dir/list.new"
 				;;
 			copy)
-				copy "''${2:?Usage: nihil-clipboard copy ID [TYPE]}" "''${3:-}"
+				copy "''${2:?Usage: btechos-clipboard copy ID [TYPE]}" "''${3:-}"
 				;;
 			paste)
-				copy "''${2:?Usage: nihil-clipboard paste ID [TYPE]}" "''${3:-}"
+				copy "''${2:?Usage: btechos-clipboard paste ID [TYPE]}" "''${3:-}"
 				sleep 0.06
 				keys paste || exit 1
 				;;
@@ -115,34 +115,34 @@ let
 				keys "''${2:-}" || exit $?
 				;;
 			delete)
-				entry "''${2:?Usage: nihil-clipboard delete ID}" | cliphist delete
+				entry "''${2:?Usage: btechos-clipboard delete ID}" | cliphist delete
 				;;
 			wipe)
 				cliphist wipe
 				rm -rf "$dir"
 				;;
 			*)
-				echo "Usage: nihil-clipboard list [N] | copy ID [TYPE] | paste ID [TYPE] | keys paste|copy | delete ID | wipe" >&2
+				echo "Usage: btechos-clipboard list [N] | copy ID [TYPE] | paste ID [TYPE] | keys paste|copy | delete ID | wipe" >&2
 				exit 2
 				;;
 		esac
 	'';
 in
 {
-	home.packages = [ nihil-clipboard ];
+	home.packages = [ btechos-clipboard ];
 
-	systemd.user.services.nihil-clipboard = lib.mkIf (size > 0)
+	systemd.user.services.btechos-clipboard = lib.mkIf (size > 0)
 	{
 		Unit =
 		{
-			Description = "NIHIL clipboard history";
+			Description = "BTechOS clipboard history";
 			After = [ "graphical-session.target" ];
 			PartOf = [ "graphical-session.target" ];
 		};
 
 		Service =
 		{
-			ExecStart = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${nihil-clipboard}/bin/nihil-clipboard store";
+			ExecStart = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${btechos-clipboard}/bin/btechos-clipboard store";
 			Restart = "on-failure";
 			RestartSec = 2;
 		};

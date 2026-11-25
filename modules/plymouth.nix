@@ -3,19 +3,19 @@
 { config, lib, pkgs, ... }:
 let
   splashSeconds = "4.5";
-  waitForSound = config.nihil.bootSound;
+  waitForSound = config.btechos.bootSound;
   litSeconds = "1.5";
 
-  splashWait = pkgs.writeShellScript "nihil-splash-wait" ''
+  splashWait = pkgs.writeShellScript "btechos-splash-wait" ''
     read -r pid 2>/dev/null < /run/plymouth/pid || exit 0
     [ -r "/proc/$pid/stat" ] || exit 0
     read -r -a stat < "/proc/$pid/stat"
     read -r now _ < /proc/uptime
     opened=0
     if ${lib.boolToString waitForSound}; then
-      read -r opened _ 2>/dev/null < /run/nihil/splash-open || opened=""
+      read -r opened _ 2>/dev/null < /run/btechos/splash-open || opened=""
       if [ -z "$opened" ]; then
-        ${config.boot.plymouth.package}/bin/plymouth update --status=nihil-open 2>/dev/null || true
+        ${config.boot.plymouth.package}/bin/plymouth update --status=btechos-open 2>/dev/null || true
         opened=$now
       fi
     fi
@@ -38,8 +38,8 @@ in
     {
       enable = lib.mkDefault true;
 
-      theme = lib.mkDefault "nihil";
-      themePackages = [ (import ../theme/plymouth.nix { inherit pkgs waitForSound; passphrase = config.nihil.strings.diskPassphrase; }) ];
+      theme = lib.mkDefault "btechos";
+      themePackages = [ (import ../theme/plymouth.nix { inherit pkgs waitForSound; passphrase = config.btechos.strings.diskPassphrase; }) ];
     };
 
     consoleLogLevel = lib.mkDefault 3;

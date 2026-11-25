@@ -2,7 +2,7 @@
 
 { config, osConfig, pkgs, ... }:
 let
-    t = osConfig.nihil.tokens;
+    t = osConfig.btechos.tokens;
 
     rainbowDelimiters = pkgs.vimPlugins.rainbow-delimiters-nvim.overrideAttrs
     {
@@ -241,7 +241,7 @@ in
                 options = { theme = "auto", globalstatus = true },
             })
 
-            local function nihilHighlights()
+            local function btechosHighlights()
                 local foreground = "#${t.base16.base05}"
                 for _, group in ipairs({ "Identifier", "@variable", "@variable.member", "@variable.parameter", "@property", "@field", "@parameter", "@tag", "@tag.attribute" }) do
                     vim.api.nvim_set_hl(0, group, { fg = foreground })
@@ -252,8 +252,8 @@ in
 
             vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" },
             {
-                group = vim.api.nvim_create_augroup("NihilHighlights", { clear = true }),
-                callback = nihilHighlights,
+                group = vim.api.nvim_create_augroup("BTechOSHighlights", { clear = true }),
+                callback = btechosHighlights,
             })
         '';
     };

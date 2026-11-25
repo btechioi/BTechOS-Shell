@@ -4,7 +4,7 @@ name: ISO
 
 on:
   push:
-    branches: [ nihil ]
+    branches: [ btechos ]
     tags: [ "v*" ]
   workflow_dispatch:
 
@@ -41,8 +41,8 @@ jobs:
       - name: A machine evaluates
         run: nix eval --raw .#nixosConfigurations.example.config.system.build.toplevel.drvPath
 
-      - name: The nihil command builds
-        run: nix build .#nixosConfigurations.example.config.nihil.cli --no-link --print-build-logs
+      - name: The btechos command builds
+        run: nix build .#nixosConfigurations.example.config.btechos.cli --no-link --print-build-logs
 
       - name: Build the ISO
         run: |
@@ -58,7 +58,7 @@ jobs:
           # latest keeps one name, for a link that stays.
           if [ "$GITHUB_REF_TYPE" = tag ]; then version=$GITHUB_REF_NAME; else version=latest; fi
           mkdir out
-          cp result/iso/*.iso "out/nihil-$version-x86_64-linux.iso"
+          cp result/iso/*.iso "out/btechos-$version-x86_64-linux.iso"
           (cd out && sha256sum ./*.iso > SHA256SUMS)
           ls -lh out
 
@@ -86,7 +86,7 @@ jobs:
           name: iso
           path: out
 
-      # Who built it, from which commit, signed by GitHub: gh attestation verify FILE -R poligle/Nihil-Shell.
+      # Who built it, from which commit, signed by GitHub: gh attestation verify FILE -R poligle/BTechOS-Shell.
       - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: out/*
@@ -96,17 +96,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run: gh release create "$GITHUB_REF_NAME" out/* --title "NIHIL $GITHUB_REF_NAME" --generate-notes
+        run: gh release create "$GITHUB_REF_NAME" out/* --title "BTechOS $GITHUB_REF_NAME" --generate-notes
 
-      # Updated in place, from nihil alone: deleting and creating it again left hours without an ISO
+      # Updated in place, from btechos alone: deleting and creating it again left hours without an ISO
       # whenever a push cut the run in between, and any branch run by hand replaced it.
       - name: Latest from the branch
-        if: github.ref == 'refs/heads/nihil'
+        if: github.ref == 'refs/heads/btechos'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          notes="Built from ${GITHUB_SHA::7}. An installed machine updates itself with: nihil update"
+          notes="Built from ${GITHUB_SHA::7}. An installed machine updates itself with: btechos update"
           if gh release view latest > /dev/null 2>&1; then
             gh api -X PATCH "repos/$GH_REPO/git/refs/tags/latest" -f sha="$GITHUB_SHA" -F force=true > /dev/null
             gh release upload latest out/* --clobber
@@ -115,5 +115,5 @@ jobs:
             done
             gh release edit latest --notes "$notes"
           else
-            gh release create latest out/* --prerelease --target "$GITHUB_SHA" --title "NIHIL (latest)" --notes "$notes"
+            gh release create latest out/* --prerelease --target "$GITHUB_SHA" --title "BTechOS (latest)" --notes "$notes"
           fi

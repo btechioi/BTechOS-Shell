@@ -164,8 +164,8 @@ Flickable {
                     }
 
                     Label {
-                        visible: row.gen.nihil !== ""
-                        text: "NIHIL " + row.gen.nihil
+                        visible: row.gen.btechos !== ""
+                        text: "BTechOS " + row.gen.btechos
                     }
                 }
 

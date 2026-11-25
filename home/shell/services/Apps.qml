@@ -15,7 +15,7 @@ Singleton {
         .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
     property var hidden: []
     readonly property var all: root.every.filter(e => root.hidden.indexOf(e.id) < 0)
-    readonly property string keptFile: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/nihil/apps.json"
+    readonly property string keptFile: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/btechos/apps.json"
 
     function setHidden(id: string, hide: bool): void {
         const next = root.hidden.filter(other => other !== id);

@@ -31,7 +31,7 @@ let
     programs =
     [
         { name = "Terminal"; exec = "kitty"; keys = "SUPER + Super_L"; }
-        { name = config.nihil.strings.bindFiles; exec = "thunar"; keys = "SUPER + E"; }
+        { name = config.btechos.strings.bindFiles; exec = "thunar"; keys = "SUPER + E"; }
         { name = "Zen"; exec = "zen-beta"; keys = "SUPER + X"; }
     ];
 
@@ -49,10 +49,10 @@ let
     held = combo: let p = split combo; in p != [ ] && lib.elem (lib.toLower (lib.last p)) heldKeys;
     # An action's text in theme/i18n.nix: launcher's is bindLauncher.
     label = name: "bind" + lib.toUpper (lib.substring 0 1 name) + lib.substring 1 (lib.stringLength name) name;
-    unlabelled = lib.filter (name: !(config.nihil.strings ? ${label name})) (builtins.attrNames keys);
+    unlabelled = lib.filter (name: !(config.btechos.strings ? ${label name})) (builtins.attrNames keys);
 
     combos = lib.filter (combo: combo != null)
-        (builtins.attrValues config.nihil.binds ++ map (program: program.keys) config.nihil.programs);
+        (builtins.attrValues config.btechos.binds ++ map (program: program.keys) config.btechos.programs);
 
     gestures =
     {
@@ -64,7 +64,7 @@ let
     };
 in
 {
-    options.nihil =
+    options.btechos =
     {
         binds = lib.mkOption
         {
@@ -72,7 +72,7 @@ in
             default = { };
             apply = changed: keys // removeAttrs changed former;
             example = { launcher = "SUPER + R"; screenshot = null; };
-            description = "Keys for NIHIL's actions, over the defaults in modules/binds.nix; null for none.";
+            description = "Keys for BTechOS's actions, over the defaults in modules/binds.nix; null for none.";
         };
 
         bindDefaults = lib.mkOption
@@ -80,7 +80,7 @@ in
             type = lib.types.attrs;
             default = { inherit keys gestures programs; };
             readOnly = true;
-            description = "NIHIL's own keys and fingers, before a machine changes them (Preferences shows both).";
+            description = "BTechOS's own keys and fingers, before a machine changes them (Preferences shows both).";
         };
 
         programs = lib.mkOption
@@ -108,32 +108,32 @@ in
         };
     };
 
-    config.warnings = map (combo: "nihil.binds: ${combo} ends in a modifier, which fires as it goes down, before any combination with it: give it another key.")
+    config.warnings = map (combo: "btechos.binds: ${combo} ends in a modifier, which fires as it goes down, before any combination with it: give it another key.")
         (lib.filter held combos);
 
     config.assertions =
     [
         {
             assertion = lib.all valid combos;
-            message = "nihil.binds, nihil.programs: a key is its modifiers (SUPER, SHIFT, CTRL, ALT), then the key; ${lib.concatStringsSep ", " (lib.filter (combo: !(valid combo)) combos)} isn't.";
+            message = "btechos.binds, btechos.programs: a key is its modifiers (SUPER, SHIFT, CTRL, ALT), then the key; ${lib.concatStringsSep ", " (lib.filter (combo: !(valid combo)) combos)} isn't.";
         }
         {
-            assertion = lib.all (program: builtins.match "[^[:cntrl:]]*" program.exec != null) config.nihil.programs;
-            message = "nihil.programs: a command can't have line breaks or other control characters.";
+            assertion = lib.all (program: builtins.match "[^[:cntrl:]]*" program.exec != null) config.btechos.programs;
+            message = "btechos.programs: a command can't have line breaks or other control characters.";
         }
         {
             assertion = let used = lib.concatLists (lib.mapAttrsToList (name: fingers: map (way: "${toString fingers}:${way}") ways.${name})
-                (lib.filterAttrs (_: fingers: fingers != null) config.nihil.gestures)); in
+                (lib.filterAttrs (_: fingers: fingers != null) config.btechos.gestures)); in
                 lib.length used == lib.length (lib.unique used);
-            message = "nihil.gestures: two gestures with the same fingers and direction (special is up and down; launcher up, close down).";
+            message = "btechos.gestures: two gestures with the same fingers and direction (special is up and down; launcher up, close down).";
         }
         {
-            assertion = lib.all (name: keys ? ${name}) (builtins.attrNames config.nihil.binds);
-            message = "nihil.binds: unknown action; the actions are ${lib.concatStringsSep ", " (builtins.attrNames keys)}.";
+            assertion = lib.all (name: keys ? ${name}) (builtins.attrNames config.btechos.binds);
+            message = "btechos.binds: unknown action; the actions are ${lib.concatStringsSep ", " (builtins.attrNames keys)}.";
         }
         {
-            assertion = lib.all (name: gestures ? ${name}) (builtins.attrNames config.nihil.gestures);
-            message = "nihil.gestures: unknown gesture; the gestures are ${lib.concatStringsSep ", " (builtins.attrNames gestures)}.";
+            assertion = lib.all (name: gestures ? ${name}) (builtins.attrNames config.btechos.gestures);
+            message = "btechos.gestures: unknown gesture; the gestures are ${lib.concatStringsSep ", " (builtins.attrNames gestures)}.";
         }
         # Preferences shows each action by its text; one without would show its name.
         {

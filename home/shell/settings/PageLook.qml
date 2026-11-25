@@ -190,7 +190,7 @@ Flickable {
             }
         }
 
-        // A new one by its address, which nihil-calendar keeps where only the user reads it, and
+        // A new one by its address, which btechos-calendar keeps where only the user reads it, and
         // never in settings.json: whoever has the address reads the calendar.
         Setting {
             visible: Calendar.shown

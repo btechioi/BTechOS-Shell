@@ -5,5 +5,5 @@
     imports = [ inputs.noctalia-greeter.nixosModules.default ];
 
     services.displayManager.noctalia-greeter.enable = true;
-    services.displayManager.noctalia-greeter.passwordless-sync-users = [ config.nihil.user.name ];
+    services.displayManager.noctalia-greeter.passwordless-sync-users = [ config.btechos.user.name ];
 }

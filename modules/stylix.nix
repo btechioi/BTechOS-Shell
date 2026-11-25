@@ -2,16 +2,16 @@
 
 { config, lib, pkgs, ... }:
 let
-    nihil = config.nihil;
-    tokens = nihil.tokens;
+    btechos = config.btechos;
+    tokens = btechos.tokens;
 in
 {
     stylix = 
     {
         enable = true;
 
-        # Stylix themes GTK/Qt and other apps with the NIHIL palette.
-        image = "${nihil.wallpapers}/${nihil.wallpaper}/${nihil.primaryOutput}.png";
+        # Stylix themes GTK/Qt and other apps with the BTechOS palette.
+        image = "${btechos.wallpapers}/${btechos.wallpaper}/${btechos.primaryOutput}.png";
         base16Scheme = tokens.base16;
         polarity = lib.mkDefault "dark";
 
@@ -31,7 +31,7 @@ in
             };
             sansSerif = 
             {
-                package = lib.mkDefault nihil.fonts;
+                package = lib.mkDefault btechos.fonts;
                 name = lib.mkDefault tokens.fonts.sans;
             };
             emoji = 

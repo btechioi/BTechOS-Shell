@@ -47,7 +47,7 @@ except ImportError:
     jeepney = None
 
 API = 1
-PORT = 64445                    # NIHIL on a phone's keypad
+PORT = 64445                    # BTechOS on a phone's keypad
 BLE_PSM = 0x81                  # the LE channel, from the range left to programs (0x80 to 0xFF)
 BLE_RETRY = 30                  # seconds between tries to announce, while Bluetooth is off or gone
 CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -128,16 +128,16 @@ def home_dir(variable, fallback):
 
 
 def state_dir():
-    return os.path.join(home_dir("XDG_STATE_HOME", ".local/state"), "nihil", "deck")
+    return os.path.join(home_dir("XDG_STATE_HOME", ".local/state"), "btechos", "deck")
 
 
 def cache_dir():
-    return os.path.join(home_dir("XDG_CACHE_HOME", ".cache"), "nihil", "deck")
+    return os.path.join(home_dir("XDG_CACHE_HOME", ".cache"), "btechos", "deck")
 
 
 def control_path():
     runtime = os.environ.get("XDG_RUNTIME_DIR") or state_dir()
-    return os.path.join(runtime, "nihil-deck.sock")
+    return os.path.join(runtime, "btechos-deck.sock")
 
 
 def write_private(path, text):
@@ -169,7 +169,7 @@ def ensure_certificate(folder, openssl):
         old = os.umask(0o077)
         try:
             subprocess.run([openssl, "req", "-x509", "-newkey", "ec", "-pkeyopt", "ec_paramgen_curve:P-256",
-                            "-nodes", "-days", "3650", "-subj", "/CN=nihil-deck",
+                            "-nodes", "-days", "3650", "-subj", "/CN=btechos-deck",
                             "-keyout", new_key, "-out", new_cert],
                            check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, timeout=60)
         finally:
@@ -553,7 +553,7 @@ class Session:
         else:
             # A file of this user's rather than an argument: one can't pass 128 KiB, and anyone sees it in /proc.
             path = os.path.join(os.environ.get("XDG_RUNTIME_DIR") or state_dir(),
-                                f"nihil-deck-tasks-{secrets.token_hex(8)}.json")
+                                f"btechos-deck-tasks-{secrets.token_hex(8)}.json")
             try:
                 write_private(path, json.dumps(board))
                 text = self.ipc("tasks", "syncFile", path)
@@ -598,7 +598,7 @@ class Session:
 
     def notify(self, title, body):
         # A body is markup, as the notification spec has it: what it says is shown as written.
-        command = [self.config["notify"], "-a", "NIHIL", "--", title]
+        command = [self.config["notify"], "-a", "BTechOS", "--", title]
         if body:
             command.append(html.escape(body, quote=False))
         self.run(command)
@@ -754,8 +754,8 @@ ABS_X, ABS_Y = 0, 1
 ABS_MT_SLOT, ABS_MT_POSITION_X, ABS_MT_POSITION_Y, ABS_MT_TRACKING_ID = 47, 53, 54, 57
 INPUT_PROP_POINTER = 0
 BUS_VIRTUAL = 6
-TRACKPAD_NAME = "NIHIL deck trackpad"
-TRACKPAD_PROTOCOL = "nihil-trackpad"
+TRACKPAD_NAME = "BTechOS deck trackpad"
+TRACKPAD_PROTOCOL = "btechos-trackpad"
 TRACKPAD_SLOTS = 5
 TRACKPAD_IDLE = 4
 TRACKPAD_SETTLE = 0.25
@@ -1070,7 +1070,7 @@ def fetch(url, limit, whole=True):
         raise ValueError("not a public web page")
     # No proxy: the address checked has to be the one asked.
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), PublicHTTP(), PublicHTTPS(), PublicRedirects())
-    request = urllib.request.Request(url, headers={"User-Agent": "NIHIL deck (icons)", "Accept": "*/*"})
+    request = urllib.request.Request(url, headers={"User-Agent": "BTechOS deck (icons)", "Accept": "*/*"})
     with opener.open(request, timeout=FETCH_TIMEOUT) as response:
         data = response.read(limit + 1)
         if len(data) > limit:
@@ -1247,22 +1247,22 @@ def pair_uri(name, port, hosts, code, pin, ble=None):
     fields = {"v": API, "name": name, "hosts": ",".join(hosts), "port": port, "code": code, "pin": pin}
     if ble:
         fields.update(ble=ble["uuid"], psm=ble["psm"])
-    return "nihil-deck://pair?" + urllib.parse.urlencode(fields, safe=",")
+    return "btechos-deck://pair?" + urllib.parse.urlencode(fields, safe=",")
 
 
 def ble_uuid(pin):
     """The UUID this computer announces itself by over Bluetooth: from its pin, so a phone paired
     before Bluetooth came knows it without pairing again, and anyone else learns only that some
     computer is near. A version 8 UUID (RFC 9562): the first 16 bytes of SHA-256 over
-    "nihil-deck ble", a zero byte and the pin, with the version and variant bits set."""
-    raw = bytearray(hashlib.sha256(b"nihil-deck ble\0" + pin.encode()).digest()[:16])
+    "btechos-deck ble", a zero byte and the pin, with the version and variant bits set."""
+    raw = bytearray(hashlib.sha256(b"btechos-deck ble\0" + pin.encode()).digest()[:16])
     raw[6] = (raw[6] & 0x0F) | 0x80
     raw[8] = (raw[8] & 0x3F) | 0x80
     return str(uuid.UUID(bytes=bytes(raw)))
 
 
 def vector_dir():
-    return os.path.join(home_dir("XDG_CACHE_HOME", ".cache"), "nihil", "vector")
+    return os.path.join(home_dir("XDG_CACHE_HOME", ".cache"), "btechos", "vector")
 
 
 def kind_of(mime):
@@ -1541,7 +1541,7 @@ class Deck:
 class Handler(http.server.BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
     disable_nagle_algorithm = True
-    server_version = "nihil-deck/" + str(API)
+    server_version = "btechos-deck/" + str(API)
     sys_version = ""
 
     # A request has REQUEST_SECONDS to arrive, handshake, line, headers and body, however slowly it
@@ -1964,7 +1964,7 @@ class DeckServer(http.server.ThreadingHTTPServer):
             except OSError:
                 pass
         socketserver.TCPServer.server_bind(self)
-        self.server_name = "nihil-deck"
+        self.server_name = "btechos-deck"
         self.server_port = self.server_address[1]
 
     def get_request(self):
@@ -1975,7 +1975,7 @@ class DeckServer(http.server.ThreadingHTTPServer):
     def handle_error(self, request, client_address):
         error = sys.exc_info()[1]
         if not isinstance(error, (ssl.SSLError, ConnectionError, TimeoutError, socket.timeout)):
-            print(f"nihil-deck: {client_address[0]}: {error!r}", file=sys.stderr)
+            print(f"btechos-deck: {client_address[0]}: {error!r}", file=sys.stderr)
 
 
 # Without a network: Bluetooth LE. A phone that reaches none of the computer's addresses looks for
@@ -2052,7 +2052,7 @@ class Advert:
     it when it's dropped (Release); it's offered again when Bluetooth comes back, as BlueZ restarts
     or the adapter is powered on."""
 
-    PATH = "/org/nihil/deck/advert"
+    PATH = "/org/btechos/deck/advert"
     IFACE = "org.bluez.LEAdvertisement1"
     MANAGER = "org.bluez.LEAdvertisingManager1"
 
@@ -2066,7 +2066,7 @@ class Advert:
     def log(self, text):
         if text != self.said:
             self.said = text
-            print(f"nihil-deck: {text}", file=sys.stderr)
+            print(f"btechos-deck: {text}", file=sys.stderr)
 
     def properties(self):
         return {"Type": ("s", "peripheral"), "ServiceUUIDs": ("as", [self.uuid]), "Discoverable": ("b", True)}
@@ -2162,12 +2162,12 @@ def start_bluetooth(server, psm):
     try:
         listener = ble_listener(psm)
     except (OSError, AttributeError) as error:
-        print(f"nihil-deck: not over Bluetooth: {error}", file=sys.stderr)
+        print(f"btechos-deck: not over Bluetooth: {error}", file=sys.stderr)
         return None
     deck.ble = {"uuid": ble_uuid(deck.pin), "psm": psm}
     threading.Thread(target=ble_serve, args=(server, listener), daemon=True).start()
     if jeepney is None:
-        print("nihil-deck: listening over Bluetooth but not announced: jeepney is missing", file=sys.stderr)
+        print("btechos-deck: listening over Bluetooth but not announced: jeepney is missing", file=sys.stderr)
     else:
         threading.Thread(target=Advert(deck.ble["uuid"]).run, daemon=True).start()
     return listener
@@ -2232,7 +2232,7 @@ def serve(config):
 
     signal.signal(signal.SIGTERM, stop)
     signal.signal(signal.SIGINT, stop)
-    print(f"nihil-deck: on port {deck.port}, devices paired: {len(deck.devices.listing())}", file=sys.stderr)
+    print(f"btechos-deck: on port {deck.port}, devices paired: {len(deck.devices.listing())}", file=sys.stderr)
     try:
         server.serve_forever()
     finally:
@@ -2432,7 +2432,7 @@ def vector_command(config, action, argument):
 
 
 def main():
-    parser = argparse.ArgumentParser(prog="nihil-deck", description="Your devices as a deck for this computer (docs/deck.md).")
+    parser = argparse.ArgumentParser(prog="btechos-deck", description="Your devices as a deck for this computer (docs/deck.md).")
     parser.add_argument("--config", help="configuration written by home/deck/default.nix")
     parser.add_argument("command", nargs="?", default="devices",
                         choices=["serve", "pair", "cancel", "devices", "forget", "allow", "deny", "vector"])
@@ -2447,7 +2447,7 @@ def main():
     if options.config:
         with open(options.config) as file:
             config = json.load(file)
-    for key, command in (("ipc", "nihil-ipc"), ("volume", "osd-volume"),
+    for key, command in (("ipc", "btechos-ipc"), ("volume", "osd-volume"),
                          ("notify", "notify-send"), ("openssl", "openssl"), ("qrencode", "qrencode"),
                          ("rsvg", "rsvg-convert"), ("ip", "ip"), ("wpctl", "wpctl"),
                          ("wlCopy", "wl-copy"), ("wlPaste", "wl-paste"), ("open", "xdg-open")):
@@ -2473,12 +2473,12 @@ def main():
                "forget": {"op": "forget", "id": options.target or ""}, "allow": {"op": "allow", "id": options.target or ""},
                "deny": {"op": "deny", "id": options.target or ""}}[options.command]
     if options.command == "forget" and not options.target:
-        print("Usage: nihil-deck forget ID|all", file=sys.stderr)
+        print("Usage: btechos-deck forget ID|all", file=sys.stderr)
         return 2
     try:
         reply = ask(request)
     except (OSError, ValueError):
-        print("The deck is not running (systemctl --user status nihil-deck).", file=sys.stderr)
+        print("The deck is not running (systemctl --user status btechos-deck).", file=sys.stderr)
         return 1
 
     if options.command == "pair":

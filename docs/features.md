@@ -15,7 +15,7 @@
   Outlook, Settings, Calendar, Shared calendars, “Publish a calendar”, its ICS link; in
   iCloud, a public calendar's link; in Nextcloud, “Copy subscription link”. No account and
   no app to register: whoever has the address reads the calendar, so it's kept in
-  `~/.config/nihil/calendars.json`, readable by you alone, and never in `settings.json`,
+  `~/.config/btechos/calendars.json`, readable by you alone, and never in `settings.json`,
   which ends in the Nix store. While the calendar widget is on, they're read every quarter of
   an hour, a month back to two ahead, repeats and time zones included (`home/calendar`); an
   event in two of them, as an invitation is in the organiser's calendar and in yours, shows once.
@@ -30,20 +30,20 @@
   the widgets and the password change at once; the rest waits until applied, and applying
   rebuilds the system in the background.
 - **Generations, from Preferences.** Every rebuild is a whole system NixOS keeps. Each one
-  says when it was made, its NixOS, kernel and NIHIL, and which packages it changed;
+  says when it was made, its NixOS, kernel and BTechOS, and which packages it changed;
   one click goes back to it, now and at boot, or boots it just once. How long they stay,
   and cleaning now, with what it frees.
-- **Devices.** With [NIHIL for Android](https://github.com/poligle/Nihil-Launcher), a phone or a tablet paired with a QR
+- **Devices.** With [BTechOS for Android](https://github.com/poligle/BTechOS-Launcher), a phone or a tablet paired with a QR
   from Preferences opens the computer's apps and web pages, plays and skips
   its music, turns its volume, locks it and is its trackpad, with this desktop's gestures;
   the dashboard's kanban stays in sync with it, and Vector carries things either way.
   Over HTTPS pinned to this computer. See
   [Devices](devices.md).
-- **An installer.** An ISO that installs NIHIL on a whole disk, or next to Windows or
+- **An installer.** An ISO that installs BTechOS on a whole disk, or next to Windows or
   another Linux in room it makes by shrinking it safely. See [Install](install.md).
 - **Launcher.** Monochrome app grid that regains colour on the selection, `>` for
   actions, `=` for a calculator, `?` for Nilo. Preferences, Apps hides those you don't want
-  there, from the phone's deck too; they're kept in `~/.local/state/nihil/apps.json`, with no
+  there, from the phone's deck too; they're kept in `~/.local/state/btechos/apps.json`, with no
   rebuild.
 - **Copy, paste and the clipboard history.** One modifier for both, as on a Mac: `SUPER + C`
   copies and `SUPER + V` pastes, in kitty too. Held a moment longer, `SUPER + V`
@@ -67,12 +67,12 @@
   that takes a while stays on it: a rebuild (Preferences, updating, a generation) keeps
   the two lights as far up as it has got and rises when it is done; a download in Zen,
   Firefox or Chromium sends a faint stretch round until it ends. Anything else can use
-  it too: `nihil-ipc glyph progress <id> <0..1>`, then `done <id>`.
+  it too: `btechos-ipc glyph progress <id> <0..1>`, then `done <id>`.
 - **Wallpapers as LED matrices.** Every picture in `wallpapers/`, and in a machine's
   `/etc/nixos/wallpapers` (PNG, JPEG, GIF or WebP, with any name; one named as one of
-  NIHIL's takes its place), is rendered at build time as dots, once per output at its native size, so each dot lands on exact pixels. A
+  BTechOS's takes its place), is rendered at build time as dots, once per output at its native size, so each dot lands on exact pixels. A
   GIF moves on the desktop. Each picture on each screen is drawn once and kept: a rebuild
-  only draws the new ones. The [studio](https://nihilshell.com/studio/) does the same in
+  only draws the new ones. The [studio](https://btechosshell.com/studio/) does the same in
   the browser with any picture, moving ones too (`docs/studio/`, the same numbers as
   `theme/dotmatrix.py`).
 - **Desktop widgets.** The clock and what plays; and, if you want them, the month with a dot
@@ -105,8 +105,8 @@
   Vector, in the same black and greys, and stay out of the launcher. A picture opens with
   the rest of its folder an arrow away; mpv plays music files too.
 - **fastfetch in dots.** The same snowflake, drawn with `●` and `·`, monochrome keys in
-  NIHIL's own greys and the palette as a row of LEDs.
+  BTechOS's own greys and the palette as a row of LEDs.
 - **Spanish or English.** One option switches every string of the shell, the lock screen,
   the greeter and the scripts, and the language of their dates.
-- **Its own sound.** A set of short digital blips, synthesised for NIHIL; the previous
+- **Its own sound.** A set of short digital blips, synthesised for BTechOS; the previous
   sounds are one option away.

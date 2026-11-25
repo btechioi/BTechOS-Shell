@@ -12,7 +12,7 @@ Scope {
     component Zone: PanelWindow {
         color: "transparent"
         exclusionMode: ExclusionMode.Normal
-        WlrLayershell.namespace: "nihil-exclusion"
+        WlrLayershell.namespace: "btechos-exclusion"
         WlrLayershell.layer: WlrLayer.Bottom
         mask: Region {}
         implicitWidth: 1

@@ -1,32 +1,32 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/brand/nihil-logo-dark.svg">
-    <img alt="NIHIL" src="assets/brand/nihil-logo-light.svg" width="420">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/brand/btechos-logo-dark.svg">
+    <img alt="BTechOS" src="assets/brand/btechos-logo-light.svg" width="420">
   </picture>
 </p>
 
-<p align="center"><i>ex nihilo</i></p>
+<p align="center"><i>ex btechoso</i></p>
 
 <p align="center">A monochrome, dot-matrix desktop for NixOS</p>
 
 <p align="center">
-  <a href="https://nihilshell.com/">Website</a> &nbsp;&nbsp;&nbsp;
+  <a href="https://btechosshell.com/">Website</a> &nbsp;&nbsp;&nbsp;
   <a href="docs/install.md">Install</a> &nbsp;&nbsp;&nbsp;
-  <a href="https://github.com/poligle/Nihil-Launcher">NIHIL for Android</a> &nbsp;&nbsp;&nbsp;
-  <a href="https://github.com/poligle/Nihil-Wear">NIHIL for Wear OS</a>
+  <a href="https://github.com/poligle/BTechOS-Launcher">BTechOS for Android</a> &nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/poligle/BTechOS-Wear">BTechOS for Wear OS</a>
 </p>
 
-![NIHIL desktop](docs/assets/screens/desktop.png)
+![BTechOS desktop](docs/assets/screens/desktop.png)
 
-NIHIL is a personal NixOS configuration. It takes the structure of
+BTechOS is a personal NixOS configuration. It takes the structure of
 [Caelestia](https://github.com/caelestia-dots/shell), a frame around the screen with
 drawers that grow out of it, and dresses it in the language of Nothing: monochrome,
 dot-matrix type, red only to interrupt, and light that runs along the edge. All of it is
-declared in Nix, and one file, [`theme/nihil.nix`](theme/nihil.nix), holds the tokens that
+declared in Nix, and one file, [`theme/btechos.nix`](theme/btechos.nix), holds the tokens that
 GTK, the terminal, the compositor, the lock screen and the shell are made from.
 
-> *Nihil* is Latin for "nothing", the way *caelestia* is Latin for "the heavenly". And
-> *ex nihilo*, from nothing, is also what NixOS does: the whole system, rebuilt from a
+> *BTechOS* is Latin for "nothing", the way *caelestia* is Latin for "the heavenly". And
+> *ex btechoso*, from nothing, is also what NixOS does: the whole system, rebuilt from a
 > declaration.
 
 | | |
@@ -57,8 +57,8 @@ GTK, the terminal, the compositor, the lock screen and the shell are made from.
   what plays and GitHub contributions, each where you put it and as big as you make it.
 - **Nilo,** an assistant with a model that runs here, and as much of the system as you
   give it: a chat, a repository, or the whole desktop.
-- **Devices as decks,** a phone, a tablet and the watch, with [NIHIL for Android](https://github.com/poligle/Nihil-Launcher)
-  and [NIHIL for Wear OS](https://github.com/poligle/Nihil-Wear), over the network or, with
+- **Devices as decks,** a phone, a tablet and the watch, with [BTechOS for Android](https://github.com/poligle/BTechOS-Launcher)
+  and [BTechOS for Wear OS](https://github.com/poligle/BTechOS-Wear), over the network or, with
   none in common, Bluetooth, and Vector to carry things between them and this computer.
 - **Preferences,** the whole system on one sheet, applied as a rebuild, with every
   generation a click away.
@@ -74,20 +74,20 @@ GTK, the terminal, the compositor, the lock screen and the shell are made from.
 - [Nilo](docs/nilo.md)
 - [Devices](docs/devices.md), and [the deck's protocol](docs/deck.md)
 - [Design](docs/design.md)
-- [Inside NIHIL](docs/inside.md)
+- [Inside BTechOS](docs/inside.md)
 
 ## Credits
 
 - [Caelestia](https://github.com/caelestia-dots/shell) for the frame-and-drawers idea.
-- [Nothing](https://nothing.tech) for the design language that inspired the look. NIHIL
+- [Nothing](https://nothing.tech) for the design language that inspired the look. BTechOS
   is a personal project and is not affiliated with Nothing Technology.
 - [Quickshell](https://quickshell.org), [Hyprland](https://hyprland.org),
   [Stylix](https://github.com/nix-community/stylix) and
   [Home Manager](https://github.com/nix-community/home-manager).
 - The NixOS logo, by Simon Frankau, Tim Cuthbertson and Daniel Baker for the NixOS Project
   ([NixOS/branding](https://github.com/NixOS/branding)), is licensed under
-  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); NIHIL's mark redraws it as dots.
-  NIHIL is not affiliated with or endorsed by the NixOS project.
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); BTechOS's mark redraws it as dots.
+  BTechOS is not affiliated with or endorsed by the NixOS project.
 - The Android robot is reproduced or modified from work created and shared by Google and used
   according to terms described in the Creative Commons 3.0 Attribution License.
   Android is a trademark of Google LLC.
@@ -98,7 +98,7 @@ GTK, the terminal, the compositor, the lock screen and the shell are made from.
 - Weather data by [Open-Meteo](https://open-meteo.com), licensed under
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), for the weather widget.
 
-The code and NIHIL's own sounds are MIT licensed (see `LICENSE`); the logos keep the licences
+The code and BTechOS's own sounds are MIT licensed (see `LICENSE`); the logos keep the licences
 above, and [`sounds/CREDITS.md`](sounds/CREDITS.md) says where each sound comes from.
 
 ## Notes

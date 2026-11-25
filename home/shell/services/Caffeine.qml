@@ -12,7 +12,7 @@ Singleton {
     property date since: new Date()
     // Through a restart of the shell (applying settings restarts it), the screen stays on until
     // it's turned off here; the next session starts without it.
-    readonly property string file: Machine.runtimeDir !== "" ? Machine.runtimeDir + "/nihil-caffeine" : ""
+    readonly property string file: Machine.runtimeDir !== "" ? Machine.runtimeDir + "/btechos-caffeine" : ""
 
     function toggle(): void { set(!on); }
 

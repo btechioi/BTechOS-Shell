@@ -1,28 +1,28 @@
-# nihil-cli.nix by poligle
+# btechos-cli.nix by poligle
 
 { config, lib, options, pkgs, ... }:
 let
-    flake = config.nihil.flake;
+    flake = config.btechos.flake;
     xkb = config.services.xserver.xkb;
 
     loader = config.boot.loader.systemd-boot;
     menu = if !loader.enable then 0 else if loader.configurationLimit == null then 100000 else loader.configurationLimit;
 
     # The values settings.json may give these, as their options declare them.
-    languages = options.nihil.language.type.functor.payload.values or [ "es" "en" ];
-    accelerations = options.nihil.nilo.acceleration.type.functor.payload.values or [ "cpu" "vulkan" "rocm" "cuda" ];
+    languages = options.btechos.language.type.functor.payload.values or [ "es" "en" ];
+    accelerations = options.btechos.nilo.acceleration.type.functor.payload.values or [ "cpu" "vulkan" "rocm" "cuda" ];
 
     # What apply and settings take: the account stays the one settings.json names (another
     # name would leave it out of the system, password and all), host.name is there, and each
-    # key NIHIL reads has its type. It prints why not, or nothing.
-    check = pkgs.writeText "nihil-settings.jq" ''
+    # key BTechOS reads has its type. It prints why not, or nothing.
+    check = pkgs.writeText "btechos-settings.jq" ''
         def text: type == "string";
         def flag: type == "boolean";
         def whole($low; $high): type == "number" and . == floor and . >= $low and . <= $high;
         def either(f): . == null or f;
         if type != "object" then "it's not an object"
         elif (.user | either(type == "object")) | not then "user is not an object"
-        elif (.user.name // "nihil") != $user then "user.name stays \($user), or that account would be left out of the system"
+        elif (.user.name // "btechos") != $user then "user.name stays \($user), or that account would be left out of the system"
         elif (.user.fullName | either(text)) | not then "user.fullName is not text"
         elif (.host | type == "object" and (.name | text and test("^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$"))) | not
             then "host.name takes lowercase letters, digits and hyphens, with no hyphen at either end"
@@ -51,20 +51,20 @@ let
         else empty end
     '';
 
-    nihil = pkgs.writeShellApplication
+    btechos = pkgs.writeShellApplication
     {
-        name = "nihil";
+        name = "nh";
         runtimeInputs = [ pkgs.jq pkgs.coreutils pkgs.diffutils pkgs.gawk pkgs.gnused pkgs.gnutar pkgs.curl pkgs.shadow
             pkgs.util-linux pkgs.openssh pkgs.xkbvalidate config.systemd.package config.nix.package ];
         text = ''
-            flake=''${NIHIL_FLAKE:-${flake}}
-            run=/run/nihil
+            flake=''${BTechOS_FLAKE:-${flake}}
+            run=/run/btechos
             aside=$run/aside
-            dev=/var/lib/nihil/dev
-            tree=/var/lib/nihil/dev-tree
-            profile=''${NIHIL_PROFILE:-/nix/var/nix/profiles/system}
+            dev=/var/lib/btechos/dev
+            tree=/var/lib/btechos/dev-tree
+            profile=''${BTechOS_PROFILE:-/nix/var/nix/profiles/system}
             menu=${toString menu}
-            oneshot=''${NIHIL_ONESHOT:-/sys/firmware/efi/efivars/LoaderEntryOneShot-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f}
+            oneshot=''${BTechOS_ONESHOT:-/sys/firmware/efi/efivars/LoaderEntryOneShot-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f}
             unit=""
             before=""
             kept=""
@@ -74,15 +74,15 @@ let
             become_root() {
                 local keep_flake=()
                 if [ "$(id -u)" != 0 ]; then
-                    if [ -n "''${NIHIL_FLAKE:-}" ]; then
-                        keep_flake=(--preserve-env=NIHIL_FLAKE)
+                    if [ -n "''${BTechOS_FLAKE:-}" ]; then
+                        keep_flake=(--preserve-env=BTechOS_FLAKE)
                     fi
                     exec sudo "''${keep_flake[@]}" "$(readlink -f "$0")" "$@"
                 fi
             }
 
             # One change to the system at a time, whoever makes it: a terminal, Preferences (in
-            # nihil-apply.service) or Nilo. Taken before anything is touched. The commands a change
+            # btechos-apply.service) or Nilo. Taken before anything is touched. The commands a change
             # runs don't get its descriptor (9>&-): one left running would keep the lock.
             lock() {
                 local mask
@@ -93,13 +93,13 @@ let
                 umask 077
                 exec 9>> "$run/lock"
                 umask "$mask"
-                if ! flock -n 9 || systemctl is-active --quiet nihil-apply.service; then
+                if ! flock -n 9 || systemctl is-active --quiet btechos-apply.service; then
                     echo "Something is being applied already." >&2
                     exit 3
                 fi
             }
 
-            # In nihil-apply.service, the same lock: what started the unit held it until then.
+            # In btechos-apply.service, the same lock: what started the unit held it until then.
             hold() {
                 exec 9>> "$run/lock"
                 flock 9
@@ -165,7 +165,7 @@ let
             }
             trap ended EXIT
 
-            # Starts a change in nihil-apply.service, where Preferences follows it ($run/apply.*).
+            # Starts a change in btechos-apply.service, where Preferences follows it ($run/apply.*).
             in_unit() {
                 local kind=$1
                 shift
@@ -173,9 +173,9 @@ let
                 echo "$kind" > "$run/apply.kind"
                 : > "$run/apply.log"
                 chmod 0644 "$run/apply.status" "$run/apply.kind" "$run/apply.log"
-                if ! systemd-run --unit nihil-apply --collect --quiet -E HOME=/root -- "$(readlink -f "$0")" "$@" 9>&-; then
+                if ! systemd-run --unit btechos-apply --collect --quiet -E HOME=/root -- "$(readlink -f "$0")" "$@" 9>&-; then
                     echo failed > "$run/apply.status"
-                    echo "nihil-apply.service didn't start." >&2
+                    echo "btechos-apply.service didn't start." >&2
                     exit 4
                 fi
             }
@@ -185,7 +185,7 @@ let
             follow() {
                 local pid
                 exec 9>&-
-                pid=$(systemctl show -p MainPID --value nihil-apply.service 2> /dev/null || true)
+                pid=$(systemctl show -p MainPID --value btechos-apply.service 2> /dev/null || true)
                 if [ -n "$pid" ] && [ "$pid" != 0 ]; then
                     tail -n +1 -f --pid="$pid" "$run/apply.log" || true
                 fi
@@ -216,11 +216,11 @@ let
                 fi
             }
 
-            # Who turned nihil dev on: the checkout is read as them, never as root.
+            # Who turned btechos dev on: the checkout is read as them, never as root.
             dev_owner() {
                 local who
                 who=$(sed -n 2p "$dev" 2> /dev/null || true)
-                echo "''${who:-${config.nihil.user.name}}"
+                echo "''${who:-${config.btechos.user.name}}"
             }
 
             # A copy of the checkout, read as its owner and written as root's: a link in it can't
@@ -241,20 +241,20 @@ let
                 host=$(jq -r '.host.name // empty' "$flake/settings.json")
                 from=$(checkout)
                 if [ -n "$from" ]; then
-                    echo "NIHIL from $from (nihil dev off goes back to the one pinned)."
+                    echo "BTechOS from $from (btechos dev off goes back to the one pinned)."
                     if ! snapshot "$from"; then
                         echo "Could not copy $from to $tree: nothing built." >&2
                         return 1
                     fi
-                    override=(--override-input nihil "path:$tree" --no-write-lock-file)
+                    override=(--override-input btechos "path:$tree" --no-write-lock-file)
                 fi
                 nixos-rebuild switch --flake "$flake#''${host:-$(hostname)}" "''${override[@]}" "$@" 9>&-
             }
 
             # FILE as whoever asked through sudo: root doesn't follow their links to its own files.
             usage() {
-                echo "Usage: nihil rebuild | update [--unit] | check [--json] | settings | version | dev [path|off] | apply FILE | welcome | watch"
-                echo "       nihil generations [--json] | changes N | boot N | switch N [--unit] | clean DAYS [--unit]"
+                echo "Usage: nh rebuild | update [--unit] | check [--json] | settings | version | dev [path|off] | apply FILE | welcome | watch"
+                echo "       nh generations [--json] | changes N | boot N | switch N [--unit] | clean DAYS [--unit]"
                 echo "The machine's flake: $flake"
             }
 
@@ -270,7 +270,7 @@ let
             valid() {
                 local current problem key n=0
                 local -a keys
-                current=$(jq -r '.user.name // "nihil"' "$flake/settings.json" 2> /dev/null || echo ${lib.escapeShellArg config.nihil.user.name})
+                current=$(jq -r '.user.name // "btechos"' "$flake/settings.json" 2> /dev/null || echo ${lib.escapeShellArg config.btechos.user.name})
                 if ! jq empty "$1" 2> /dev/null; then
                     echo "Those settings are not valid: it's not JSON." >&2
                     return 1
@@ -304,25 +304,25 @@ let
                 done
             }
 
-            # The latest NIHIL, leaving nihil dev for it. If it fails and the system stays as it
-            # was, flake.lock and nihil dev go back: the next apply builds what runs, not this.
-            update_nihil() {
+            # The latest BTechOS, leaving btechos dev for it. If it fails and the system stays as it
+            # was, flake.lock and btechos dev go back: the next apply builds what runs, not this.
+            update_btechos() {
                 local old new
                 keep "$flake/flake.lock" flake.lock
                 keep "$dev" dev
                 if [ -f "$dev" ]; then
-                    echo "Leaving nihil dev ($(head -n 1 "$dev")) for the NIHIL on GitHub."
+                    echo "Leaving btechos dev ($(head -n 1 "$dev")) for the BTechOS on GitHub."
                     rm -f "$dev"
                 fi
-                old=$(jq -r '.nodes.nihil.locked.rev // "?"' "$flake/flake.lock" 2> /dev/null || echo "?")
+                old=$(jq -r '.nodes.btechos.locked.rev // "?"' "$flake/flake.lock" 2> /dev/null || echo "?")
                 if ! nix flake update --refresh --flake "$flake" 9>&-; then
                     return 1
                 fi
-                new=$(jq -r '.nodes.nihil.locked.rev // "?"' "$flake/flake.lock" 2> /dev/null || echo "?")
+                new=$(jq -r '.nodes.btechos.locked.rev // "?"' "$flake/flake.lock" 2> /dev/null || echo "?")
                 if [ "$old" = "$new" ]; then
-                    echo "NIHIL is up to date (''${new:0:7})."
+                    echo "BTechOS is up to date (''${new:0:7})."
                 else
-                    echo "NIHIL ''${old:0:7} -> ''${new:0:7}"
+                    echo "BTechOS ''${old:0:7} -> ''${new:0:7}"
                 fi
                 if ! rebuild "$@"; then
                     return 1
@@ -332,7 +332,7 @@ let
 
             check() {
                 local node rev owner repo ref api compare from
-                node=$(jq -c '.nodes.nihil // {}' "$flake/flake.lock" 2> /dev/null || echo '{}')
+                node=$(jq -c '.nodes.btechos // {}' "$flake/flake.lock" 2> /dev/null || echo '{}')
                 rev=$(jq -r 'if .locked.type == "github" then .locked.rev // "" else "" end' <<< "$node")
                 owner=$(jq -r '.locked.owner // ""' <<< "$node")
                 repo=$(jq -r '.locked.repo // ""' <<< "$node")
@@ -407,7 +407,7 @@ let
                             break
                         fi
                     done
-                    revision=$(cat "$path/etc/nihil/revision" 2> /dev/null || true)
+                    revision=$(cat "$path/etc/btechos/revision" 2> /dev/null || true)
                     printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$n" "$date" "$version" "$kernel" "$revision" "$path"
                 done | jq -R -s --arg current "$current" --arg default "$default" --arg next "$next" \
                     --argjson menu "$menu" --argjson free "''${free:-0}" --argjson size "''${size:-0}" '
@@ -416,7 +416,7 @@ let
                         date: (.[1] | tonumber),
                         nixos: .[2],
                         kernel: .[3],
-                        nihil: (.[4] | split(" ")[0] // ""),
+                        btechos: (.[4] | split(" ")[0] // ""),
                         current: (.[5] == $current),
                         default: (.[0] == $default),
                         next: (.[0] == $next),
@@ -476,7 +476,7 @@ let
                 "$profile/bin/switch-to-configuration" boot 9>&- || status=$?
                 sync -f /nix/store || true
                 free_after=$(df -B1 --output=avail /nix/store | tail -n 1 | tr -d ' ')
-                echo "nihil: freed $(( free_after > free_before ? free_after - free_before : 0 ))"
+                echo "btechos: freed $(( free_after > free_before ? free_after - free_before : 0 ))"
                 return "$status"
             }
 
@@ -497,16 +497,16 @@ let
                     fi
                     case $(jq -r .state <<< "$result") in
                         behind)
-                            jq -r '"GitHub has \(.behind) commit\(if .behind == 1 then "" else "s" end) past the NIHIL pinned (\(.pinned)):",
+                            jq -r '"GitHub has \(.behind) commit\(if .behind == 1 then "" else "s" end) past the BTechOS pinned (\(.pinned)):",
                                 (.commits[] | "  \(.sha)  \(.subject)"),
-                                "nihil update brings \(if .behind == 1 then "it" else "them" end)."' <<< "$result"
+                                "btechos update brings \(if .behind == 1 then "it" else "them" end)."' <<< "$result"
                             ;;
-                        current) echo "NIHIL is up to date ($(jq -r .pinned <<< "$result"))." ;;
+                        current) echo "BTechOS is up to date ($(jq -r .pinned <<< "$result"))." ;;
                         offline) echo "GitHub can't be reached: no way to know." ;;
-                        *) echo "This NIHIL doesn't come from GitHub: nothing to compare." ;;
+                        *) echo "This BTechOS doesn't come from GitHub: nothing to compare." ;;
                     esac
                     if [ -n "$(checkout)" ]; then
-                        echo "The system runs $(checkout) (nihil dev) meanwhile."
+                        echo "The system runs $(checkout) (btechos dev) meanwhile."
                     fi
                     ;;
                 update)
@@ -516,12 +516,12 @@ let
                         trap 'exit 4' ERR
                         lock
                         in_unit update update-run
-                        echo "Updating in nihil-apply.service: $run/apply.log tells how it goes."
+                        echo "Updating in btechos-apply.service: $run/apply.log tells how it goes."
                         exit 0
                     fi
                     lock
                     begin
-                    update_nihil "$@"
+                    update_btechos "$@"
                     ;;
                 settings)
                     shift
@@ -580,7 +580,7 @@ let
                         begin
                         keep "$dev" dev
                         rm -rf "$dev" "$tree" "$tree.new"
-                        echo "NIHIL as pinned in $flake/flake.lock again."
+                        echo "BTechOS as pinned in $flake/flake.lock again."
                         rebuild "$@"
                         exit 0
                     fi
@@ -589,7 +589,7 @@ let
                         shift
                     fi
                     if [ ! -f "$from/flake.nix" ]; then
-                        echo "There is no NIHIL checkout in $from." >&2
+                        echo "There is no BTechOS checkout in $from." >&2
                         exit 1
                     fi
                     lock
@@ -616,7 +616,7 @@ let
                                     (.date | strflocaltime("%Y-%m-%d %H:%M")),
                                     (if .nixos != "" then "NixOS \(.nixos)" else empty end),
                                     (if .kernel != "" then "Linux \(.kernel)" else empty end),
-                                    (if .nihil != "" then "NIHIL \(.nihil)" else empty end),
+                                    (if .btechos != "" then "BTechOS \(.btechos)" else empty end),
                                     ([ (if .current then "running" else empty end), (if .default then "boots" else empty end),
                                         (if .next then "the next boot" else empty end) ] | join(", "))
                                 ] | map(select(. != "")) | join("  ")'
@@ -651,7 +651,7 @@ let
                                 switch:--unit)
                                     lock
                                     in_unit generation generations switch-run "$n"
-                                    echo "In nihil-apply.service: $run/apply.log tells how it goes."
+                                    echo "In btechos-apply.service: $run/apply.log tells how it goes."
                                     ;;
                                 switch:*)
                                     lock
@@ -661,7 +661,7 @@ let
                                 clean:--unit)
                                     lock
                                     in_unit clean generations clean-run "$n"
-                                    echo "In nihil-apply.service: $run/apply.log tells how it goes."
+                                    echo "In btechos-apply.service: $run/apply.log tells how it goes."
                                     ;;
                                 clean:*)
                                     lock
@@ -675,14 +675,14 @@ let
                             status=0
                             if [ "$what" = switch-run ]; then
                                 switch_to "$n" || status=$?
-                                echo "nihil: generation $(number_of "$(readlink "$profile")")"
+                                echo "btechos: generation $(number_of "$(readlink "$profile")")"
                             else
                                 clean "$n" || status=$?
                             fi
                             exit "$status"
                             ;;
                         *)
-                            echo "Usage: nihil generations [--json] | changes N | boot N | switch N [--unit] | clean DAYS [--unit]" >&2
+                            echo "Usage: nh generations [--json] | changes N | boot N | switch N [--unit] | clean DAYS [--unit]" >&2
                             exit 2
                             ;;
                     esac
@@ -705,7 +705,7 @@ let
                     fi
                     install -m 0644 "$staged" "$run/settings.json"
                     in_unit settings apply-run
-                    echo "Applying in nihil-apply.service: $run/apply.log tells how it goes."
+                    echo "Applying in btechos-apply.service: $run/apply.log tells how it goes."
                     ;;
                 apply-run)
                     unit_start
@@ -715,7 +715,7 @@ let
                     ;;
                 update-run)
                     unit_start
-                    update_nihil
+                    update_btechos
                     ;;
                 passwd)
                     # Preferences' own: the password of the user who ran sudo, and of nobody else. The
@@ -725,10 +725,10 @@ let
                         exec sudo "$(readlink -f "$0")" passwd
                     fi
                     if [ -z "''${SUDO_USER:-}" ] || [ "$SUDO_USER" = root ]; then
-                        echo "nihil passwd: only for the user who runs it, through sudo" >&2
+                        echo "btechos passwd: only for the user who runs it, through sudo" >&2
                         exit 3
                     fi
-                    file="/run/user/$(id -u -- "$SUDO_USER")/nihil-new-password"
+                    file="/run/user/$(id -u -- "$SUDO_USER")/btechos-new-password"
                     password=$(read_as_caller "$file") || exit 4
                     runuser -u "$SUDO_USER" -- rm -f -- "$file"
                     case "$password" in
@@ -737,25 +737,25 @@ let
                     printf '%s:%s\n' "$SUDO_USER" "$password" | chpasswd || exit 4
                     ;;
                 welcome)
-                    exec nihil-ipc settings welcome
+                    exec btechos-ipc settings welcome
                     ;;
                 watch)
                     shift
-                    if ! command -v nihil-watch > /dev/null; then
+                    if ! command -v btechos-watch > /dev/null; then
                         # The way there as Preferences names it, in the system's language.
-                        echo ${lib.escapeShellArg "The deck is off: ${config.nihil.strings.cfgTitle}, ${config.nihil.strings.cfgDevices}, ${config.nihil.strings.deckUse} (nihil.deck.enable)."} >&2
+                        echo ${lib.escapeShellArg "The deck is off: ${config.btechos.strings.cfgTitle}, ${config.btechos.strings.cfgDevices}, ${config.btechos.strings.deckUse} (btechos.deck.enable)."} >&2
                         exit 1
                     fi
-                    exec nihil-watch "$@"
+                    exec btechos-watch "$@"
                     ;;
                 version)
-                    running=$(cat /etc/nihil/revision 2>/dev/null || echo "?")
-                    pinned=$(jq -r '.nodes.nihil.locked | "\(.rev[0:7] // "local") (\(.lastModified // 0 | strftime("%Y-%m-%d %H:%M")))"' "$flake/flake.lock" 2>/dev/null || echo "?")
-                    echo "NIHIL $running"
+                    running=$(cat /etc/btechos/revision 2>/dev/null || echo "?")
+                    pinned=$(jq -r '.nodes.btechos.locked | "\(.rev[0:7] // "local") (\(.lastModified // 0 | strftime("%Y-%m-%d %H:%M")))"' "$flake/flake.lock" 2>/dev/null || echo "?")
+                    echo "BTechOS $running"
                     if [ -n "$(checkout)" ]; then
-                        echo "  From $(checkout) (nihil dev; nihil dev off goes back to $pinned)"
+                        echo "  From $(checkout) (btechos dev; btechos dev off goes back to $pinned)"
                     elif [ "$pinned" != "$running" ]; then
-                        echo "  $flake/flake.lock pins $pinned: nihil rebuild applies it"
+                        echo "  $flake/flake.lock pins $pinned: nh rebuild applies it"
                     fi
                     ;;
                 help | -h | --help)
@@ -770,24 +770,24 @@ let
     };
 in
 {
-    options.nihil.revision = lib.mkOption
+    options.btechos.revision = lib.mkOption
     {
         type = lib.types.str;
         default = "unknown";
-        description = "The NIHIL this machine was built from, as nihil version says it (set by nihil.lib.mkSystem).";
+        description = "The BTechOS this machine was built from, as btechos version says it (set by btechos.lib.mkSystem).";
     };
 
-    options.nihil.cli = lib.mkOption
+    options.btechos.cli = lib.mkOption
     {
         type = lib.types.package;
         readOnly = true;
-        description = "The nihil command, as built.";
+        description = "The btechos command, as built.";
     };
 
     config =
     {
-        nihil.cli = nihil;
-        environment.systemPackages = [ nihil ];
-        environment.etc."nihil/revision".text = config.nihil.revision + "\n";
+        btechos.cli = btechos;
+        environment.systemPackages = [ btechos ];
+        environment.etc."btechos/revision".text = config.btechos.revision + "\n";
     };
 }

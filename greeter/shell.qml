@@ -27,7 +27,7 @@ ShellRoot {
     property int attempts: 0
     property bool going: false
 
-    readonly property string skipFile: (Quickshell.env("XDG_RUNTIME_DIR") ?? "") + "/nihil-greeter-password"
+    readonly property string skipFile: (Quickshell.env("XDG_RUNTIME_DIR") ?? "") + "/btechos-greeter-password"
 
     // Every screen is on (cage -m extend) and the window spans them all: the greeter shows on each,
     // so it's where one looks, whichever is off or shut (a laptop closed with a screen plugged in
@@ -101,7 +101,7 @@ ShellRoot {
         start();
     }
 
-    // What PAM and greetd say, as NIHIL writes: a failure in its own words, the rest with a capital.
+    // What PAM and greetd say, as BTechOS writes: a failure in its own words, the rest with a capital.
     function said(text: string): string {
         const words = text.trim();
         if (/^authentication failure$/i.test(words))
@@ -180,7 +180,7 @@ ShellRoot {
 
     Process {
         id: ready
-        command: [Config.touch, Quickshell.env("NIHIL_GREETER_READY") || "/dev/null"]
+        command: [Config.touch, Quickshell.env("BTechOS_GREETER_READY") || "/dev/null"]
     }
 
     Timer {
@@ -203,7 +203,7 @@ ShellRoot {
     FloatingWindow {
         id: window
 
-        title: "NIHIL"
+        title: "BTechOS"
         color: Tokens.black
         fullscreen: true
         visible: true

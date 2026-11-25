@@ -1,18 +1,18 @@
 # The deck: a device opens things on the computer
 
-[NIHIL for Android](https://github.com/poligle/Nihil-Launcher), the launcher, can be a deck for a NIHIL computer: it opens the computer's
+[BTechOS for Android](https://github.com/poligle/BTechOS-Launcher), the launcher, can be a deck for a BTechOS computer: it opens the computer's
 apps and web pages, plays and skips its music, turns its volume, locks it, is its
 trackpad and carries things to it and from it (Vector). This is what the computer offers,
 for whoever writes the device's side.
 
-The computer's side is `nihil-deck` ([`home/deck/deck.py`](../home/deck/deck.py)), a
+The computer's side is `btechos-deck` ([`home/deck/deck.py`](../home/deck/deck.py)), a
 service in the user's session. Preferences, Devices turns it on (`settings.json`'s
 `"deck": { "enable": true }`, a rebuild) and pairs phones with a QR.
 
 Its port is open to the networks the computer joins: on one that isn't yours (a café,
 eduroam), anyone there reaches it, and Preferences says to turn it off there. To keep it to
 some interfaces (a desk's Ethernet, a VPN), `"deck": { "interfaces": ["enp3s0"] }`
-(`nihil.deck.interfaces`) opens the port and announces it there only.
+(`btechos.deck.interfaces`) opens the port and announces it there only.
 
 It does only what is listed here. There is no way to run a command, read a file or type
 on the computer: an app can only be one the launcher shows, a page only `http` or
@@ -24,7 +24,7 @@ the trackpad points and clicks as a touchpad there would, nothing more.
 Preferences, Devices, "Pair a device" shows a QR with this URI:
 
 ```
-nihil-deck://pair?v=1&name=nihil&hosts=192.168.1.20,100.64.0.7&port=64445&code=7JTX39F4&pin=8-eMVPli0fpzjeUBe-b_bmRtjDMwo1bNYXaVTyPSbVc
+btechos-deck://pair?v=1&name=btechos&hosts=192.168.1.20,100.64.0.7&port=64445&code=7JTX39F4&pin=8-eMVPli0fpzjeUBe-b_bmRtjDMwo1bNYXaVTyPSbVc
 ```
 
 | Parameter | What it is |
@@ -32,7 +32,7 @@ nihil-deck://pair?v=1&name=nihil&hosts=192.168.1.20,100.64.0.7&port=64445&code=7
 | `v`       | The protocol, `1` |
 | `name`    | The computer's name (its host name) |
 | `hosts`   | Its IPv4 addresses, comma-separated, the one with the default route first; not those of containers' and virtual machines' bridges (Docker, libvirt), which a phone can't reach. A VPN's (Tailscale) stays |
-| `port`    | Its port, `64445` unless the machine sets `nihil.deck.port` |
+| `port`    | Its port, `64445` unless the machine sets `btechos.deck.port` |
 | `code`    | The one-time code: 8 characters of `ABCDEFGHJKLMNPQRSTUVWXYZ23456789` |
 | `pin`     | SHA-256 of the certificate's public key (SubjectPublicKeyInfo, DER), base64url without padding |
 | `ble`     | The UUID the computer announces itself by over Bluetooth LE, when it does (below) |
@@ -96,10 +96,10 @@ curl --insecure --pinnedpubkey "sha256//$(printf '%s=' "$pin" | tr '_-' '/+')" h
 
 Its address may change. The phone tries the address that last answered, then the others
 from the QR, then looks on the local network: the computer announces itself with mDNS
-(Avahi) as `_nihil-deck._tcp`, named `NIHIL` and on the host `nihil.local`, with a TXT
+(Avahi) as `_btechos-deck._tcp`, named `BTechOS` and on the host `btechos.local`, with a TXT
 record `v=1`: not by the computer's name, which would go with it from network to network
 (`services.avahi.hostName` gives it back).
-On Android, `NsdManager.discoverServices("_nihil-deck._tcp", NsdManager.PROTOCOL_DNS_SD, …)`.
+On Android, `NsdManager.discoverServices("_btechos-deck._tcp", NsdManager.PROTOCOL_DNS_SD, …)`.
 Whatever it finds, the pin still decides whether it is the right computer. When no network
 reaches it, Bluetooth may.
 
@@ -109,17 +109,17 @@ A phone that reaches none of the computer's addresses can reach it over Bluetoot
 nothing to pair in the system's Bluetooth settings. While the deck runs, the computer
 announces itself and takes LE connection-oriented channels (L2CAP) on PSM `129` (0x81);
 Preferences, Devices turns that off (`"deck": { "bluetooth": false }`,
-`nihil.deck.bluetooth`). On a channel go the same TLS, checked by the same pin, and the same
+`btechos.deck.bluetooth`). On a channel go the same TLS, checked by the same pin, and the same
 HTTP as over the network: every request here, the trackpad's stream too.
 
 `ble` and `psm` come in the QR, in the answer to `POST /v1/pair` and in `GET /v1/state`, when
 the computer is on Bluetooth. The UUID is made from the pin, so a phone paired before knows it
-without pairing again: the first 16 bytes of SHA-256 over `nihil-deck ble`, a zero byte and
+without pairing again: the first 16 bytes of SHA-256 over `btechos-deck ble`, a zero byte and
 the pin as the QR has it, with the version (8) and the variant set as RFC 9562 has them.
 
 ```kotlin
 fun bleUuid(pin: String): UUID {
-    val hash = MessageDigest.getInstance("SHA-256").digest("nihil-deck ble\u0000$pin".toByteArray())
+    val hash = MessageDigest.getInstance("SHA-256").digest("btechos-deck ble\u0000$pin".toByteArray())
     hash[6] = ((hash[6].toInt() and 0x0F) or 0x80).toByte()
     hash[8] = ((hash[8].toInt() and 0x3F) or 0x80).toByte()
     val bytes = ByteBuffer.wrap(hash, 0, 16)
@@ -182,7 +182,7 @@ No token.
 ```
 
 ```json
-{ "token": "…43 characters…", "device": "3f9a1c2e", "name": "nihil" }
+{ "token": "…43 characters…", "device": "3f9a1c2e", "name": "btechos" }
 ```
 
 `device` is the phone's id on the computer; the name it sent is cut at 40 characters.
@@ -267,7 +267,7 @@ file, 100 MB at most. Each side keeps only the last one it was sent, and a new o
 its place.
 
 The computer's is what was pasted or dropped on the dashboard's Vector, or sent with
-`nihil-deck vector send`. `GET /v1/vector` describes it, `{ "id": "" }` with none:
+`btechos-deck vector send`. `GET /v1/vector` describes it, `{ "id": "" }` with none:
 
 ```json
 { "id": "5c1e9a07d3b2f468", "kind": "image", "name": "image.png", "mime": "image/png", "size": 48213, "time": 1794012345, "now": 1794012410 }
@@ -293,17 +293,17 @@ characters, and cut at 240 bytes, keeping its extension). It answers with what i
 `big` past 100 MB, `400` `body` without one, `409` `busy` while the same device sends another,
 `507` `full` when it would leave the disk less than 1 GB; the connection closes after it.
 
-On the computer they are in `~/.cache/nihil/vector/`, `out/` and `in/`, each with its
+On the computer they are in `~/.cache/btechos/vector/`, `out/` and `in/`, each with its
 `.item.json`, and the shell uses them through the command:
 
 ```bash
-nihil-deck vector send [FILE]   # a file, or what the clipboard holds (a file copied, a picture, a text)
-nihil-deck vector text TEXT      # or -, to read it from stdin, as the shell does: no argument passes 128 KiB
-nihil-deck vector copy          # what came, onto the clipboard: a text or a picture
-nihil-deck vector save          # what came, into ~/Vector
-nihil-deck vector open          # saved there, and opened: a picture, a video, a PDF or a text by its bytes and its name, the rest shown in its folder
-nihil-deck vector clear
-nihil-deck vector status
+btechos-deck vector send [FILE]   # a file, or what the clipboard holds (a file copied, a picture, a text)
+btechos-deck vector text TEXT      # or -, to read it from stdin, as the shell does: no argument passes 128 KiB
+btechos-deck vector copy          # what came, onto the clipboard: a text or a picture
+btechos-deck vector save          # what came, into ~/Vector
+btechos-deck vector open          # saved there, and opened: a picture, a video, a PDF or a text by its bytes and its name, the rest shown in its folder
+btechos-deck vector clear
+btechos-deck vector status
 ```
 
 Copy, save, open and clear take what came out of `in/`. What a password manager copies
@@ -374,7 +374,7 @@ names, or an image fetched from a public address, 4 MB at most.
 
 ## The kanban
 
-The dashboard's kanban (`services/Tasks.qml`, `~/.local/state/nihil/tasks.json`, version 3)
+The dashboard's kanban (`services/Tasks.qml`, `~/.local/state/btechos/tasks.json`, version 3)
 and the phone's are replicas of the same board. Each card is
 `{ id, text, column, textStamp, placeStamp, rank }`: the stamps say when its text and its
 place were last set, in the computer's milliseconds, and its place is its column and its
@@ -404,7 +404,7 @@ often, so two sides that both changed while apart each keep what the other did.
 ## The trackpad
 
 `GET /v1/trackpad?w=<width>&h=<height>&r=<resolution>`, with `Connection: Upgrade` and
-`Upgrade: nihil-trackpad`, makes a touchpad on the computer (uinput, `NIHIL deck trackpad`)
+`Upgrade: btechos-trackpad`, makes a touchpad on the computer (uinput, `BTechOS deck trackpad`)
 `w` by `h` units, `r` of them a millimetre: the phone's screen as it is. `r` from 5 to 100,
 each side from 10 to 500 mm. The computer's libinput takes it as any touchpad, with the
 settings the laptop's has: a tap clicks, two fingers right-click and scroll, three
@@ -443,8 +443,8 @@ apart, so with the deck on, a program run as the user is trusted as far as the u
 
 ## The watch
 
-A watch has no camera for the QR. [NIHIL for Wear OS](https://github.com/poligle/Nihil-Wear)
-takes the same invitation from `nihil-deck pair --json`, handed to it by adb (its
+A watch has no camera for the QR. [BTechOS for Wear OS](https://github.com/poligle/BTechOS-Wear)
+takes the same invitation from `btechos-deck pair --json`, handed to it by adb (its
 `tools/watch invite`), and pairs with `POST /v1/pair` as the phone does: to this
 computer it is one more device, listed and forgotten as a phone is. It reaches the
 computer over the phone's Bluetooth when that gets here, over Wi-Fi asked for when it

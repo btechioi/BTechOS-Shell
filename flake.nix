@@ -1,7 +1,7 @@
 # flake.nix by poligle
 
 {
-	description = "NIHIL: a monochrome, dot-matrix desktop for NixOS";
+	description = "BTechOS: a monochrome, dot-matrix desktop for NixOS";
 
 	inputs =
 	{
@@ -83,20 +83,20 @@
 				# there and stop Home Manager on every rebuild; the newest one replaces it.
 				overwriteBackup = true;
 				extraSpecialArgs = { inherit inputs; };
-				users.${config.nihil.user.name}.imports = [ ./home.nix ] ++ config.nihil.home;
+				users.${config.btechos.user.name}.imports = [ ./home.nix ] ++ config.btechos.home;
 			};
 		};
 
-		# Where NIHIL comes from, for the installer; a machine's flake writes it too, as inputs can't
+		# Where BTechOS comes from, for the installer; a machine's flake writes it too, as inputs can't
 		# be worked out.
-		lib.source = "github:btechioi/Nihil-Shell";
+		lib.source = "github:btechioi/BTechOS-Shell";
 
 		lib.mkSystem = { settings ? { }, modules ? [ ], home ? [ ] }: nixpkgs.lib.nixosSystem
 		{
 			inherit system;
 			specialArgs = { inherit freesmlauncher inputs; system = "x86_64-linux"; };
 			# Unfree packages are the machine's choice, not the module's: local.nix, after, can change it.
-			modules = [ self.nixosModules.default { nihil = { inherit settings home revision; }; nixpkgs.config.allowUnfree = true; } ] ++ modules;
+			modules = [ self.nixosModules.default { btechos = { inherit settings home revision; }; nixpkgs.config.allowUnfree = true; } ] ++ modules;
 		};
 
 		nixosConfigurations =
@@ -104,7 +104,7 @@
 			installer = nixpkgs.lib.nixosSystem
 			{
 				inherit system;
-				specialArgs = { nihil = self; };
+				specialArgs = { btechos = self; };
 				modules = [ ./installer/iso.nix ];
 			};
 
@@ -118,24 +118,24 @@
 
 		packages.${system}.iso = self.nixosConfigurations.installer.config.system.build.isoImage;
 
-		# NIHIL as it comes, in a window (templates/example/vm.nix): nix run .#vm, from the folder to
-		# find in it at /mnt/nihil. --fresh starts it on a new disk; it keeps its own otherwise.
+		# BTechOS as it comes, in a window (templates/example/vm.nix): nix run .#vm, from the folder to
+		# find in it at /mnt/btechos. --fresh starts it on a new disk; it keeps its own otherwise.
 		apps.${system}.vm =
 		{
 			type = "app";
-			meta.description = "NIHIL as it comes, in a window: user nihil, password nihil";
+			meta.description = "BTechOS as it comes, in a window: user btechos, password btechos";
 			program = nixpkgs.lib.getExe (pkgs.writeShellApplication
 			{
-				name = "nihil-vm";
+				name = "btechos-vm";
 				text = ''
-					disk="''${XDG_CACHE_HOME:-$HOME/.cache}/nihil-vm/nihil.qcow2"
+					disk="''${XDG_CACHE_HOME:-$HOME/.cache}/btechos-vm/btechos.qcow2"
 					if [ "''${1:-}" = --fresh ]; then
 						rm -f "$disk"
 						shift
 					fi
 					mkdir -p "$(dirname "$disk")"
-					echo "nihil-vm: user nihil, password nihil; $PWD is at /mnt/nihil" >&2
-					NIX_DISK_IMAGE="$disk" NIHIL_VM_SOURCE="$PWD" exec ${nixpkgs.lib.getExe self.nixosConfigurations.example.config.system.build.vm} "$@"
+					echo "btechos-vm: user btechos, password btechos; $PWD is at /mnt/btechos" >&2
+					NIX_DISK_IMAGE="$disk" BTechOS_VM_SOURCE="$PWD" exec ${nixpkgs.lib.getExe self.nixosConfigurations.example.config.system.build.vm} "$@"
 				'';
 			});
 		};
@@ -143,7 +143,7 @@
 		templates.default =
 		{
 			path = ./templates/machine;
-			description = "A machine running NIHIL: settings.json, local.nix and home.nix";
+			description = "A machine running BTechOS: settings.json, local.nix and home.nix";
 			welcomeText = "Write this computer's hardware-configuration.nix (nixos-generate-config --show-hardware-config > hardware-configuration.nix), then settings.json.";
 		};
 	};

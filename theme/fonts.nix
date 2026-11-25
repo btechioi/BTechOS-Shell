@@ -26,6 +26,6 @@ let
         (font "SpaceMono-BoldItalic.ttf" "ofl/spacemono/SpaceMono-BoldItalic.ttf" "sha256-zcyV7d7jEoealyhJTllfWRyxWfPydtebxYZz3sflcTg=")
     ];
 in
-pkgs.runCommand "nihil-fonts" { } (pkgs.lib.concatMapStrings (font: ''
+pkgs.runCommand "btechos-fonts" { } (pkgs.lib.concatMapStrings (font: ''
     install -Dm444 ${font.file} "$out/share/fonts/truetype/${font.name}"
 '') files)

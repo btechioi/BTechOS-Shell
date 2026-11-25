@@ -5,7 +5,7 @@ import qs.config
 
 // A drawer opened with its key and, while that key's modifier is held, gone through with the
 // same key, Shift going back: let go, the one reached is chosen. Hyprland's submap
-// nihil-<name> sends the keys while it's held, as global shortcuts.
+// btechos-<name> sends the keys while it's held, as global shortcuts.
 Scope {
     id: root
 
@@ -48,7 +48,7 @@ Scope {
         if (root.entered || !root.modifierDown)
             return;
         root.entered = true;
-        root.dispatch(`hl.dsp.submap("nihil-${root.name}")`, `submap nihil-${root.name}`);
+        root.dispatch(`hl.dsp.submap("btechos-${root.name}")`, `submap btechos-${root.name}`);
     }
 
     function leave(gone: bool): void {
@@ -109,32 +109,32 @@ Scope {
     }
 
     GlobalShortcut {
-        name: "nihil-" + root.name
-        description: "NIHIL: " + root.what + "; held, the next one"
+        name: "btechos-" + root.name
+        description: "BTechOS: " + root.what + "; held, the next one"
         onPressed: root.press(1)
     }
 
     GlobalShortcut {
-        name: "nihil-" + root.name + "-next"
-        description: "NIHIL: " + root.what + " held, the next one"
+        name: "btechos-" + root.name + "-next"
+        description: "BTechOS: " + root.what + " held, the next one"
         onPressed: root.press(1)
     }
 
     GlobalShortcut {
-        name: "nihil-" + root.name + "-back"
-        description: "NIHIL: " + root.what + " held, the one before"
+        name: "btechos-" + root.name + "-back"
+        description: "BTechOS: " + root.what + " held, the one before"
         onPressed: root.press(-1)
     }
 
     GlobalShortcut {
-        name: "nihil-" + root.name + "-go"
-        description: "NIHIL: " + root.what + " held, the one chosen"
+        name: "btechos-" + root.name + "-go"
+        description: "BTechOS: " + root.what + " held, the one chosen"
         onPressed: root.go()
     }
 
     GlobalShortcut {
-        name: "nihil-" + root.name + "-cancel"
-        description: "NIHIL: " + root.what + " held, leave things as they were"
+        name: "btechos-" + root.name + "-cancel"
+        description: "BTechOS: " + root.what + " held, leave things as they were"
         onPressed: root.cancel()
     }
 }

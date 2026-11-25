@@ -6,7 +6,7 @@ import Quickshell.Io
 import qs.config
 import "Agenda.js" as Agenda
 
-// The calendars subscribed to in Preferences, read by nihil-calendar (home/calendar) for the
+// The calendars subscribed to in Preferences, read by btechos-calendar (home/calendar) for the
 // calendar widget: what it kept at the last read first, then, while the widget is on and there's
 // any, every quarter of an hour, again when the network comes back after a read that didn't, and
 // at once after one is added or taken away.
@@ -26,8 +26,8 @@ Singleton {
     property string addError: ""
     property bool loaded: false
     readonly property real minute: 60 * 1000
-    readonly property string keptFile: (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/nihil/calendar.json"
-    readonly property string listFile: (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/nihil/calendars.json"
+    readonly property string keptFile: (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/btechos/calendar.json"
+    readonly property string listFile: (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/btechos/calendars.json"
 
     function take(text: string): void {
         try {

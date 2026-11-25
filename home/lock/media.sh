@@ -3,7 +3,7 @@
 set -u
 export LC_ALL=C.UTF-8
 
-if [[ -n ${XDG_RUNTIME_DIR:-} ]]; then dir="$XDG_RUNTIME_DIR/nihil-lock"; else dir="/tmp/nihil-lock-$UID"; fi
+if [[ -n ${XDG_RUNTIME_DIR:-} ]]; then dir="$XDG_RUNTIME_DIR/btechos-lock"; else dir="/tmp/btechos-lock-$UID"; fi
 state="$dir/state"
 sep=$'\x1f'
 format="{{status}}$sep{{playerInstance}}$sep{{playerName}}$sep{{title}}$sep{{artist}}$sep{{position}}$sep{{mpris:length}}$sep{{mpris:artUrl}}"
@@ -246,5 +246,5 @@ case ${1:-} in
 	render) render "${2:-}" "${3:-}" ;;
 	backdrop) backdrop "${2:-}" ;;
 	prev | toggle | next) act "$1" ;;
-	*) echo "Usage: nihil-lock-media info|progress|button prev|toggle|next|cover|backdrop OUTPUT|prev|toggle|next" >&2; exit 2 ;;
+	*) echo "Usage: btechos-lock-media info|progress|button prev|toggle|next|cover|backdrop OUTPUT|prev|toggle|next" >&2; exit 2 ;;
 esac

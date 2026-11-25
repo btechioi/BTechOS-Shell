@@ -30,7 +30,7 @@ Singleton {
     property string tempSkip: ""
     property int tempMisses: 0
 
-    // As every size in NIHIL is written: powers of 1000, and the language's decimal mark.
+    // As every size in BTechOS is written: powers of 1000, and the language's decimal mark.
     function human(bytes: real): string {
         return Dates.bytes(bytes) + "/s";
     }
@@ -72,7 +72,7 @@ Singleton {
         stdout: StdioCollector {
             onStreamFinished: {
                 root.tempPath = text.trim();
-                console.info("nihil: temperature from", root.tempPath || "nowhere");
+                console.info("btechos: temperature from", root.tempPath || "nowhere");
             }
         }
     }
@@ -152,7 +152,7 @@ Singleton {
                 root.temp = v / 1000;
                 root.tempMisses = 0;
             } else if (++root.tempMisses >= 5) {
-                console.warn("nihil: temperature: no reading from", root.tempPath + ", looking for another sensor");
+                console.warn("btechos: temperature: no reading from", root.tempPath + ", looking for another sensor");
                 root.tempSkip = root.tempPath;
                 root.tempMisses = 0;
                 root.tempPath = "";

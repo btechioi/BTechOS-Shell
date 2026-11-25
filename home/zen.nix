@@ -3,7 +3,7 @@
 { config, osConfig, lib, pkgs, inputs, ... }:
 let
     colors = config.lib.stylix.colors.withHashtag;
-    palette = lib.mapAttrs (_: hex: "#${hex}") osConfig.nihil.tokens.palette;
+    palette = lib.mapAttrs (_: hex: "#${hex}") osConfig.btechos.tokens.palette;
 in
 {
     imports = [ inputs.zen-browser.homeModules.beta ];

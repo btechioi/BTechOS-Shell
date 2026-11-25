@@ -35,7 +35,7 @@ in
 {
 	home.packages = [ pkgs.xdg-utils ];
 
-	xdg.desktopEntries.nihil-editor =
+	xdg.desktopEntries.btechos-editor =
 	{
 		name = "Neovim";
 		genericName = "Text editor";
@@ -48,7 +48,7 @@ in
 	xdg.mimeApps =
 	{
 		enable = true;
-		defaultApplications = lib.genAttrs text (_: "nihil-editor.desktop")
+		defaultApplications = lib.genAttrs text (_: "btechos-editor.desktop")
 			// { "inode/directory" = "luciole.desktop"; };
 	};
 }

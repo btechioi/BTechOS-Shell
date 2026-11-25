@@ -9,9 +9,9 @@ let
 		let v = lib.toInt cell; in
 		if v >= 5 then "$1● " else if v >= 2 then "$2· " else "  ";
 
-	logo = pkgs.writeText "nihil-fastfetch-logo" (lib.concatMapStringsSep "\n" (row: lib.concatMapStrings led (lib.stringToCharacters row)) grid);
+	logo = pkgs.writeText "btechos-fastfetch-logo" (lib.concatMapStringsSep "\n" (row: lib.concatMapStrings led (lib.stringToCharacters row)) grid);
 
-	p = osConfig.nihil.tokens.palette;
+	p = osConfig.btechos.tokens.palette;
 	digit = c: lib.toInt c;
 	hex = { a = 10; b = 11; c = 12; d = 13; e = 14; f = 15; };
 	nibble = c: let l = lib.toLower c; in hex.${l} or (digit l);
@@ -45,7 +45,7 @@ in
 			modules =
 			[
 				{ type = "title"; format = "{user-name}@{host-name}"; }
-				{ type = "custom"; format = osConfig.nihil.tokens.motto; outputColor = "3;${ansi p.muted}"; }   # 3: italics
+				{ type = "custom"; format = osConfig.btechos.tokens.motto; outputColor = "3;${ansi p.muted}"; }   # 3: italics
 				"break"
 				{ type = "os"; key = "OS"; }
 				{ type = "kernel"; key = "Kernel"; }

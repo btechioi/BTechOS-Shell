@@ -183,7 +183,7 @@
 		niloStopped = "Parado";
 		niloRate = "%1 tok/s";
 		niloPeekClose = "Cerrar";
-		niloAskedBy = "Lo ha preguntado otro programa, con nihil-ipc";
+		niloAskedBy = "Lo ha preguntado otro programa, con btechos-ipc";
 		niloPeekDone = "Nilo ha terminado";
 		niloPeekWaiting = "Nilo te espera";
 		niloPeekFailed = "Nilo no ha podido";
@@ -427,7 +427,7 @@
 		cfgAcceleration = "Aceleración";
 		cfgNiloSettings = "Ajustes";
 		cfgFingerprint = "Huella";
-		cfgDevBuilds = "Tu contraseña compila como root tu copia de %1 (nihil dev)";
+		cfgDevBuilds = "Tu contraseña compila como root tu copia de %1 (btechos dev)";
 		cfgSaved = "Todo aplicado";
 		cfgPending = "%1 cambios sin aplicar";
 		cfgPendingOne = "1 cambio sin aplicar";
@@ -445,7 +445,7 @@
 		cfgWrongPassword = "Contraseña incorrecta";
 		cfgBusy = "Ya se están aplicando otros cambios";
 		cfgInvalid = "Esos ajustes no son válidos";
-		cfgLogHint = "El registro: /run/nihil/apply.log";
+		cfgLogHint = "El registro: /run/btechos/apply.log";
 		cfgNotifyApplied = "Preferencias aplicadas";
 		cfgNotifyFailed = "No se han podido aplicar las preferencias";
 		bindLauncher = "Lanzador";
@@ -474,7 +474,7 @@
 		diskPassphrase = "Contraseña del disco";
 		welHello = "Hola, %1";
 		welHelloAnon = "Hola";
-		welHelloBody = "Esto es NIHIL: un escritorio negro, de puntos y silencio, que solo aparece cuando lo llamas. Un minuto para enseñártelo y dejarlo a tu gusto.";
+		welHelloBody = "Esto es BTechOS: un escritorio negro, de puntos y silencio, que solo aparece cuando lo llamas. Un minuto para enseñártelo y dejarlo a tu gusto.";
 		welFrameTitle = "El marco";
 		welFrameBody = "Todo sale de los bordes de la pantalla: acerca el ratón al borde, o usa su tecla.";
 		welDashboard = "El panel de estado: hora, sistema, música y tareas";
@@ -491,7 +491,7 @@
 		welGestures = "Con tres dedos: a los lados cambias de escritorio, hacia arriba abres el lanzador, hacia abajo cierras la ventana y separándolos la maximizas.";
 		welDoneTitle = "Listo";
 		welDoneBody = "Los atajos y todo lo demás están en Preferencias: con su tecla o con el engranaje de los ajustes rápidos.";
-		welDoneApply = "Para guardar lo que has cambiado, NIHIL reconstruye el sistema: escribe tu contraseña.";
+		welDoneApply = "Para guardar lo que has cambiado, BTechOS reconstruye el sistema: escribe tu contraseña.";
 		welSkip = "Saltar";
 		welBack = "Atrás";
 		welNext = "Siguiente";
@@ -502,7 +502,7 @@
 		cfgHideLog = "Ocultar";
 		bindWallpapers = "Los fondos; mantenida, elegir uno";
 		welNetTitle = "Una red";
-		welNetBody = "NIHIL se actualiza y aplica cambios por internet: conéctate a una red.";
+		welNetBody = "BTechOS se actualiza y aplica cambios por internet: conéctate a una red.";
 		welNetDone = "Conectado a %1.";
 		wpHint = "[%1] Siguiente|[Shift + %1] Anterior|[← →] Elegir|[Enter] Quedárselo|[Esc] Volver";
 		ovHint = "[%1] Siguiente|[Shift + %1] Anterior|[← →] Elegir|[Enter] Ir|[Esc] Volver";
@@ -518,17 +518,17 @@
 		cfgClipboardWipe = "Olvidar";
 		updBehind = "%1 commits nuevos en GitHub";
 		updBehindOne = "Un commit nuevo en GitHub";
-		updCurrent = "NIHIL al día, en %1";
+		updCurrent = "BTechOS al día, en %1";
 		updOffline = "Sin conexión con GitHub";
-		updUnknown = "Este NIHIL no viene de GitHub";
+		updUnknown = "Este BTechOS no viene de GitHub";
 		updChecking = "Mirando si hay algo nuevo…";
-		updDev = "Ahora corre tu copia (nihil dev): actualizar vuelve a la de GitHub.";
+		updDev = "Ahora corre tu copia (btechos dev): actualizar vuelve a la de GitHub.";
 		updMore = "Y %1 más";
 		updUpdate = "Actualizar";
-		updApplying = "Actualizando NIHIL (%1)";
-		updDone = "NIHIL actualizado";
+		updApplying = "Actualizando BTechOS (%1)";
+		updDone = "BTechOS actualizado";
 		updFailed = "No se ha podido actualizar";
-		updNotifyFailed = "No se ha podido actualizar NIHIL";
+		updNotifyFailed = "No se ha podido actualizar BTechOS";
 		cfgGenerations = "Generaciones";
 		genNone = "Todavía no hay ninguna.";
 		genListFailed = "No se han podido leer las generaciones.";
@@ -561,7 +561,7 @@
 		cfgDevices = "Dispositivos";
 		deckUse = "Usar dispositivos";
 		deckBluetooth = "Sin red, por Bluetooth";
-		deckDown = "El servicio no responde: systemctl --user status nihil-deck";
+		deckDown = "El servicio no responde: systemctl --user status btechos-deck";
 		deckPairTitle = "Emparejar";
 		deckWatchTitle = "Un reloj";
 		deckWatchInstall = "Instalar en un reloj";
@@ -663,15 +663,15 @@
 		cfgCalendarErrCalendar = "Esa dirección no da un calendario";
 		cfgCalendarUnread = "No se ha podido leer la última vez";
 
-		# The installer: its window (installer/gui) and its text mode (nihil-install), from
-		# /etc/nihil/strings.json. %1, %2… are what each fills in.
+		# The installer: its window (installer/gui) and its text mode (btechos-install), from
+		# /etc/btechos/strings.json. %1, %2… are what each fills in.
 		insAllOfIt = "Todo, %1";
-		insAlreadyInstalled = "NIHIL ya está instalado en este ordenador. ¿Reiniciar ahora?";
+		insAlreadyInstalled = "BTechOS ya está instalado en este ordenador. ¿Reiniciar ahora?";
 		insAnother = "Otra";
 		insBack = "Atrás";
 		insBadDisk = "Ese disco no se puede usar.";
 		insBadHost = "Ese nombre de ordenador no se puede usar.";
-		insBadRoot = "NIHIL no puede ir en %1.";
+		insBadRoot = "BTechOS no puede ir en %1.";
 		insBadPassword = "La contraseña no puede tener caracteres de control.";
 		insBadUser = "Ese nombre de usuario no se puede usar.";
 		insBitLocker = "Si Windows usa BitLocker, puede pedir su clave de recuperación: tenla a mano.";
@@ -704,18 +704,18 @@
 		insExt4Ask = "%1 (ext4) no se apagó bien y necesita una revisión antes de poder medirla. ¿Revisarla ahora (e2fsck)?";
 		insExt4Check = "%1: su ext4 necesita una revisión antes (no se apagó bien). Arranca su sistema y apágalo, o ejecuta sudo e2fsck -f %1 en otra consola (Alt+F2), y vuelve a empezar el instalador.";
 		insFormatted = "Se formateará %1; el resto de %2 se queda como está.";
-		insFreeGoes = "NIHIL va en %1 de espacio libre de %2; el resto se queda como está.";
+		insFreeGoes = "BTechOS va en %1 de espacio libre de %2; el resto se queda como está.";
 		insFreeGone = "Ese espacio libre ya no está.";
 		insFreeSpace = "Su espacio libre";
-		insGbRange = "GB para NIHIL, de %1 a %2";
+		insGbRange = "GB para BTechOS, de %1 a %2";
 		insGivesLess = "%1 no puede dar tanto.";
-		insGoesOn = "NIHIL va en";
+		insGoesOn = "BTechOS va en";
 		insHello = "Hola";
 		insHibernated = "%1: Windows está hibernado, o se apagó con el inicio rápido. Desactívalo en Windows, apágalo y vuelve a empezar el instalador.";
 		insInUse = "Algo lo sigue usando (%1): libéralo desde otra consola (Alt+F2) y vuelve a probar.";
 		insInstall = "Instalar";
 		insInstallAgain = "Instalar otra vez";
-		insInstallAsk = "¿Instalar NIHIL?";
+		insInstallAsk = "¿Instalar BTechOS?";
 		insInstallOn = "Instalar en";
 		insInstalled = "Instalado";
 		insInstalling = "Instalando";
@@ -725,16 +725,16 @@
 		insLater = "Luego";
 		insLeave = "Salir del instalador";
 		insLeaveIt = "Dejarla";
-		insLog = "El registro entero está en /tmp/nihil-install.log.";
+		insLog = "El registro entero está en /tmp/btechos-install.log.";
 		insLookAgain = "Buscar otra vez";
 		insLooking = "Buscando…";
 		insLookingDisks = "Mirando los discos…";
 		insLookingParts = "Mirando lo que guardan sus particiones…";
 		insMismatch = "No coinciden (o está vacía). Otra vez.";
-		insNeedsAtLeast = "NIHIL necesita al menos %1.";
-		insNeedsBoot = "NIHIL necesita también una partición de 1 GB para arrancar: haz sitio para NIHIL.";
-		insNeedsBootShort = "NIHIL necesita también una partición de 1 GB para arrancar.";
-		insNeedsUefi = "NIHIL necesita UEFI, y este ordenador ha arrancado en modo BIOS antiguo.";
+		insNeedsAtLeast = "BTechOS necesita al menos %1.";
+		insNeedsBoot = "BTechOS necesita también una partición de 1 GB para arrancar: haz sitio para BTechOS.";
+		insNeedsBootShort = "BTechOS necesita también una partición de 1 GB para arrancar.";
+		insNeedsUefi = "BTechOS necesita UEFI, y este ordenador ha arrancado en modo BIOS antiguo.";
 		insNetwork = "Red";
 		insNewPartitions = "No se pueden leer las particiones nuevas de %1: algo lo sigue usando. Reinicia y vuelve a probar.";
 		insNextTo = "Junto a lo que hay";
@@ -744,15 +744,15 @@
 		insNoEncrypt = "No cifrar";
 		insNoGpt = "%1 no tiene tabla de particiones GPT.";
 		insNoGptMake = "%1 no tiene tabla de particiones GPT: créala en cfdisk o borra el disco entero.";
-		insNoGptNextTo = "%1 no tiene tabla de particiones GPT (un Windows antiguo en MBR, o nada aún): NIHIL solo puede ir junto a otro sistema en GPT. Borra el disco entero, o conviértelo desde Windows (mbr2gpt).";
+		insNoGptNextTo = "%1 no tiene tabla de particiones GPT (un Windows antiguo en MBR, o nada aún): BTechOS solo puede ir junto a otro sistema en GPT. Borra el disco entero, o conviértelo desde Windows (mbr2gpt).";
 		insNoKeymap = "La consola no tiene un mapa de teclado llamado %1, así que aquí las teclas escriben como en un teclado estadounidense: una contraseña elegida ahora puede no ser lo que esas teclas escriben al iniciar sesión. Lo más seguro son letras y cifras.";
-		insNoPartition = "No hay ninguna partición de 20 GB o más: haz sitio para NIHIL.";
-		insNoRoom = "No hay sitio para NIHIL junto a lo que hay en %1: necesita %2.";
-		insNoRoot = "%1 no tiene ninguna partición donde pueda ir NIHIL.";
+		insNoPartition = "No hay ninguna partición de 20 GB o más: haz sitio para BTechOS.";
+		insNoRoom = "No hay sitio para BTechOS junto a lo que hay en %1: necesita %2.";
+		insNoRoot = "%1 no tiene ninguna partición donde pueda ir BTechOS.";
 		insNoShrink = "%1: %2 no se puede encoger.";
 		insNoSource = "No se puede llegar a %1: no se ha tocado nada.";
-		insNoSize = "No se ha dado un tamaño para NIHIL.";
-		insNoWhere = "No se ha elegido dónde va NIHIL.";
+		insNoSize = "No se ha dado un tamaño para BTechOS.";
+		insNoWhere = "No se ha elegido dónde va BTechOS.";
 		insNoWifi = "No aparece ninguna tarjeta Wi-Fi: un cable, o un móvil compartiendo su conexión por USB, también sirven.";
 		insNotConnected = "No se ha conectado.";
 		insWrongKey = "La contraseña no es la de esta red.";
@@ -760,7 +760,7 @@
 		insOutOfRange = "Esa red ya no está a la vista.";
 		insNtfsCheck = "%1: su NTFS tiene que revisarse antes. Arranca Windows, reinícialo una vez y vuelve a empezar el instalador.";
 		insOffline = "No hay conexión a internet.";
-		insOfflineHelp = "sudo nihil-install lo vuelve a empezar; nmcli device muestra las tarjetas de red.";
+		insOfflineHelp = "sudo btechos-install lo vuelve a empezar; nmcli device muestra las tarjetas de red.";
 		insOnPartition = "En una de sus particiones";
 		insOther = "Otro";
 		insOtherAmount = "Otra cantidad";
@@ -773,13 +773,13 @@
 		insRestart = "Reiniciar";
 		insRestartAsk = "¿Reiniciar ahora?";
 		insRetrying = "Algo no se ha podido descargar; se intenta otra vez…";
-		insRoomFor = "Espacio para NIHIL";
+		insRoomFor = "Espacio para BTechOS";
 		insRoomIn = "Sitio en %1";
 		insSearch = "Buscar";
-		insShrinkGives = "%1 cederá %2 a NIHIL, conservando lo que guarda; el resto de %3 se queda como está.";
+		insShrinkGives = "%1 cederá %2 a BTechOS, conservando lo que guarda; el resto de %3 se queda como está.";
 		insShrinkSafe = "Encoger es seguro, pero un corte de luz a medias no: ten copia de lo importante.";
 		insShrinking = "Encogiendo %1: puede tardar unos minutos…";
-		insStoppedAgain = "La instalación se ha parado aquí. sudo nihil-install la vuelve a empezar.";
+		insStoppedAgain = "La instalación se ha parado aquí. sudo btechos-install la vuelve a empezar.";
 		insStoppedHere = "La instalación se ha parado aquí.";
 		insStoppedTitle = "Parado";
 		insTakeUsb = "Quita el USB mientras se reinicia.";
@@ -794,7 +794,7 @@
 		insUserName = "Nombre de usuario";
 		insUserRule = "Minúsculas, cifras, _ y -, empezando por una letra o _.";
 		insWhere = "Dónde";
-		insWhereGoes = "Dónde va NIHIL";
+		insWhereGoes = "Dónde va BTechOS";
 		insWhereOn = "Dónde en %1";
 		insWhole = "Borrar el disco entero";
 		insWindowsCheck = "Windows revisará su disco al arrancar: déjalo terminar.";
@@ -807,7 +807,7 @@
 		insZone = "Zona horaria";
 		insZoneAsk = "¿Zona horaria: %1?";
 
-		# nihil-watch (home/deck/watch.sh), in the machine's language.
+		# btechos-watch (home/deck/watch.sh), in the machine's language.
 		watchMany = "Hay más de un reloj en adb (%1): desconecta uno (adb disconnect HOST:PUERTO).";
 		watchPairSteps = "En el reloj: Opciones para desarrolladores, Depuración inalámbrica, Vincular dispositivo con código de vinculación.";
 		watchLooking = "Buscándolo en la red…";
@@ -837,10 +837,10 @@
 		watchNoInvite = "El deck no ha dado ninguna invitación: ¿está encendido? (%1)";
 		watchInvited = "Invitado por %1: el reloj se vincula con él ahora.";
 		watchHalo = "La luz del borde necesita leer las notificaciones del reloj y un servicio de accesibilidad: adb se los da ahora.";
-		watchNoHalo = "No se ha podido encender la luz del borde: los ajustes de NIHIL en el reloj pueden.";
-		watchDone = "Hecho. En el reloj, mantén pulsada la esfera y elige la de NIHIL.";
+		watchNoHalo = "No se ha podido encender la luz del borde: los ajustes de BTechOS en el reloj pueden.";
+		watchDone = "Hecho. En el reloj, mantén pulsada la esfera y elige la de BTechOS.";
 		watchAskDebugOff = "¿Apagar la depuración inalámbrica del reloj? Para actualizar tendrás que encenderla otra vez [s/N] ";
-		watchNoWatch = "No hay ningún reloj en adb: ejecuta nihil-watch para vincularlo.";
+		watchNoWatch = "No hay ningún reloj en adb: ejecuta btechos-watch para vincularlo.";
 		watchUpdated = "Actualizado.";
 		watchForgotBoth = "El reloj y este ordenador se han olvidado el uno del otro.";
 		watchForgot = "El reloj ha olvidado su ordenador.";
@@ -1028,7 +1028,7 @@
 		niloStopped = "Stopped";
 		niloRate = "%1 tok/s";
 		niloPeekClose = "Close";
-		niloAskedBy = "Asked by another program, through nihil-ipc";
+		niloAskedBy = "Asked by another program, through btechos-ipc";
 		niloPeekDone = "Nilo is done";
 		niloPeekWaiting = "Nilo is waiting for you";
 		niloPeekFailed = "Nilo couldn't do it";
@@ -1272,7 +1272,7 @@
 		cfgAcceleration = "Acceleration";
 		cfgNiloSettings = "Settings";
 		cfgFingerprint = "Fingerprint";
-		cfgDevBuilds = "Your password builds your checkout in %1 as root (nihil dev)";
+		cfgDevBuilds = "Your password builds your checkout in %1 as root (btechos dev)";
 		cfgSaved = "All applied";
 		cfgPending = "%1 changes to apply";
 		cfgPendingOne = "1 change to apply";
@@ -1290,7 +1290,7 @@
 		cfgWrongPassword = "Wrong password";
 		cfgBusy = "Other changes are being applied";
 		cfgInvalid = "Those settings are not valid";
-		cfgLogHint = "The log: /run/nihil/apply.log";
+		cfgLogHint = "The log: /run/btechos/apply.log";
 		cfgNotifyApplied = "Preferences applied";
 		cfgNotifyFailed = "The preferences couldn't be applied";
 		bindLauncher = "Launcher";
@@ -1319,7 +1319,7 @@
 		diskPassphrase = "Disk passphrase";
 		welHello = "Hello, %1";
 		welHelloAnon = "Hello";
-		welHelloBody = "This is NIHIL: a black desktop, made of dots and quiet, that only shows up when you call it. A minute to show it to you and make it yours.";
+		welHelloBody = "This is BTechOS: a black desktop, made of dots and quiet, that only shows up when you call it. A minute to show it to you and make it yours.";
 		welFrameTitle = "The frame";
 		welFrameBody = "Everything comes out of the screen's edges: bring the pointer to the edge, or use its key.";
 		welDashboard = "The dashboard: time, system, music and tasks";
@@ -1336,7 +1336,7 @@
 		welGestures = "With three fingers: sideways you switch workspace, up opens the launcher, down closes the window and spreading them maximises it.";
 		welDoneTitle = "Ready";
 		welDoneBody = "Shortcuts and everything else are in Preferences: with its key, or the cog in quick settings.";
-		welDoneApply = "To keep what you changed, NIHIL rebuilds the system: type your password.";
+		welDoneApply = "To keep what you changed, BTechOS rebuilds the system: type your password.";
 		welSkip = "Skip";
 		welBack = "Back";
 		welNext = "Next";
@@ -1347,7 +1347,7 @@
 		cfgHideLog = "Hide";
 		bindWallpapers = "Wallpapers; held, choose one";
 		welNetTitle = "A network";
-		welNetBody = "NIHIL updates and applies changes over the internet: connect to a network.";
+		welNetBody = "BTechOS updates and applies changes over the internet: connect to a network.";
 		welNetDone = "Connected to %1.";
 		wpHint = "[%1] Next|[Shift + %1] Previous|[← →] Choose|[Enter] Keep|[Esc] Back";
 		ovHint = "[%1] Next|[Shift + %1] Previous|[← →] Choose|[Enter] Go|[Esc] Back";
@@ -1363,17 +1363,17 @@
 		cfgClipboardWipe = "Forget";
 		updBehind = "%1 new commits on GitHub";
 		updBehindOne = "One new commit on GitHub";
-		updCurrent = "NIHIL is up to date, at %1";
+		updCurrent = "BTechOS is up to date, at %1";
 		updOffline = "GitHub can't be reached";
-		updUnknown = "This NIHIL doesn't come from GitHub";
+		updUnknown = "This BTechOS doesn't come from GitHub";
 		updChecking = "Looking for something new…";
-		updDev = "Your checkout runs now (nihil dev): updating goes back to GitHub's.";
+		updDev = "Your checkout runs now (btechos dev): updating goes back to GitHub's.";
 		updMore = "And %1 more";
 		updUpdate = "Update";
-		updApplying = "Updating NIHIL (%1)";
-		updDone = "NIHIL updated";
+		updApplying = "Updating BTechOS (%1)";
+		updDone = "BTechOS updated";
 		updFailed = "Couldn't update";
-		updNotifyFailed = "NIHIL couldn't be updated";
+		updNotifyFailed = "BTechOS couldn't be updated";
 		cfgGenerations = "Generations";
 		genNone = "There are none yet.";
 		genListFailed = "The generations couldn't be read.";
@@ -1406,7 +1406,7 @@
 		cfgDevices = "Devices";
 		deckUse = "Use devices";
 		deckBluetooth = "Without a network, over Bluetooth";
-		deckDown = "The service doesn't answer: systemctl --user status nihil-deck";
+		deckDown = "The service doesn't answer: systemctl --user status btechos-deck";
 		deckPairTitle = "Pairing";
 		deckWatchTitle = "A watch";
 		deckWatchInstall = "Install on a watch";
@@ -1508,15 +1508,15 @@
 		cfgCalendarErrCalendar = "That address doesn't give a calendar";
 		cfgCalendarUnread = "Couldn't be read last time";
 
-		# The installer: its window (installer/gui) and its text mode (nihil-install), from
-		# /etc/nihil/strings.json. %1, %2… are what each fills in.
+		# The installer: its window (installer/gui) and its text mode (btechos-install), from
+		# /etc/btechos/strings.json. %1, %2… are what each fills in.
 		insAllOfIt = "All of it, %1";
-		insAlreadyInstalled = "NIHIL is already installed on this computer. Restart now?";
+		insAlreadyInstalled = "BTechOS is already installed on this computer. Restart now?";
 		insAnother = "Another";
 		insBack = "Back";
 		insBadDisk = "That disk can't be used.";
 		insBadHost = "That computer name can't be used.";
-		insBadRoot = "NIHIL can't go on %1.";
+		insBadRoot = "BTechOS can't go on %1.";
 		insBadPassword = "A password can't have control characters.";
 		insBadUser = "That user name can't be used.";
 		insBitLocker = "If Windows uses BitLocker, it may ask for its recovery key: keep it at hand.";
@@ -1549,18 +1549,18 @@
 		insExt4Ask = "%1 (ext4) was not shut down cleanly and needs a check before it can be measured. Check it now (e2fsck)?";
 		insExt4Check = "%1: its ext4 needs a check first (it was not shut down cleanly). Start its system and shut it down, or run sudo e2fsck -f %1 in another console (Alt+F2), and start the installer again.";
 		insFormatted = "%1 will be formatted; the rest of %2 stays as it is.";
-		insFreeGoes = "NIHIL goes in %1 of free space on %2; the rest stays as it is.";
+		insFreeGoes = "BTechOS goes in %1 of free space on %2; the rest stays as it is.";
 		insFreeGone = "That free space is no longer there.";
 		insFreeSpace = "Its free space";
-		insGbRange = "GB for NIHIL, from %1 to %2";
+		insGbRange = "GB for BTechOS, from %1 to %2";
 		insGivesLess = "%1 can't give that much.";
-		insGoesOn = "NIHIL goes on";
+		insGoesOn = "BTechOS goes on";
 		insHello = "Hello";
 		insHibernated = "%1: Windows is hibernated, or was shut down with fast startup. Turn fast startup off in Windows, shut it down, and start the installer again.";
 		insInUse = "Something still uses it (%1): free it from another console (Alt+F2) and try again.";
 		insInstall = "Install";
 		insInstallAgain = "Install again";
-		insInstallAsk = "Install NIHIL?";
+		insInstallAsk = "Install BTechOS?";
 		insInstallOn = "Install on";
 		insInstalled = "Installed";
 		insInstalling = "Installing";
@@ -1570,16 +1570,16 @@
 		insLater = "Later";
 		insLeave = "Leave the installer";
 		insLeaveIt = "Leave it";
-		insLog = "The whole log is in /tmp/nihil-install.log.";
+		insLog = "The whole log is in /tmp/btechos-install.log.";
 		insLookAgain = "Look again";
 		insLooking = "Looking…";
 		insLookingDisks = "Looking at the disks…";
 		insLookingParts = "Looking at what its partitions hold…";
 		insMismatch = "They don't match (or it's empty). Again.";
-		insNeedsAtLeast = "NIHIL needs at least %1.";
-		insNeedsBoot = "NIHIL also needs a partition of 1 GB for booting: make room for NIHIL instead.";
-		insNeedsBootShort = "NIHIL also needs a partition of 1 GB for booting.";
-		insNeedsUefi = "NIHIL needs UEFI, and this computer started in legacy BIOS mode.";
+		insNeedsAtLeast = "BTechOS needs at least %1.";
+		insNeedsBoot = "BTechOS also needs a partition of 1 GB for booting: make room for BTechOS instead.";
+		insNeedsBootShort = "BTechOS also needs a partition of 1 GB for booting.";
+		insNeedsUefi = "BTechOS needs UEFI, and this computer started in legacy BIOS mode.";
 		insNetwork = "Network";
 		insNewPartitions = "The new partitions of %1 can't be read: something still uses it. Restart and try again.";
 		insNextTo = "Next to what is on it";
@@ -1589,15 +1589,15 @@
 		insNoEncrypt = "Don't encrypt";
 		insNoGpt = "%1 has no GPT partition table.";
 		insNoGptMake = "%1 has no GPT partition table: make one in cfdisk, or erase the whole disk.";
-		insNoGptNextTo = "%1 has no GPT partition table (an old Windows on MBR, or nothing yet): NIHIL can only go next to another system on GPT. Erase the whole disk, or convert it from Windows (mbr2gpt).";
+		insNoGptNextTo = "%1 has no GPT partition table (an old Windows on MBR, or nothing yet): BTechOS can only go next to another system on GPT. Erase the whole disk, or convert it from Windows (mbr2gpt).";
 		insNoKeymap = "The console has no keymap called %1, so here the keys type as on a US keyboard: a password chosen now may not be what the same keys type at the login. Letters and digits are the safest.";
-		insNoPartition = "No partition of 20 GB or more: make room for NIHIL instead.";
-		insNoRoom = "There is no room for NIHIL next to what is on %1: it needs %2.";
-		insNoRoot = "%1 has no partition NIHIL can go on.";
+		insNoPartition = "No partition of 20 GB or more: make room for BTechOS instead.";
+		insNoRoom = "There is no room for BTechOS next to what is on %1: it needs %2.";
+		insNoRoot = "%1 has no partition BTechOS can go on.";
 		insNoShrink = "%1: %2 cannot be shrunk.";
 		insNoSource = "%1 can't be reached: nothing was touched.";
-		insNoSize = "No size was given for NIHIL.";
-		insNoWhere = "Where NIHIL goes was not chosen.";
+		insNoSize = "No size was given for BTechOS.";
+		insNoWhere = "Where BTechOS goes was not chosen.";
 		insNoWifi = "No Wi-Fi card shows up: a cable, or a phone sharing its connection over USB, work too.";
 		insNotConnected = "It didn't connect.";
 		insWrongKey = "That isn't this network's password.";
@@ -1605,7 +1605,7 @@
 		insOutOfRange = "That network isn't in range any more.";
 		insNtfsCheck = "%1: its NTFS has to be checked first. Start Windows, restart it once, and start the installer again.";
 		insOffline = "There is no connection to the internet.";
-		insOfflineHelp = "sudo nihil-install starts it again; nmcli device lists the network cards.";
+		insOfflineHelp = "sudo btechos-install starts it again; nmcli device lists the network cards.";
 		insOnPartition = "On one of its partitions";
 		insOther = "Other";
 		insOtherAmount = "Another amount";
@@ -1618,13 +1618,13 @@
 		insRestart = "Restart";
 		insRestartAsk = "Restart now?";
 		insRetrying = "Something couldn't be downloaded; trying once more…";
-		insRoomFor = "Room for NIHIL";
+		insRoomFor = "Room for BTechOS";
 		insRoomIn = "Room in %1";
 		insSearch = "Search";
-		insShrinkGives = "%1 will give %2 to NIHIL, keeping what it holds; the rest of %3 stays as it is.";
+		insShrinkGives = "%1 will give %2 to BTechOS, keeping what it holds; the rest of %3 stays as it is.";
 		insShrinkSafe = "Shrinking is safe, but a power cut halfway is not: keep a copy of what matters on it.";
 		insShrinking = "Shrinking %1: it can take a few minutes…";
-		insStoppedAgain = "The installation stopped here. sudo nihil-install starts it again.";
+		insStoppedAgain = "The installation stopped here. sudo btechos-install starts it again.";
 		insStoppedHere = "The installation stopped here.";
 		insStoppedTitle = "Stopped";
 		insTakeUsb = "Take the USB stick out as it restarts.";
@@ -1639,7 +1639,7 @@
 		insUserName = "User name";
 		insUserRule = "Lowercase letters, digits, _ and -, starting with a letter or _.";
 		insWhere = "Where";
-		insWhereGoes = "Where NIHIL goes";
+		insWhereGoes = "Where BTechOS goes";
 		insWhereOn = "Where on %1";
 		insWhole = "Erase the whole disk";
 		insWindowsCheck = "Windows will check its disk as it starts: let it finish.";
@@ -1652,7 +1652,7 @@
 		insZone = "Time zone";
 		insZoneAsk = "Time zone: %1?";
 
-		# nihil-watch (home/deck/watch.sh), in the machine's language.
+		# btechos-watch (home/deck/watch.sh), in the machine's language.
 		watchMany = "More than one watch on adb (%1): disconnect one (adb disconnect HOST:PORT).";
 		watchPairSteps = "On the watch: Developer options, Wireless debugging, Pair new device.";
 		watchLooking = "Looking for it on the network…";
@@ -1682,10 +1682,10 @@
 		watchNoInvite = "The deck gave no invitation: is it on? (%1)";
 		watchInvited = "Invited by %1: the watch pairs with it now.";
 		watchHalo = "The light on the edge needs to read the watch's notifications and an accessibility service: adb gives it both now.";
-		watchNoHalo = "The light on the edge couldn't be turned on: NIHIL's settings on the watch can.";
-		watchDone = "Done. On the watch, hold the face and choose NIHIL's.";
+		watchNoHalo = "The light on the edge couldn't be turned on: BTechOS's settings on the watch can.";
+		watchDone = "Done. On the watch, hold the face and choose BTechOS's.";
 		watchAskDebugOff = "Turn off wireless debugging on the watch? To update, you'll turn it on again [y/N] ";
-		watchNoWatch = "No watch on adb: run nihil-watch to pair it.";
+		watchNoWatch = "No watch on adb: run btechos-watch to pair it.";
 		watchUpdated = "Updated.";
 		watchForgotBoth = "The watch and this computer have forgotten each other.";
 		watchForgot = "The watch has forgotten its computer.";

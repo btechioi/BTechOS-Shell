@@ -266,7 +266,7 @@ Singleton {
             Quickshell.execDetached([Config.cmd.lock]);
             return { ok: true, value: "on" };
         }
-        return { ok: false, error: "NIHIL has no setting called " + setting };
+        return { ok: false, error: "BTechOS has no setting called " + setting };
     }
 
     onBusyChanged: if (!busy) roaming = false
@@ -303,8 +303,8 @@ Singleton {
             : (reply ? reply.text : "");
         peekFacts = kind === "confirm" ? (confirm ?? {}) : (() => { try { return JSON.parse(reply?.info || "{}"); } catch (e) { return {}; } })();
         const body = plain(peekText);
-        Quickshell.execDetached([Config.cmd.notifySend, "--app-name=Nilo", "--hint=string:x-nihil-tag:nilo",
-                                 "--hint=string:x-nihil-nilo:" + kind, "--",
+        Quickshell.execDetached([Config.cmd.notifySend, "--app-name=Nilo", "--hint=string:x-btechos-tag:nilo",
+                                 "--hint=string:x-btechos-nilo:" + kind, "--",
                                  kind === "confirm" ? Lang.niloPeekWaiting : kind === "error" ? Lang.niloPeekFailed : Lang.niloPeekDone,
                                  (body.length > 220 ? body.slice(0, 219) + "…" : body)
                                      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")]);
@@ -339,7 +339,7 @@ Singleton {
         askAs(text, "");
     }
 
-    // A question another program asked, with nihil-ipc nilo ask, says so in the chat: the cards that follow
+    // A question another program asked, with btechos-ipc nilo ask, says so in the chat: the cards that follow
     // aren't the answer to anything typed here.
     function askAs(text: string, by: string): void {
         const question = text.trim();

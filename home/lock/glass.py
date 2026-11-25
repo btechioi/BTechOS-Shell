@@ -1,4 +1,4 @@
-# glass.py by poligle (home/hyprlock.nix, nihil-lock-glass)
+# glass.py by poligle (home/hyprlock.nix, btechos-lock-glass)
 
 import argparse
 

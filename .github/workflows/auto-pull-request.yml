@@ -23,7 +23,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
           HEAD_BRANCH: ${{ github.ref_name }}
-          BASE_BRANCH: nihil
+          BASE_BRANCH: btechos
         shell: bash
         run: |
           set -euo pipefail

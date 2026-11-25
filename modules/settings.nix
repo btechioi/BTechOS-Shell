@@ -2,7 +2,7 @@
 
 { config, lib, ... }:
 let
-    s = config.nihil.settings;
+    s = config.btechos.settings;
     get = path: default: lib.attrByPath path default s;
 
     firstWord = text: lib.head (lib.splitString " " text);
@@ -14,27 +14,27 @@ let
     unknown = lib.subtractLists known (builtins.attrNames s);
 in
 {
-    options.nihil =
+    options.btechos =
     {
         settings = lib.mkOption
         {
             type = lib.types.attrs;
             default = { };
-            description = "The machine's settings.json, as read by nihil.lib.mkSystem.";
+            description = "The machine's settings.json, as read by btechos.lib.mkSystem.";
         };
 
         home = lib.mkOption
         {
             type = lib.types.listOf lib.types.deferredModule;
             default = [ ];
-            description = "Home Manager modules of this machine, added to NIHIL's for its user.";
+            description = "Home Manager modules of this machine, added to BTechOS's for its user.";
         };
 
         flake = lib.mkOption
         {
             type = lib.types.str;
             default = "/etc/nixos";
-            description = "Where the machine's flake is: nihil rebuild and nihil update use it.";
+            description = "Where the machine's flake is: btechos rebuild and btechos update use it.";
         };
 
         user =
@@ -42,7 +42,7 @@ in
             name = lib.mkOption
             {
                 type = lib.types.strMatching "[a-z_][a-z0-9_-]*";
-                default = get [ "user" "name" ] "nihil";
+                default = get [ "user" "name" ] "btechos";
                 description = "The account of the person using this machine.";
             };
 
@@ -56,7 +56,7 @@ in
             greeting = lib.mkOption
             {
                 type = lib.types.str;
-                default = if config.nihil.user.fullName != "" then firstWord config.nihil.user.fullName else "";
+                default = if config.btechos.user.fullName != "" then firstWord config.btechos.user.fullName else "";
                 description = "The name the greeter uses (the first word of fullName).";
             };
         };
@@ -79,16 +79,16 @@ in
     config =
     {
         # A key written by hand that nothing reads would otherwise change nothing, silently.
-        warnings = lib.optional (unknown != [ ]) "settings.json: keys NIHIL doesn't read: ${lib.concatStringsSep ", " unknown}.";
+        warnings = lib.optional (unknown != [ ]) "settings.json: keys BTechOS doesn't read: ${lib.concatStringsSep ", " unknown}.";
         assertions =
         [
             {
                 assertion = get [ "version" ] 1 == 1;
-                message = "settings.json: version ${toString (get [ "version" ] 1)} is newer than this NIHIL knows (1).";
+                message = "settings.json: version ${toString (get [ "version" ] 1)} is newer than this BTechOS knows (1).";
             }
         ];
 
-        networking.hostName = lib.mkDefault (get [ "host" "name" ] "nihil");
+        networking.hostName = lib.mkDefault (get [ "host" "name" ] "btechos");
         time.timeZone = lib.mkDefault (get [ "timeZone" ] "UTC");
         i18n.defaultLocale = lib.mkDefault (get [ "locale" ] "en_US.UTF-8");
 
@@ -105,26 +105,26 @@ in
             settings =
             {
                 PermitRootLogin = lib.mkDefault "no";
-                AllowUsers = lib.mkDefault [ config.nihil.user.name ];
+                AllowUsers = lib.mkDefault [ config.btechos.user.name ];
                 PasswordAuthentication = lib.mkDefault (sshKeys == [ ]);
                 KbdInteractiveAuthentication = lib.mkDefault false;
             };
         };
         # With the password still accepted, repeated failures from an address block it for a while.
         services.sshguard.enable = lib.mkDefault (get [ "ssh" ] false && sshKeys == [ ]);
-        users.users.${config.nihil.user.name}.openssh.authorizedKeys.keys = sshKeys;
-        nihil.generations.days = lib.mkDefault (get [ "generations" "days" ] 7);
-        nihil.deck.enable = lib.mkDefault (get [ "deck" "enable" ] false);
-        nihil.deck.interfaces = lib.mkDefault (get [ "deck" "interfaces" ] [ ]);
-        nihil.deck.bluetooth = lib.mkDefault (get [ "deck" "bluetooth" ] true);
+        users.users.${config.btechos.user.name}.openssh.authorizedKeys.keys = sshKeys;
+        btechos.generations.days = lib.mkDefault (get [ "generations" "days" ] 7);
+        btechos.deck.enable = lib.mkDefault (get [ "deck" "enable" ] false);
+        btechos.deck.interfaces = lib.mkDefault (get [ "deck" "interfaces" ] [ ]);
+        btechos.deck.bluetooth = lib.mkDefault (get [ "deck" "bluetooth" ] true);
 
         # Each at the lowest priority, key by key: local.nix changes one key, a screen or the list of
         # programs without a conflict, and adds to them without losing settings.json's.
-        nihil.binds = lib.mapAttrs (_: lib.mkDefault) (get [ "binds" ] { });
-        nihil.gestures = lib.mapAttrs (_: lib.mkDefault) (get [ "gestures" ] { });
-        nihil.programs = lib.mkIf (get [ "programs" ] null != null) (lib.mkDefault (get [ "programs" ] [ ]));
+        btechos.binds = lib.mapAttrs (_: lib.mkDefault) (get [ "binds" ] { });
+        btechos.gestures = lib.mapAttrs (_: lib.mkDefault) (get [ "gestures" ] { });
+        btechos.programs = lib.mkIf (get [ "programs" ] null != null) (lib.mkDefault (get [ "programs" ] [ ]));
 
-        nihil =
+        btechos =
         {
             language = lib.mkDefault (get [ "language" ] "en");
             clipboard = lib.mkDefault (get [ "clipboard" ] 8);
@@ -134,7 +134,7 @@ in
             # Among the screens in the end, local.nix's too: a laptop's panel, else one of settings.json's.
             primaryOutput = lib.mkDefault (get [ "primaryOutput" ]
                 (let
-                    names = builtins.attrNames config.nihil.outputs;
+                    names = builtins.attrNames config.btechos.outputs;
                     order = lib.filter (lib.hasPrefix "eDP") names
                         ++ lib.filter (name: outputs ? ${name}) names ++ names;
                 in

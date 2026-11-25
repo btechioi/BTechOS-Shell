@@ -48,7 +48,7 @@ Singleton {
     property var widgetSizes: ({})
     // What a widget is told, by name and then by key: whose GitHub contributions, a note's text.
     property var widgetOptions: ({})
-    // Moving them about: a long press on one, Arrange in Preferences, nihil-ipc widgets arrange.
+    // Moving them about: a long press on one, Arrange in Preferences, btechos-ipc widgets arrange.
     // Nothing is kept until it ends with Enter; Esc puts back what was there when it began.
     property bool arranging: false
     property var arrangedFrom: null
@@ -98,7 +98,7 @@ Singleton {
         onTriggered: root.now = Date.now()
     }
 
-    readonly property string stateDir: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/nihil"
+    readonly property string stateDir: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/btechos"
 
     function clone(value: var): var {
         return JSON.parse(JSON.stringify(value === undefined ? {} : value));
@@ -151,7 +151,7 @@ Singleton {
             || (value !== null && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0);
     }
 
-    // A key that isn't there and one that holds nothing ({}) are the same to NIHIL.
+    // A key that isn't there and one that holds nothing ({}) are the same to BTechOS.
     function differences(a: var, b: var): int {
         if (root.empty(a) && root.empty(b))
             return 0;
@@ -165,7 +165,7 @@ Singleton {
     }
 
     // What the draft changed from `base`, over `next`: settings.json changed under a draft (by
-    // nihil settings, say) keeps both, and applying the draft doesn't undo the other change. A
+    // btechos settings, say) keeps both, and applying the draft doesn't undo the other change. A
     // value both changed keeps the draft's, the one on screen.
     function rebase(base: var, draft: var, next: var): var {
         if (root.differences(base, draft) === 0)
@@ -603,7 +603,7 @@ Singleton {
     }
 
     function notify(title: string, body: string): void {
-        Quickshell.execDetached([Config.cmd.notifySend, "-a", "NIHIL", "--", title, body]);
+        Quickshell.execDetached([Config.cmd.notifySend, "-a", "BTechOS", "--", title, body]);
     }
 
     function cause(lines: var): string {
@@ -628,7 +628,7 @@ Singleton {
     }
 
     function report(text: string): void {
-        const parts = text.split("--nihil--");
+        const parts = text.split("--btechos--");
         const status = parts[0].trim();
         if (parts.length > 2 && parts[1].trim() !== "")
             root.kind = parts[1].trim();
@@ -670,10 +670,10 @@ Singleton {
 
     function facts(lines: var): void {
         for (let i = 0; i < lines.length; i++) {
-            const to = /^nihil: generation ([0-9]+)$/.exec(lines[i].trim());
+            const to = /^btechos: generation ([0-9]+)$/.exec(lines[i].trim());
             if (to)
                 root.target = Number(to[1]);
-            const freed = /^nihil: freed ([0-9]+)$/.exec(lines[i].trim());
+            const freed = /^btechos: freed ([0-9]+)$/.exec(lines[i].trim());
             if (freed)
                 root.freed = Number(freed[1]);
         }
@@ -691,7 +691,7 @@ Singleton {
                 root.saved = next;
                 root.loaded = true;
             } catch (error) {
-                console.warn("nihil: settings:", path, "is not valid JSON:", error);
+                console.warn("btechos: settings:", path, "is not valid JSON:", error);
             }
         }
     }
@@ -758,8 +758,8 @@ Singleton {
 
     // Never /tmp: another user could make these files first, and root reads them.
     readonly property string runtimeDir: Quickshell.env("XDG_RUNTIME_DIR") ?? ""
-    readonly property string newPassword: runtimeDir + "/nihil-new-password"
-    readonly property string sudoAsk: 'umask 077; flag="${XDG_RUNTIME_DIR:?}/nihil-sudo-password"; '
+    readonly property string newPassword: runtimeDir + "/btechos-new-password"
+    readonly property string sudoAsk: 'umask 077; flag="${XDG_RUNTIME_DIR:?}/btechos-sudo-password"; '
         + 'if [ "$1" = password ]; then echo $$ > "$flag"; else rm -f "$flag"; fi; '
         + 'if [ -n "$2" ]; then IFS= read -r line && printf "%s\\n" "$line" > "$2" || exit 4; fi; '
         + 'shift 2; exec "$@"'
@@ -774,7 +774,7 @@ Singleton {
         // and read once it's answered (as long as a finger takes), could be changed in between by
         // anything running as this user, and applied with the authority given for this one.
         command: [Config.cmd.sh, "-c", root.sudoAsk, "sh", mode, "",
-            Config.cmd.sudo, "-k", "-S", "-p", "", Config.cmd.nihil, "apply", "-"]
+            Config.cmd.sudo, "-k", "-S", "-p", "", Config.cmd.btechos, "apply", "-"]
         stdinEnabled: true
         onStarted: {
             write(input);
@@ -810,7 +810,7 @@ Singleton {
         property string mode: "password"
 
         command: [Config.cmd.sh, "-c", root.sudoAsk, "sh", mode, "",
-            Config.cmd.sudo, "-k", "-S", "-p", "", Config.cmd.nihil, "update", "--unit"]
+            Config.cmd.sudo, "-k", "-S", "-p", "", Config.cmd.btechos, "update", "--unit"]
         stdinEnabled: true
         onStarted: {
             write(input);
@@ -847,7 +847,7 @@ Singleton {
         property int value: 0
 
         command: [Config.cmd.sh, "-c", root.sudoAsk, "sh", mode, "",
-            Config.cmd.sudo, "-k", "-S", "-p", "", Config.cmd.nihil, "generations", action, String(value)]
+            Config.cmd.sudo, "-k", "-S", "-p", "", Config.cmd.btechos, "generations", action, String(value)]
             .concat(action === "boot" ? [] : ["--unit"])
         stdinEnabled: true
         onStarted: {
@@ -886,7 +886,7 @@ Singleton {
         property string input: ""
 
         command: [Config.cmd.sh, "-c", root.sudoAsk, "sh", "password", root.newPassword,
-            Config.cmd.sudo, "-k", "-S", "-p", "", Config.cmd.nihil, "passwd"]
+            Config.cmd.sudo, "-k", "-S", "-p", "", Config.cmd.btechos, "passwd"]
         stdinEnabled: true
         onStarted: {
             write(input);
@@ -895,9 +895,9 @@ Singleton {
         }
         onExited: code => {
             stdinEnabled = true;
-            // sudo says 1 when the current password is wrong; nihil passwd, 3 or 4 when it can't change it.
+            // sudo says 1 when the current password is wrong; btechos passwd, 3 or 4 when it can't change it.
             root.passwordState = code === 0 ? "done" : code === 1 ? "wrong" : "failed";
-            // nihil passwd takes the file away; without it having run, it is still there.
+            // btechos passwd takes the file away; without it having run, it is still there.
             if (code !== 0)
                 Quickshell.execDetached([Config.cmd.sh, "-c", 'rm -f -- "$1"', "sh", root.newPassword]);
         }
@@ -915,13 +915,13 @@ Singleton {
 
     // A unit killed outright (SIGKILL, out of memory) can't say how it ended: running with no
     // unit, for longer than starting one takes, is a failure, or the shell would wait for it.
-    readonly property string statusScript: "s=$(cat /run/nihil/apply.status 2>/dev/null); if [ \"$s\" = running ] && ! "
-        + Config.cmd.systemctl + " is-active --quiet nihil-apply.service && "
-        + "[ $(( $(date +%s) - $(stat -c %Y /run/nihil/apply.status) )) -gt 10 ]; then s=failed; fi; echo \"$s\"; "
+    readonly property string statusScript: "s=$(cat /run/btechos/apply.status 2>/dev/null); if [ \"$s\" = running ] && ! "
+        + Config.cmd.systemctl + " is-active --quiet btechos-apply.service && "
+        + "[ $(( $(date +%s) - $(stat -c %Y /run/btechos/apply.status) )) -gt 10 ]; then s=failed; fi; echo \"$s\"; "
 
     Process {
         id: peek
-        command: [Config.cmd.sh, "-c", root.statusScript + "echo --nihil--; cat /run/nihil/apply.kind 2>/dev/null; echo --nihil--; tail -n 60 /run/nihil/apply.log 2>/dev/null; echo --nihil--; " + root.counting + " /run/nihil/apply.log 2>/dev/null"]
+        command: [Config.cmd.sh, "-c", root.statusScript + "echo --btechos--; cat /run/btechos/apply.kind 2>/dev/null; echo --btechos--; tail -n 60 /run/btechos/apply.log 2>/dev/null; echo --btechos--; " + root.counting + " /run/btechos/apply.log 2>/dev/null"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: root.report(text)

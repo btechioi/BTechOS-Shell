@@ -248,10 +248,10 @@ END:VCALENDAR
         out = io.StringIO()
         with mock.patch.object(calendars, "fetch", self.reader), mock.patch.object(sys, "stdin", io.StringIO("webcal://example.org/uni.ics\n")), \
                 mock.patch.object(sys, "stdout", out):
-            self.assertEqual(calendars.main(["nihil-calendar", "add"]), 0)
+            self.assertEqual(calendars.main(["btechos-calendar", "add"]), 0)
         self.assertEqual(json.loads(out.getvalue())["name"], "Uni")
         with mock.patch.object(sys, "stderr", io.StringIO()):
-            self.assertEqual(calendars.main(["nihil-calendar", "add", "https://example.org/uni.ics"]), 2)
+            self.assertEqual(calendars.main(["btechos-calendar", "add", "https://example.org/uni.ics"]), 2)
 
 
 if __name__ == "__main__":
