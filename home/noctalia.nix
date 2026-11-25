@@ -83,12 +83,6 @@
                     community_ids = [ "zen-browser" "pywalfox" ];
                     builtin_ids = [
                         "cava"
-                        "hyprland"
-                        "labwc"
-                        "mango"
-                        "niri"
-                        "scroll"
-                        "sway"
                         "umbriel"
                         "emacs"
                         "helix"
