@@ -11,6 +11,7 @@
 		./home/desktop-entries.nix
 		./home/default-apps.nix
 		./home/viewers.nix
+		./home/archives.nix
 		./home/zen.nix
 		./home/bluetooth.nix
 		./home/cli.nix
