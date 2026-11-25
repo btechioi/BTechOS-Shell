@@ -13,11 +13,11 @@ let
     };
 in
 {
-    xdg.desktopEntries.nihil-settings =
+    xdg.desktopEntries.noctalia-settings =
     {
-        name = osConfig.nihil.strings.cfgTitle;
-        comment = osConfig.nihil.strings.cfgComment;
-        exec = "nihil-ipc settings open";
+        name = "Settings";
+        comment = "Noctalia settings";
+        exec = "noctalia msg settings-toggle";
         icon = "preferences-system";
         terminal = false;
         categories = [ "Settings" ];
