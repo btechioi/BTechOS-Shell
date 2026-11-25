@@ -11,7 +11,10 @@ in
         enable = true;
         package = inputs.umbriel.packages.${pkgs.stdenv.hostPlatform.system}.default;
         settings = {
-            general.autostart = [ "noctalia" ];
+            general.autostart = [ "noctalia" ] ++
+                (if osConfig.networking.hostName == "my-laptop" then [ "deskflow-core server" ]
+                 else if osConfig.networking.hostName == "my-pc" then [ "deskflow-core client my-laptop" ]
+                 else [ ]);
 
             include.optional.files = [ "${config.home.homeDirectory}/.config/umbriel/noctalia.toml" ];
 

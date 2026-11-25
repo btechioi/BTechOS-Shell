@@ -5,15 +5,15 @@
   </picture>
 </p>
 
-<p align="center"><i>ex btechoso</i></p>
+<p align="center"><i>ex nihilo</i></p>
 
 <p align="center">A monochrome, dot-matrix desktop for NixOS</p>
 
 <p align="center">
   <a href="https://btechosshell.com/">Website</a> &nbsp;&nbsp;&nbsp;
   <a href="docs/install.md">Install</a> &nbsp;&nbsp;&nbsp;
-  <a href="https://github.com/poligle/BTechOS-Launcher">BTechOS for Android</a> &nbsp;&nbsp;&nbsp;
-  <a href="https://github.com/poligle/BTechOS-Wear">BTechOS for Wear OS</a>
+  <a href="https://github.com/btechioi/Nihil-Launcher">BTechOS for Android</a> &nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/btechioi/BTechOS-Wear">BTechOS for Wear OS</a>
 </p>
 
 ![BTechOS desktop](docs/assets/screens/desktop.png)

@@ -114,6 +114,20 @@
 				modules = [ ./templates/example/hardware-configuration.nix ./templates/example/vm.nix ./templates/machine/local.nix ];
 				home = [ ./templates/machine/home.nix ];
 			};
+
+			my-laptop = self.lib.mkSystem
+			{
+				settings = builtins.fromJSON (builtins.readFile ./hosts/my-laptop/settings.json);
+				modules = [ ./hosts/my-laptop/hardware-configuration.nix ];
+				home = [ ./hosts/my-laptop/home.nix ];
+			};
+
+			my-pc = self.lib.mkSystem
+			{
+				settings = builtins.fromJSON (builtins.readFile ./hosts/my-pc/settings.json);
+				modules = [ ./hosts/my-pc/hardware-configuration.nix ];
+				home = [ ./hosts/my-pc/home.nix ];
+			};
 		};
 
 		packages.${system}.iso = self.nixosConfigurations.installer.config.system.build.isoImage;

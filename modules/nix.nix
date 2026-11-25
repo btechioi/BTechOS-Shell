@@ -10,6 +10,8 @@
 
     config =
     {
+        system.stateVersion = lib.mkDefault "26.05";
+
         nix =
         {
             settings.experimental-features = [ "nix-command" "flakes" ];

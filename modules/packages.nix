@@ -52,6 +52,7 @@ in
         freesm
         hyprkvmPkg
         wl-clipboard
+        deskflow
         kdePackages.plasma-browser-integration
 
         # Dev tooling
