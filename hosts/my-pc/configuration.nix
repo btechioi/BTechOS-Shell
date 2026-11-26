@@ -7,4 +7,6 @@
 
 	btechos.darkshadow.enable = true;
 	btechos.darkshadow.user = config.btechos.user.name;
+
+	btechos.flatpaks.enable = true;
 }

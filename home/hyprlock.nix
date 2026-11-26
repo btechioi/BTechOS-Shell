@@ -215,7 +215,6 @@ let
 	};
 in
 {
-	stylix.targets.hyprlock.enable = false;
 
 	home.packages = [ lockGlass ];
 

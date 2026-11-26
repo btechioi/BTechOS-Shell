@@ -13,12 +13,6 @@
 			inputs.nixpkgs.follows = "nixpkgs";
 		};
 
-		stylix =
-		{
-			url = "github:nix-community/stylix/release-26.05";
-			inputs.nixpkgs.follows = "nixpkgs";
-		};
-
 		zen-browser =
 		{
 			url = "github:0xc000022070/zen-browser-flake";
@@ -39,7 +33,7 @@
 			url = "github:shadowww-dev/DarkShadowShell";
 		};
 	};
-	outputs = inputs@{ self, nixpkgs, home-manager, stylix, zen-browser, nixpkgs-unstable, freesmlauncher, darkshadowShell, ... }:
+	outputs = inputs@{ self, nixpkgs, home-manager, zen-browser, nixpkgs-unstable, freesmlauncher, darkshadowShell, ... }:
 	let
 		system = "x86_64-linux";
 		pkgs = nixpkgs.legacyPackages.${system};
@@ -53,7 +47,6 @@
 		{
 			imports =
 			[
-				stylix.nixosModules.stylix
 				home-manager.nixosModules.home-manager
 				inputs.darkshadowShell.nixosModules.default
 				./modules

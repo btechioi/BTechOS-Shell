@@ -5,103 +5,98 @@
   </picture>
 </p>
 
-<p align="center"><i>ex btechoso</i></p>
-
-<p align="center">A monochrome, dot-matrix desktop for NixOS</p>
+<p align="center"><b>A multi-host NixOS configuration that runs DarkShadow's Shell.</b></p>
 
 <p align="center">
-  <a href="https://btechosshell.com/">Website</a> &nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/shadowww-dev/DarkShadowShell">DarkShadow's Shell</a> &nbsp;&nbsp;&nbsp;
   <a href="docs/install.md">Install</a> &nbsp;&nbsp;&nbsp;
-  <a href="https://github.com/poligle/BTechOS-Launcher">BTechOS for Android</a> &nbsp;&nbsp;&nbsp;
-  <a href="https://github.com/poligle/BTechOS-Wear">BTechOS for Wear OS</a>
+  <a href="docs/reference.md">Reference</a> &nbsp;&nbsp;&nbsp;
+  <a href="docs/inside.md">Inside</a>
 </p>
 
-![BTechOS desktop](docs/assets/screens/desktop.png)
+BTechOS is a personal NixOS configuration for a laptop and a desktop. It installs and
+configures [DarkShadow's Shell](https://github.com/shadowww-dev/DarkShadowShell) — the
+Hyprland/niri rice by [shadoww.dev](https://www.tiktok.com/@shadoww.dev) — and keeps the
+machine-specific parts of the setup in one flake.
 
-BTechOS is a personal NixOS configuration. It takes the structure of
-[Caelestia](https://github.com/caelestia-dots/shell), a frame around the screen with
-drawers that grow out of it, and dresses it in the language of Nothing: monochrome,
-dot-matrix type, red only to interrupt, and light that runs along the edge. All of it is
-declared in Nix, and one file, [`theme/btechos.nix`](theme/btechos.nix), holds the tokens that
-GTK, the terminal, the compositor, the lock screen and the shell are made from.
+The shell comes from the `darkshadowShell` flake input, currently pinned to **V6.55** in
+`flake.lock`. NixOS installs the packages and the SDDM login screen; the shell's own
+installer and the patches in this repository manage the user's dotfiles.
 
-> *BTechOS* is Latin for "nothing", the way *caelestia* is Latin for "the heavenly". And
-> *ex btechoso*, from nothing, is also what NixOS does: the whole system, rebuilt from a
-> declaration.
+## What the shell provides
 
-| | |
-|:---:|:---:|
-| ![Dashboard](docs/assets/screens/dashboard.png) | ![Quick settings](docs/assets/screens/settings.png) |
-| Dashboard <kbd>SUPER</kbd> <kbd>D</kbd> | Quick settings <kbd>SUPER</kbd> <kbd>P</kbd> |
-| ![Launcher](docs/assets/screens/launcher.png) | ![Clipboard history](docs/assets/screens/clipboard.png) |
-| Launcher <kbd>SUPER</kbd> <kbd>Space</kbd> | Clipboard history, holding <kbd>SUPER</kbd> <kbd>V</kbd> |
-| ![Wallpapers](docs/assets/screens/wallpapers.png) | ![Preferences](docs/assets/screens/preferences.png) |
-| Wallpapers in dots <kbd>SUPER</kbd> <kbd>W</kbd> | Preferences <kbd>SUPER</kbd> <kbd>O</kbd> |
-| ![Every workspace](docs/assets/screens/overview.png) | ![A notification](docs/assets/screens/notification.png) |
-| Every workspace, holding <kbd>SUPER</kbd> <kbd>A</kbd> | A notification, its light along the frame |
+From DarkShadowShell's own description:
 
-<p align="center">
-  <img src="docs/assets/screens/glass/terminal.png" width="720" alt="kitty with fastfetch in dots, the wallpaper blurred and darkened through it, and the frame and the bar in smoked glass.">
-</p>
+- A **Quickshell settings app** (`SUPER + U`) in the style of Material 3, where the bar,
+  wallpaper, appearance, motion, desktop, sound, system and gaming settings are all sliders
+  and switches.
+- A bar, app launcher, desktop widgets and a dock, with Hyprland or niri as the compositor.
+- **Colors from the wallpaper** through matugen. Stylix is intentionally absent: it used to
+  rewrite GTK/Qt/terminal colors, which fought the shell's dynamic themes. OpenCode follows
+  the system theme too.
+- A Material 3 **SDDM** login screen that follows the user's wallpaper and colors.
+- The rest of the shell's feature set — layouts, presets, modes, the Update Center and the
+  portal integration — comes from upstream; see its
+  [README](https://github.com/shadowww-dev/DarkShadowShell#readme) and
+  [docs](https://github.com/shadowww-dev/DarkShadowShell/tree/main/docs).
 
-<p align="center"><sub>The same, in smoked glass: one switch in Preferences.</sub></p>
+<video width="720" controls src="https://github.com/shadowww-dev/DarkShadowShell/releases/download/v5.06/darkshadow-showcase.mp4"></video>
 
-## What's in it
+## What BTechOS adds
 
-- **The frame and its drawers.** One black shape around the screen; the bar is its left
-  side, and the dashboard, quick settings and the launcher grow out of it.
-- **Smoked glass,** if you choose it: the frame and every drawer turn to dark glass over
-  what is really behind them.
-- **Widgets on the desktop:** the clock, the month with what comes next from your
-  calendars, photos and notes as many as you like, the weather, the network, the system,
-  what plays and GitHub contributions, each where you put it and as big as you make it.
-- **Nilo,** an assistant with a model that runs here, and as much of the system as you
-  give it: a chat, a repository, or the whole desktop.
-- **Devices as decks,** a phone, a tablet and the watch, with [BTechOS for Android](https://github.com/poligle/BTechOS-Launcher)
-  and [BTechOS for Wear OS](https://github.com/poligle/BTechOS-Wear), over the network or, with
-  none in common, Bluetooth, and Vector to carry things between them and this computer.
-- **Preferences,** the whole system on one sheet, applied as a rebuild, with every
-  generation a click away.
-- **Wallpapers in dots,** its own sounds, and the boot splash, greeter and lock screen in
-  the same language.
-- **An installer** that makes room next to Windows, or takes a whole disk.
+- **Multi-host:** `nixosConfigurations.my-laptop` and `nixosConfigurations.my-pc`, each with
+  its own `settings.json`, hardware configuration, tracked host configuration and private
+  `local.nix`. `my-laptop` is tuned for a Dell Latitude 5480: its `eDP-1` panel runs at
+  `1366x768@60` with **0.67 scale**, plus TLP, thermald and btrfs mount options.
+- **Patches applied by Nix:** the custom patches that were previously reapplied by hand
+  from `~/DarkShadowShell-custom` are vendored in `patches/darkshadow/`. The flake patches
+  the shell source at build time and manages the patched scripts, QML, portal files and
+  user config through Home Manager.
+- **Flatpaks declared in Nix:** the ArtCraft apps that were installed by hand
+  (`ai.storyteller.artcraft-launcher` and `ai.storyteller.photocraft`) are installed from
+  their remotes on activation. [Gear Lever](https://flathub.org/apps/it.mijorus.gearlever)
+  is installed from nixpkgs.
+- **Pure evaluation:** wallpapers are read from the flake input, not from an absolute path
+  in a home directory, so `nix flake check` works without `--impure`.
+- **Installer ISO:** `nix build .#packages.x86_64-linux.iso` produces the installation image.
+
+## Layout
+
+| Path | What it is |
+|:---|:---|
+| `flake.nix` | Inputs and `nixosConfigurations` (`installer`, `example`, `my-laptop`, `my-pc`) |
+| `modules/` | NixOS modules, including `darkshadow.nix`, `darkshadow-patches.nix` and `flatpaks.nix` |
+| `hosts/` | Per-machine settings, hardware and configuration; `local.nix` is private and gitignored |
+| `patches/darkshadow/` | Vendored shell patches and the custom user config they install |
+| `installer/` | ISO and installer scripts |
+| `templates/machine/` | The machine template copied by the installer |
 
 ## Learn more
 
-- [Everything in it, in detail](docs/features.md)
 - [Install, and keep it current](docs/install.md)
 - [Keys, commands and options](docs/reference.md)
-- [Nilo](docs/nilo.md)
-- [Devices](docs/devices.md), and [the deck's protocol](docs/deck.md)
-- [Design](docs/design.md)
 - [Inside BTechOS](docs/inside.md)
+- [Features](docs/features.md), [Design](docs/design.md), [Devices](docs/devices.md)
 
 ## Credits
 
-- [Caelestia](https://github.com/caelestia-dots/shell) for the frame-and-drawers idea.
-- [Nothing](https://nothing.tech) for the design language that inspired the look. BTechOS
-  is a personal project and is not affiliated with Nothing Technology.
-- [Quickshell](https://quickshell.org), [Hyprland](https://hyprland.org),
-  [Stylix](https://github.com/nix-community/stylix) and
-  [Home Manager](https://github.com/nix-community/home-manager).
+- [DarkShadow's Shell](https://github.com/shadowww-dev/DarkShadowShell) by shadoww.dev, MIT
+  licensed, for the desktop shell, its Material 3 settings app and its dynamic theming.
+- [NixOS](https://nixos.org), [Home Manager](https://github.com/nix-community/home-manager),
+  [Hyprland](https://hyprland.org), [niri](https://github.com/YaLTeR/niri) and
+  [Quickshell](https://quickshell.org).
+- [Caelestia](https://github.com/caelestia-dots/shell) and [Nothing](https://nothing.tech)
+  for the design ideas the original project started from.
 - The NixOS logo, by Simon Frankau, Tim Cuthbertson and Daniel Baker for the NixOS Project
   ([NixOS/branding](https://github.com/NixOS/branding)), is licensed under
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); BTechOS's mark redraws it as dots.
-  BTechOS is not affiliated with or endorsed by the NixOS project.
-- The Android robot is reproduced or modified from work created and shared by Google and used
-  according to terms described in the Creative Commons 3.0 Attribution License.
-  Android is a trademark of Google LLC.
 - Fonts: Doto, Space Grotesk and Space Mono (SIL OFL 1.1), JetBrains Mono (SIL OFL 1.1).
   The website ships subsets of the first three, with their licence in `docs/assets/fonts`.
-- Icons: [Colloid](https://github.com/vinceliuice/Colloid-icon-theme) by Vince Liuice
-  (GPL-3.0), installed from nixpkgs.
-- Weather data by [Open-Meteo](https://open-meteo.com), licensed under
-  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), for the weather widget.
 
 The code and BTechOS's own sounds are MIT licensed (see `LICENSE`); the logos keep the licences
 above, and [`sounds/CREDITS.md`](sounds/CREDITS.md) says where each sound comes from.
 
 ## Notes
 
-Public repository: contains no secrets or credentials. User passwords are set with
-`passwd`, and SSH keys and fingerprint data live outside the repository.
+Public repository: contains no secrets or credentials. Machine-local files
+(`hosts/*/local.nix`) are gitignored; Wi-Fi keys, passwords and SSH keys stay on each machine.

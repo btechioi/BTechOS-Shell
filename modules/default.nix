@@ -20,7 +20,6 @@
         ./nix.nix
         ./plymouth.nix
         ./boot-sound.nix
-        ./stylix.nix
         ./direnv.nix
         ./btechos.nix
         ./btechos-cli.nix
@@ -28,5 +27,6 @@
         ./deck.nix
         ./darkshadow.nix
         ./darkshadow-patches.nix
+        ./flatpaks.nix
     ];
 }

@@ -184,8 +184,8 @@ Nothing merges by itself: try its branch, `inputs`, with `btechos dev` on a chec
 merge it; that makes a new ISO, and `btechos update` takes it to each machine.
 `nix flake update` does the same by hand.
 
-A new NixOS release, every May and November, means moving `nixpkgs`, `home-manager` and
-`stylix` in `flake.nix` to its branches together, before the one BTechOS follows reaches
+A new NixOS release, every May and November, means moving `nixpkgs` and `home-manager`
+in `flake.nix` to its branches together, before the one BTechOS follows reaches
 its end of life. `home.stateVersion` in `home.nix` stays at `26.05`, the release BTechOS's
 home started on, for every machine; `system.stateVersion` is each machine's own, in its
 `local.nix`.

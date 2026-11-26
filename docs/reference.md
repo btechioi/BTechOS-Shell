@@ -22,7 +22,7 @@ sets any of them, those without one only there.
 | `generations.days` | `7`     | How long generations stay: the weekly clean removes older ones, but the one in use and the one in use that many days ago | `generations.days` |
 | `bootSound`     | `true`     | A sound with the boot splash, unless the session was left muted | `bootSound`     |
 | `fingerprint`   | `false`    | The fingerprint reader for sudo, polkit and the greeter (fprintd) | `fingerprint` |
-| `greeter`       | `"btechos"`  | The login screen: BTechOS's own (`greeter/shell.qml`), with ReGreet in its place should it not start, or `"regreet"` alone | — |
+| `darkshadow.sddm` | `false`   | Use SDDM with DarkShadow's Material 3 login screen, following the user's wallpaper and colors | `programs.shadows-shell.sddm` |
 | `trayHidden`    | `[ "nm-applet" "blueman" ]` | Tray items to hide, by part of their id or title. The Wi-Fi and Bluetooth applets keep running for password and pairing prompts | — |
 | `nilo.enable`   | `false`    | Nilo, the assistant, and Ollama to run its model ([Nilo](nilo.md)) | `nilo.enable` |
 | `nilo.acceleration` | `"cpu"` | `"cpu"`, `"vulkan"`, `"rocm"` or `"cuda"`: what runs the model | `nilo.acceleration` |

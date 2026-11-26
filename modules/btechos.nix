@@ -1,8 +1,13 @@
 # btechos.nix by poligle
 
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs ? { }, ... }:
 let
     cfg = config.btechos;
+
+    # Store source of the shell, so wallpaper lookups stay pure (no absolute
+    # path into someone's home directory).
+    shellSrc = inputs.darkshadowShell.outPath or null;
+    wallpaperDirs = if shellSrc == null then [ ../wallpapers ] else [ "${shellSrc}/wallpapers" ];
 
     outputType = lib.types.submodule
     {
@@ -197,7 +202,7 @@ in
         {
             inherit pkgs lib;
             outputs = cfg.outputs;
-            dirs = [ /home/banumath/DarkShadowShell/wallpapers ] ++ cfg.extraWallpapers;
+            dirs = wallpaperDirs ++ cfg.extraWallpapers;
         };
         btechos.fonts = import ../theme/fonts.nix { inherit pkgs; };
 

@@ -27,7 +27,6 @@ in
         };
     };
 
-    stylix.targets.regreet.extraCss = ''
         frame.background {
             background-color: alpha(#${p.void}, 0.86);
             border: 1px solid #${p.line};

@@ -8,6 +8,8 @@
 	btechos.darkshadow.enable = true;
 	btechos.darkshadow.user = config.btechos.user.name;
 
+	btechos.flatpaks.enable = true;
+
 	# The laptop panel is the main screen: 1366x768 at 0.67 scale.
 	btechos.primaryOutput = lib.mkForce "eDP-1";
 	btechos.outputs.eDP-1 =

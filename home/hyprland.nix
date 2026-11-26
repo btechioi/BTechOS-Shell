@@ -299,7 +299,6 @@ let
 	'';
 in
 {
-	stylix.targets.hyprland.enable = false;
 
 	xdg.configFile."hypr/hyprtoolkit.conf".text = ''
 		background = 0xFF${t.base16.base00}

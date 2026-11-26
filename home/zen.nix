@@ -2,7 +2,7 @@
 
 { config, osConfig, lib, pkgs, inputs, ... }:
 let
-    colors = config.lib.stylix.colors.withHashtag;
+    colors = lib.mapAttrs (_: hex: "#${hex}") osConfig.btechos.tokens.base16;
     palette = lib.mapAttrs (_: hex: "#${hex}") osConfig.btechos.tokens.palette;
 in
 {
@@ -28,7 +28,7 @@ in
                     "widget.dmabuf.force-enabled" = true;
                 };
 
-                # Stylix's theme leaves the find bar (Ctrl + F) in Zen's light colours.
+                # The static theme leaves the find bar (Ctrl + F) in Zen's light colours.
                 userChrome = ''
                     findbar
                     {
@@ -88,6 +88,4 @@ in
             };
         };
     };
-
-    stylix.targets.zen-browser.profileNames = [ "default" ];
 }

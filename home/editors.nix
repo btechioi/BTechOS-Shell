@@ -29,17 +29,16 @@ in
 		package = opencodeStub;
 	};
 
-	# Stylix generates the theme for OpenCode 1, which keeps its choice in
-	# tui.json; version 2 reads cli.json instead, and wants the name there.
-	# The file stays the user's: only the theme keys are set.
-	home.activation.btechosOpencodeTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+	# OpenCode 2 reads cli.json. The theme follows the desktop's system theme
+	# (DarkShadow's dynamic colors), so no fixed theme name is written.
+	home.activation.opencodeSystemTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
 		cli=${lib.escapeShellArg opencodeCli}
 
 		mkdir -p "$(dirname "$cli")"
 		[ -e "$cli" ] || echo '{"$schema":"https://opencode.ai/v2/cli.json"}' > "$cli"
 
 		tmp="$(mktemp "$cli".XXXXXX)"
-		${pkgs.jq}/bin/jq '.theme = ((.theme // {}) + { name: "stylix", mode: "dark" })' "$cli" > "$tmp"
+		${pkgs.jq}/bin/jq '.theme = ((.theme // {}) + { name: "system", mode: "system" })' "$cli" > "$tmp"
 		chmod 600 "$tmp"
 		mv "$tmp" "$cli"
 	'';

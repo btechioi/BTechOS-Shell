@@ -1,9 +1,6 @@
 # gtk.nix by poligle
 
 { config, pkgs, lib, ... }:
-let
-    colors = config.lib.stylix.colors.withHashtag;
-in
 {
     gtk =
     {
@@ -42,23 +39,6 @@ in
             gtk-xft-rgba = "rgb";
         };
     };
-
-    stylix.targets.gtk.extraCss = ''
-        @define-color destructive_fg_color ${colors.base06};
-        @define-color error_fg_color ${colors.base06};
-        @define-color theme_selected_bg_color alpha(${colors.base06}, 0.25);
-        @define-color theme_selected_fg_color ${colors.base06};
-
-        .view:selected, .view:selected:focus, iconview:selected, iconview:selected:focus,
-        treeview.view:selected, treeview.view:selected:focus, flowbox flowboxchild:selected,
-        .view text:selected, iconview text:selected, textview text:selected,
-        .view text selection, iconview text selection, textview text selection,
-        entry selection, label selection, .cell:selected
-        {
-            background-color: alpha(${colors.base06}, 0.25);
-            color: ${colors.base06};
-        }
-    '';
 
     home.packages = 
     [

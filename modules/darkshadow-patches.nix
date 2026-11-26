@@ -88,7 +88,6 @@ let
     }) [ "bar" "desktop" "effects" "vibe" "wallpapers" ])
     // {
         ".config/hypr/user.lua".source = ../patches/darkshadow/external/home/banumath/.config/hypr/user.lua;
-        ".config/opencode/cli.json".source = ../patches/darkshadow/external/home/banumath/.config/opencode/cli.json;
         ".mozilla/native-messaging-hosts/org.kde.plasma.browser_integration.json".source = plasmaBrowserHostManifest;
     };
 in

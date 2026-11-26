@@ -39,15 +39,12 @@ BTechOS-Shell/
   session (`modules/boot-sound.nix`). The snowflake's LEDs wait unlit for it and switch on
   as it starts (`plymouth update --status=btechos-open`), the last of them with its last
   note; without it, they don't wait.
-- **Login:** greetd + BTechOS's greeter (`greeter/shell.qml`, Quickshell) in cage, with every
-  screen on and the greeter on the main one (`btechos.primaryOutput`, else the computer's own
-  panel), with the shell's tokens and strings. If it isn't up within ten seconds,
-  ReGreet takes its place, themed by Stylix plus BTechOS CSS; `btechos.greeter = "regreet"`
-  keeps ReGreet alone.
+- **Login:** SDDM with DarkShadow's Material 3 login screen. It follows the user's wallpaper
+  and colors (`btechos.darkshadow.user`); greetd and ReGreet are disabled.
 - **Hyprland in Lua:** the whole configuration is declared in Nix and Home Manager
   generates `hyprland.lua`. Under Lua, dispatchers are Lua too
   (`hl.dsp.focus({ workspace = "e+1" })`); Quickshell 0.3 detects it (`Hyprland.usingLua`).
-  Stylix's Hyprland target is off: BTechOS sets the colours itself.
+  BTechOS sets the colours itself, and DarkShadow's dynamic themes can change them.
 - **Quickshell and Hyprland focus:** drawers that take the keyboard use
   `WlrKeyboardFocus.OnDemand` together with a `HyprlandFocusGrab`. `Exclusive` would not
   work: Hyprland drops every focus grab when a layer becomes exclusive. The clipboard

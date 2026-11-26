@@ -54,7 +54,6 @@ in
     ];
   };
 
-  stylix.targets.plymouth.enable = lib.mkDefault false;
 
   systemd.services = lib.genAttrs [ "plymouth-poweroff" "plymouth-reboot" "plymouth-halt" "plymouth-kexec" ] (_:
   {
