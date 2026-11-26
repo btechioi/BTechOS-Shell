@@ -26,7 +26,7 @@ Singleton {
     }
 
     readonly property bool silent: muted || volume < 0.02
-    readonly property string silentFile: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/nihil/silent"
+    readonly property string silentFile: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/btechos/silent"
 
     onSilentChanged: if (sink?.audio) remember.restart()
 

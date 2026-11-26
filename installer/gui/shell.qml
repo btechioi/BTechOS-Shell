@@ -11,12 +11,12 @@ import qs.components
 ShellRoot {
     id: root
 
-    readonly property string stateFile: Quickshell.env("NIHIL_INSTALLER_STATE") || "/tmp/nihil-installer.json"
+    readonly property string stateFile: Quickshell.env("BTechOS_INSTALLER_STATE") || "/tmp/btechos-installer.json"
 
     // Every screen is on and the window spans them (cage -m extend): the installer goes on one, the
-    // computer's own panel or the first connected (NIHIL_INSTALLER_SCREEN), whose scale it has, and
+    // computer's own panel or the first connected (BTechOS_INSTALLER_SCREEN), whose scale it has, and
     // never across a bezel. With one screen, or a layout that doesn't add up, the whole window.
-    readonly property var main: Quickshell.screens.find(s => s.name === Quickshell.env("NIHIL_INSTALLER_SCREEN"))
+    readonly property var main: Quickshell.screens.find(s => s.name === Quickshell.env("BTechOS_INSTALLER_SCREEN"))
         ?? Quickshell.screens[0] ?? null
     readonly property rect area: {
         const full = Qt.rect(0, 0, window.width, window.height);
@@ -74,7 +74,7 @@ ShellRoot {
     property bool userTyped: false
     property string password: ""
     property string password2: ""
-    property string host: "nihil"
+    property string host: "btechos"
 
     property var machine: null
     property bool probing: false
@@ -282,7 +282,7 @@ ShellRoot {
     }
 
     function leave(state: var): void {
-        leaver.command = [Config.bash, "-c", "printf '%s' \"$1\" > \"$2\" && kill \"$PPID\"", "nihil-installer",
+        leaver.command = [Config.bash, "-c", "printf '%s' \"$1\" > \"$2\" && kill \"$PPID\"", "btechos-installer",
                           JSON.stringify(state), stateFile];
         leaver.running = true;
     }
@@ -303,7 +303,7 @@ ShellRoot {
         fullName = state.fullName ?? "";
         user = state.user ?? "";
         userTyped = state.userTyped === true;
-        host = state.host ?? "nihil";
+        host = state.host ?? "btechos";
         encrypt = state.encrypt === true;
         if (state.page)
             go(state.page);
@@ -329,7 +329,7 @@ ShellRoot {
         scanning = true;
         wifiList.command = [Config.bash, "-c",
             "\"$1\" \"$2\" -t -f TYPE device; echo ---; \"$1\" \"$2\" -t -f IN-USE,SIGNAL,SECURITY,SSID device wifi list --rescan \"$3\"",
-            "nihil-installer", Config.sudo, Config.nmcli, again ? "yes" : "auto"];
+            "btechos-installer", Config.sudo, Config.nmcli, again ? "yes" : "auto"];
         wifiList.running = true;
     }
 
@@ -354,7 +354,7 @@ ShellRoot {
         joiner.input = secure ? wifiPassword + "\n" : "";
         joiner.command = secure
             ? [Config.bash, "-c", 'IFS= read -r key; printf "%s\\n" "$key" | "$1" "$2" --ask device wifi connect "$3"',
-                "nihil-installer", Config.sudo, Config.nmcli, ssid]
+                "btechos-installer", Config.sudo, Config.nmcli, ssid]
             : [Config.sudo, Config.nmcli, "device", "wifi", "connect", ssid];
         joiner.running = true;
     }
@@ -632,7 +632,7 @@ ShellRoot {
 
     FileView {
         id: words
-        path: "/etc/nihil/strings.json"
+        path: "/etc/btechos/strings.json"
         blockLoading: true
     }
 
@@ -649,7 +649,7 @@ ShellRoot {
 
     Process {
         id: announce
-        command: [Config.touch, Quickshell.env("NIHIL_INSTALLER_READY") || "/dev/null"]
+        command: [Config.touch, Quickshell.env("BTechOS_INSTALLER_READY") || "/dev/null"]
     }
 
     Process {
@@ -798,7 +798,7 @@ ShellRoot {
     FloatingWindow {
         id: window
 
-        title: "NIHIL"
+        title: "BTechOS"
         color: Tokens.black
         fullscreen: true
         visible: true

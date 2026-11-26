@@ -1,4 +1,4 @@
-# nihil.nix by poligle
+# btechos.nix by poligle
 
 let
 	palette =
@@ -15,14 +15,14 @@ let
 	};
 in
 {
-	name = "NIHIL";
-	motto = "ex nihilo";
+	name = "BTechOS";
+	motto = "ex btechoso";
 
 	inherit palette;
 
 	base16 =
 	{
-		scheme = "NIHIL";
+		scheme = "BTechOS";
 		author = "poligle";
 		variant = "dark";
 

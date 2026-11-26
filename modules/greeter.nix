@@ -2,10 +2,10 @@
 
 { config, lib, pkgs, ... }:
 let
-	nihil = config.nihil;
-	qml = import ../theme/qml.nix { inherit pkgs lib nihil; };
+	btechos = config.btechos;
+	qml = import ../theme/qml.nix { inherit pkgs lib btechos; };
 	greeterUser = config.services.greetd.settings.default_session.user;
-	scale = nihil.outputs.${nihil.primaryOutput}.scale or 1;
+	scale = btechos.outputs.${btechos.primaryOutput}.scale or 1;
 	# Quickshell 0.3.0 takes the success greetd answers a cancel with for a finished login: changing
 	# user, or skipping the fingerprint, left the greeter dark. Fixed upstream after 0.3.0, so the
 	# patch goes only on that version, and nothing gets rebuilt on any other.
@@ -14,8 +14,8 @@ let
 		else pkgs.quickshell;
 
 	others = lib.sort (a: b: a.name < b.name)
-		(lib.filter (user: user.isNormalUser && user.name != nihil.user.name) (lib.attrValues config.users.users));
-	users = [ { inherit (nihil.user) name greeting; } ] ++ map (user: { inherit (user) name; greeting = ""; }) others;
+		(lib.filter (user: user.isNormalUser && user.name != btechos.user.name) (lib.attrValues config.users.users));
+	users = [ { inherit (btechos.user) name greeting; } ] ++ map (user: { inherit (user) name; greeting = ""; }) others;
 
 	configQml = pkgs.writeText "Config.qml" ''
 		pragma Singleton
@@ -27,16 +27,16 @@ let
 		    readonly property var users: (${builtins.toJSON users})
 		    readonly property var session: (${builtins.toJSON [ "${config.programs.uwsm.package}/bin/uwsm" "start" "-e" "-D" "Hyprland" "hyprland.desktop" ]})
 		    readonly property var environment: (${builtins.toJSON [ "XDG_SESSION_TYPE=wayland" ]})
-		    readonly property string wallpaper: "/var/lib/nihil/greeter/wallpaper.png"
-		    readonly property string glass: "/var/lib/nihil/greeter/glass"
-		    readonly property string primaryOutput: "${nihil.primaryOutput}"
+		    readonly property string wallpaper: "/var/lib/btechos/greeter/wallpaper.png"
+		    readonly property string glass: "/var/lib/btechos/greeter/glass"
+		    readonly property string primaryOutput: "${btechos.primaryOutput}"
 		    readonly property string touch: "${pkgs.coreutils}/bin/touch"
 		    readonly property var reboot: (${builtins.toJSON [ "${config.systemd.package}/bin/systemctl" "reboot" ]})
 		    readonly property var powerOff: (${builtins.toJSON [ "${config.systemd.package}/bin/systemctl" "poweroff" ]})
 		}
 	'';
 
-	greeter = pkgs.runCommand "nihil-greeter" { } ''
+	greeter = pkgs.runCommand "btechos-greeter" { } ''
 		mkdir -p $out/theme $out/config $out/components $out/shaders
 		cp ${../greeter/shell.qml} $out/shell.qml
 		cp ${../home/shell/components/Txt.qml} $out/components/Txt.qml
@@ -48,7 +48,7 @@ let
 		cp ${configQml} $out/config/Config.qml
 	'';
 
-	start = pkgs.writeShellScript "nihil-greeter" ''
+	start = pkgs.writeShellScript "btechos-greeter" ''
 		export PATH=${lib.makeBinPath [ pkgs.coreutils ]}:$PATH
 		export QT_QPA_PLATFORM=wayland
 		export QT_AUTO_SCREEN_SCALE_FACTOR=0
@@ -56,30 +56,30 @@ let
 		export WLR_OUTPUT_SCALE=${toString scale}
 		export GDK_SCALE=1
 		export GDK_DPI_SCALE=${toString scale}
-		export XDG_CACHE_HOME=/var/cache/nihil-greeter
-		export XDG_STATE_HOME=/var/cache/nihil-greeter/state
+		export XDG_CACHE_HOME=/var/cache/btechos-greeter
+		export XDG_STATE_HOME=/var/cache/btechos-greeter/state
 		# Never /tmp, where another user could make the file first.
 		run=''${XDG_RUNTIME_DIR:?}
-		export NIHIL_GREETER_READY="$run/nihil-greeter-ready"
-		rm -f "$NIHIL_GREETER_READY" "$run/nihil-greeter-password"
+		export BTechOS_GREETER_READY="$run/btechos-greeter-ready"
+		rm -f "$BTechOS_GREETER_READY" "$run/btechos-greeter-password"
 
 		# greetd starts the same greeter after it falls, and again: after two falls in a row,
 		# ReGreet. A login ends it with a signal, which doesn't count.
-		falls="$run/nihil-greeter-falls"
+		falls="$run/btechos-greeter-falls"
 		if [ "$(cat "$falls" 2> /dev/null || echo 0)" -ge 2 ]; then
 			rm -f "$falls"
-			echo "nihil-greeter: it fell twice, ReGreet instead" >&2
+			echo "btechos-greeter: it fell twice, ReGreet instead" >&2
 			exec ${lib.getExe config.programs.regreet.package}
 		fi
 
 		${quickshell}/bin/quickshell -p ${greeter} &
 		pid=$!
 		for _ in $(seq 100); do
-			[ -e "$NIHIL_GREETER_READY" ] && break
+			[ -e "$BTechOS_GREETER_READY" ] && break
 			kill -0 "$pid" 2> /dev/null || break
 			sleep 0.1
 		done
-		if [ -e "$NIHIL_GREETER_READY" ]; then
+		if [ -e "$BTechOS_GREETER_READY" ]; then
 			status=0
 			wait "$pid" || status=$?
 			case $status in
@@ -88,24 +88,24 @@ let
 			esac
 			exit "$status"
 		fi
-		echo "nihil-greeter: Quickshell didn't come up, ReGreet instead" >&2
+		echo "btechos-greeter: Quickshell didn't come up, ReGreet instead" >&2
 		kill "$pid" 2> /dev/null
 		wait "$pid" 2> /dev/null
 		exec ${lib.getExe config.programs.regreet.package}
 	'';
 in
 {
-	options.nihil.greeter = lib.mkOption
+	options.btechos.greeter = lib.mkOption
 	{
-		type = lib.types.enum [ "nihil" "regreet" ];
-		default = "nihil";
+		type = lib.types.enum [ "btechos" "regreet" ];
+		default = "btechos";
 		description = ''
-			The login screen: NIHIL's own (greeter/shell.qml, in Quickshell), with
+			The login screen: BTechOS's own (greeter/shell.qml, in Quickshell), with
 			ReGreet in its place should it not start, or ReGreet alone.
 		'';
 	};
 
-	config = lib.mkIf (nihil.greeter == "nihil")
+	config = lib.mkIf (btechos.greeter == "btechos")
 	{
 		# Every screen on, not only the last one connected (ReGreet's -m last): the greeter puts
 		# itself on the main one, the one QT_SCALE_FACTOR is for.
@@ -115,7 +115,7 @@ in
 
 		systemd.tmpfiles.rules =
 		[
-			"d /var/cache/nihil-greeter 0700 ${greeterUser} ${config.users.users.${greeterUser}.group} -"
+			"d /var/cache/btechos-greeter 0700 ${greeterUser} ${config.users.users.${greeterUser}.group} -"
 		];
 	};
 }

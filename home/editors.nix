@@ -32,7 +32,7 @@ in
 	# Stylix generates the theme for OpenCode 1, which keeps its choice in
 	# tui.json; version 2 reads cli.json instead, and wants the name there.
 	# The file stays the user's: only the theme keys are set.
-	home.activation.nihilOpencodeTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+	home.activation.btechosOpencodeTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
 		cli=${lib.escapeShellArg opencodeCli}
 
 		mkdir -p "$(dirname "$cli")"

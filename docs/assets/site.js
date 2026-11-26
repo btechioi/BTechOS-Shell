@@ -1,6 +1,6 @@
 (() => {
   const root = document.documentElement;
-  const config = window.nihil || {};
+  const config = window.btechos || {};
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const look = () => root.dataset.look === "glass" ? "glass" : "plain";
 
@@ -236,7 +236,7 @@
     const setLook = (next, remember) => {
       if (next === "glass") root.dataset.look = "glass"; else delete root.dataset.look;
       choices.forEach(c => c.setAttribute("aria-checked", String(c.dataset.lookSet === next)));
-      if (remember) { try { localStorage.setItem("nihil-look", next); } catch (e) {} }
+      if (remember) { try { localStorage.setItem("btechos-look", next); } catch (e) {} }
       refresh();
     };
     choices.forEach(c => {
@@ -260,7 +260,7 @@
       const svg = new DOMParser().parseFromString(text, "image/svg+xml").documentElement;
       if (svg.nodeName !== "svg") return;
       svg.setAttribute("role", "img");
-      svg.setAttribute("aria-label", "NIHIL");
+      svg.setAttribute("aria-label", "BTechOS");
       svg.removeAttribute("width");
       svg.removeAttribute("height");
       mark.replaceChildren(document.importNode(svg, true));

@@ -13,15 +13,15 @@ let
         # A regular file, and no more of it than a PID: a FIFO or a link to /dev/zero, the user's
         # own to make, would hang sudo or read forever.
         if [ "''${PAM_SERVICE:-}" = sudo ] && uid=$(${pkgs.coreutils}/bin/id -u -- "''${PAM_USER:-}" 2> /dev/null); then
-            flag="/run/user/$uid/nihil-sudo-password"
+            flag="/run/user/$uid/btechos-sudo-password"
             if [ -f "$flag" ] && [ ! -L "$flag" ] && [ "$(${pkgs.coreutils}/bin/head -c 16 -- "$flag")" = "$PPID" ]; then
                 exit 1
             fi
         fi
         # Once: after a password typed in the greeter, the next login offers the finger again.
         if [ "''${PAM_SERVICE:-}" = greetd ] && uid=$(${pkgs.coreutils}/bin/id -u -- ${greeter} 2> /dev/null) \
-            && [ -e "/run/user/$uid/nihil-greeter-password" ]; then
-            ${pkgs.coreutils}/bin/rm -f "/run/user/$uid/nihil-greeter-password"
+            && [ -e "/run/user/$uid/btechos-greeter-password" ]; then
+            ${pkgs.coreutils}/bin/rm -f "/run/user/$uid/btechos-greeter-password"
             exit 1
         fi
         exit 0
@@ -50,7 +50,7 @@ in
         HandleLidSwitchExternalPower = lib.mkDefault "suspend";
         HandleLidSwitchDocked = lib.mkDefault "ignore";
     };
-    services.fprintd.enable = lib.mkDefault config.nihil.fingerprint;
+    services.fprintd.enable = lib.mkDefault config.btechos.fingerprint;
 
     hardware.enableRedistributableFirmware = lib.mkDefault true;
     boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
@@ -83,18 +83,18 @@ in
     nix.settings.auto-optimise-store = true;
 
     # Intel-specific
-    boot.kernelParams = lib.optionals (config.nihil.gpu == "intel" || config.nihil.gpu == "auto") [
+    boot.kernelParams = lib.optionals (config.btechos.gpu == "intel" || config.btechos.gpu == "auto") [
         "i915.enable_guc=3"
         "i915.enable_fbc=1"
         "i915.enable_psr=1"
         "intel_pstate=active"
     ];
-    services.thermald.enable = lib.mkDefault (config.nihil.gpu == "intel" || config.nihil.gpu == "auto");
+    services.thermald.enable = lib.mkDefault (config.btechos.gpu == "intel" || config.btechos.gpu == "auto");
     hardware.graphics.enable = lib.mkDefault true;
-    hardware.graphics.extraPackages = lib.optionals (config.nihil.gpu == "intel" || config.nihil.gpu == "auto") (with pkgs; [
+    hardware.graphics.extraPackages = lib.optionals (config.btechos.gpu == "intel" || config.btechos.gpu == "auto") (with pkgs; [
         intel-media-driver intel-vaapi-driver libva-vdpau-driver vpl-gpu-rt
     ]);
-    hardware.graphics.extraPackages32 = lib.optionals (config.nihil.gpu == "intel" || config.nihil.gpu == "auto") (with pkgs; [
+    hardware.graphics.extraPackages32 = lib.optionals (config.btechos.gpu == "intel" || config.btechos.gpu == "auto") (with pkgs; [
         intel-media-driver intel-vaapi-driver
     ]);
 
@@ -106,14 +106,14 @@ in
             CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
             CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
             CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
-        } // lib.optionalAttrs (config.nihil.gpu == "intel" || config.nihil.gpu == "auto") {
+        } // lib.optionalAttrs (config.btechos.gpu == "intel" || config.btechos.gpu == "auto") {
             INTEL_GPU_MIN_FREQ_ON_AC = 0;
             INTEL_GPU_MAX_FREQ_ON_AC = 0;
         };
     };
 
     services.udev.extraRules = ''
-        ACTION=="add", SUBSYSTEM=="leds", KERNEL=="platform::micmute", RUN+="${pkgs.coreutils}/bin/chgrp nihil-leds /sys/class/leds/%k/brightness", RUN+="${pkgs.coreutils}/bin/chmod g+w /sys/class/leds/%k/brightness"
+        ACTION=="add", SUBSYSTEM=="leds", KERNEL=="platform::micmute", RUN+="${pkgs.coreutils}/bin/chgrp btechos-leds /sys/class/leds/%k/brightness", RUN+="${pkgs.coreutils}/bin/chmod g+w /sys/class/leds/%k/brightness"
 
         ACTION=="add|change", KERNEL=="sd[a-z]*|nvme[0-9]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="none"
         ACTION=="add|change", KERNEL=="sd[a-z]*", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="mq-deadline"

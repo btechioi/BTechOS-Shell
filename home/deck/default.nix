@@ -2,17 +2,17 @@
 
 { pkgs, lib, osConfig, profile, iconTheme }:
 let
-    nihil = osConfig.nihil;
+    btechos = osConfig.btechos;
     # jeepney speaks D-Bus to BlueZ, to announce the deck over Bluetooth.
     python = pkgs.python3.withPackages (ps: [ ps.jeepney ]);
 
-    config = pkgs.writeText "nihil-deck.json" (builtins.toJSON
+    config = pkgs.writeText "btechos-deck.json" (builtins.toJSON
     {
-        inherit (nihil.deck) port bluetooth;
+        inherit (btechos.deck) port bluetooth;
         inherit iconTheme;
         name = osConfig.networking.hostName;
-        strings = { inherit (nihil.strings) deckPaired deckPairedBody; };
-        ipc = "${profile}/nihil-ipc";
+        strings = { inherit (btechos.strings) deckPaired deckPairedBody; };
+        ipc = "${profile}/btechos-ipc";
         volume = "${profile}/osd-volume";
         notify = lib.getExe' pkgs.libnotify "notify-send";
         openssl = lib.getExe' pkgs.openssl "openssl";
@@ -25,6 +25,6 @@ let
         open = lib.getExe' pkgs.xdg-utils "xdg-open";
     });
 in
-pkgs.writeShellScriptBin "nihil-deck" ''
+pkgs.writeShellScriptBin "btechos-deck" ''
     exec ${python}/bin/python3 -I ${./deck.py} --config ${config} "$@"
 ''

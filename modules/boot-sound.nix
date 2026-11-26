@@ -2,16 +2,16 @@
 
 { config, lib, pkgs, ... }:
 let
-    user = config.nihil.user.name;
-    silent = "${config.home-manager.users.${user}.xdg.stateHome}/nihil/silent";
+    user = config.btechos.user.name;
+    silent = "${config.home-manager.users.${user}.xdg.stateHome}/btechos/silent";
 
-    play = pkgs.writeShellScript "nihil-boot-sound" ''
+    play = pkgs.writeShellScript "btechos-boot-sound" ''
         export PATH=${lib.makeBinPath [ pkgs.alsa-utils pkgs.gnugrep pkgs.coreutils ]}
         open() {
-            mkdir -p /run/nihil
+            mkdir -p /run/btechos
             read -r up _ < /proc/uptime
-            echo "$up" > /run/nihil/splash-open
-            ${config.boot.plymouth.package}/bin/plymouth update --status=nihil-open 2> /dev/null || true
+            echo "$up" > /run/btechos/splash-open
+            ${config.boot.plymouth.package}/bin/plymouth update --status=btechos-open 2> /dev/null || true
         }
         if [ -e ${lib.escapeShellArg silent} ]; then
             open
@@ -28,7 +28,7 @@ let
             for control in PCM Speaker Headphone; do
                 amixer -q -M -c "$card" sset "$control" 100% unmute 2> /dev/null || true
             done
-            aplay -q -D "plughw:$card,$device" ${../sounds/nihil/boot.wav} &
+            aplay -q -D "plughw:$card,$device" ${../sounds/btechos/boot.wav} &
             sleep 0.05
             open
             wait
@@ -38,16 +38,16 @@ let
     '';
 in
 {
-    options.nihil.bootSound = lib.mkOption
+    options.btechos.bootSound = lib.mkOption
     {
         type = lib.types.bool;
         default = true;
         description = "A sound with the boot splash (modules/boot-sound.nix).";
     };
 
-    config.systemd.services.nihil-boot-sound = lib.mkIf config.nihil.bootSound
+    config.systemd.services.btechos-boot-sound = lib.mkIf config.btechos.bootSound
     {
-        description = "NIHIL: the sound of the boot splash";
+        description = "BTechOS: the sound of the boot splash";
         wantedBy = [ "sound.target" ];
         after = [ "sound.target" ];
         before = [ "plymouth-quit.service" ];

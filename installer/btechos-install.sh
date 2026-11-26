@@ -1,17 +1,17 @@
-# nihil-install by poligle (installer/iso.nix)
+# btechos-install by poligle (installer/iso.nix)
 
-template=/etc/nihil/template
-source=$(cat /etc/nihil/source)
-rev=$(cat /etc/nihil/rev)
+template=/etc/btechos/template
+source=$(cat /etc/btechos/source)
+rev=$(cat /etc/btechos/rev)
 lang=en
 gui=no
-log=/tmp/nihil-install.log
+log=/tmp/btechos-install.log
 
 least=20000000000
 bootBytes=1073741824
 headroom=10000000000
 
-strings=/etc/nihil/strings.json
+strings=/etc/btechos/strings.json
 
 # The words are theme/i18n.nix's, as the window's and the shell's: t key [value…], each value in
 # for %1, %2…, as they come.
@@ -39,7 +39,7 @@ fail() {
 
 # One installation at a time: the window's, a text one started after it, and finish.
 lock() {
-    exec 9> /run/nihil-install.lock
+    exec 9> /run/btechos-install.lock
     flock -n 9 || fail "$(t insBusy)"
 }
 
@@ -112,7 +112,7 @@ keymap_of() {
 
 guess_zone() { curl -fs --max-time 6 https://ipapi.co/timezone || true; }
 
-# Never the disk NIHIL started from: up from /iso to its disk, and any disk with an iso9660 on it,
+# Never the disk BTechOS started from: up from /iso to its disk, and any disk with an iso9660 on it,
 # which is still the USB when the ISO was copied to RAM and /iso is a tmpfs.
 list_disks() {
     local source live="" candidate
@@ -497,7 +497,7 @@ make_partitions() {
     local first=$1 number
     if [ -n "$bootType" ]; then
         number=$(free_number)
-        sgdisk -n "$number:$first:$(( first + bootBytes / sector - 1 ))" -t "$number:$bootType" -c "$number:NIHIL" "$disk" >/dev/null
+        sgdisk -n "$number:$first:$(( first + bootBytes / sector - 1 ))" -t "$number:$bootType" -c "$number:BTechOS" "$disk" >/dev/null
         boot=$(part "$number")
         first=$(( first + bootBytes / sector ))
     fi
@@ -569,7 +569,7 @@ apply_plan() {
         partprobe "$disk" || true
         udevadm settle
         if [ "$boot" != "$esp" ]; then
-            mkfs.fat -F 32 -n NIHIL "$boot" >/dev/null
+            mkfs.fat -F 32 -n BTechOS "$boot" >/dev/null
         fi
         wipefs -af "$root" >/dev/null
     fi
@@ -606,10 +606,10 @@ apply_plan() {
     chmod -R u+w "$etc"
 
     # If a host profile was selected, overlay its config files
-    if [ -n "$hostProfile" ] && [ -d "/etc/nihil/hosts/$hostProfile" ]; then
+    if [ -n "$hostProfile" ] && [ -d "/etc/btechos/hosts/$hostProfile" ]; then
         for f in local.nix home.nix hardware-configuration.nix; do
-            if [ -f "/etc/nihil/hosts/$hostProfile/$f" ]; then
-                cp "/etc/nihil/hosts/$hostProfile/$f" "$etc/$f"
+            if [ -f "/etc/btechos/hosts/$hostProfile/$f" ]; then
+                cp "/etc/btechos/hosts/$hostProfile/$f" "$etc/$f"
             fi
         done
     fi
@@ -651,7 +651,7 @@ apply_plan() {
              .language = $language | .locale = $locale | .timeZone = $zone |
              .keyboard.layout = $layout | .keyboard.model = $model |
              .gpu = $gpu' \
-            "/etc/nihil/hosts/$hostProfile/settings.json" > "$etc/settings.json"
+            "/etc/btechos/hosts/$hostProfile/settings.json" > "$etc/settings.json"
     else
         jq -n \
             --arg name "$username" --arg fullName "$fullname" --arg host "$hostname" \
@@ -724,7 +724,7 @@ apply_plan() {
             esac
             for file in shimx64.efi grubx64.efi; do
                 if [ -f "$dir$file" ]; then
-                    loader+=$(printf "\n\t# %s, on the EFI partition before NIHIL.\n\tboot.loader.systemd-boot.extraEntries.\"%s.conf\" = ''\n\t\ttitle %s\n\t\tefi /EFI/%s/%s\n\t'';" \
+                    loader+=$(printf "\n\t# %s, on the EFI partition before BTechOS.\n\tboot.loader.systemd-boot.extraEntries.\"%s.conf\" = ''\n\t\ttitle %s\n\t\tefi /EFI/%s/%s\n\t'';" \
                         "${name^}" "${name,,}" "${name^}" "$name" "$file")
                     loader+=$'\n'
                     break
@@ -740,7 +740,7 @@ apply_plan() {
 {
 	system.stateVersion = "$release";
 
-	nihil.extraWallpapers = lib.optional (builtins.pathExists ./wallpapers) ./wallpapers;
+	btechos.extraWallpapers = lib.optional (builtins.pathExists ./wallpapers) ./wallpapers;
 
 	fileSystems = lib.genAttrs [ "/" "/home" "/nix" "/var/log" ] (_: { options = [ "compress=zstd" "noatime" ]; });
 	services.btrfs.autoScrub = { enable = true; fileSystems = [ "/" ]; };
@@ -751,7 +751,7 @@ ${loader}
 EOF
 
     if [ -n "$rev" ]; then
-        nix flake lock "$etc" --override-input nihil "$source/$rev"
+        nix flake lock "$etc" --override-input btechos "$source/$rev"
     else
         nix flake lock "$etc"
     fi
@@ -773,7 +773,7 @@ EOF
             install -m 600 "$profile" "/mnt/etc/NetworkManager/system-connections/${profile##*/}"
         fi
     done
-    : > /run/nihil-install.done
+    : > /run/btechos-install.done
 
     if [ "$gui" = no ]; then
         gum style --foreground 15 --margin "1 0" "$(t insInstalled)"
@@ -988,9 +988,9 @@ check_filesystem() {
 main_tui() {
     local disk_candidates=() disk_options=()
     clear
-    gum style --foreground 15 --bold --margin "1 2" "N I H I L" "$(gum style --foreground 7 --italic 'ex nihilo')"
+    gum style --foreground 15 --bold --margin "1 2" "N I H I L" "$(gum style --foreground 7 --italic 'ex btechoso')"
 
-    [ -d /sys/firmware/efi ] || fail "NIHIL boots with systemd-boot, which needs UEFI: this machine started in legacy BIOS mode."
+    [ -d /sys/firmware/efi ] || fail "BTechOS boots with systemd-boot, which needs UEFI: this machine started in legacy BIOS mode."
 
     language=$(gum choose --header "Language / Idioma" "English" "Español")
     if [ "$language" = "Español" ]; then
@@ -1000,12 +1000,12 @@ main_tui() {
         locale=en_US.UTF-8
     fi
     lock
-    if [ -e /run/nihil-install.done ]; then
+    if [ -e /run/btechos-install.done ]; then
         if gum confirm "$(t insAlreadyInstalled)" \
                 --affirmative "$(t insRestart)" --negative "$(t insInstallAgain)"; then
             finish
         fi
-        rm -f /run/nihil-install.done
+        rm -f /run/btechos-install.done
     fi
 
     if [ -f /iso/nix-store.squashfs ]; then
@@ -1034,7 +1034,7 @@ main_tui() {
     layout=$(gum choose --header "$(t insKeyboard)" us es gb de fr it pt latam other)
     if [ "$layout" = other ]; then
         layout=""
-        until [ -n "$layout" ] && grep -q "^ *$layout " "$(find -L "$NIHIL_XKB" -name base.lst -print -quit)"; do
+        until [ -n "$layout" ] && grep -q "^ *$layout " "$(find -L "$BTechOS_XKB" -name base.lst -print -quit)"; do
             layout=$(gum input --header "$(t insXkbLayout)" --placeholder "br")
         done
     fi
@@ -1057,7 +1057,7 @@ main_tui() {
     suggested=$(printf '%s' "${fullname%% *}" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9_-')
     until valid_user "${username:-}"; do
         username=$(gum input --header "$(t insUserHint)" \
-            --value "${suggested:-nihil}")
+            --value "${suggested:-btechos}")
     done
     while true; do
         password=$(gum input --password --header "$(t insPassword)")
@@ -1069,9 +1069,9 @@ main_tui() {
     done
 # Host profile selection (if available)
 hostProfile=""
-if [ -d /etc/nihil/hosts ]; then
+if [ -d /etc/btechos/hosts ]; then
     hosts=()
-    for d in /etc/nihil/hosts/*/; do
+    for d in /etc/btechos/hosts/*/; do
         [ -f "$d/settings.json" ] || continue
         hosts+=("$(basename "$d")")
     done
@@ -1079,13 +1079,13 @@ if [ -d /etc/nihil/hosts ]; then
         choice=$(gum choose --header "Host profile / Perfil de equipo" "Custom (auto-detect)" "${hosts[@]}")
         if [ "$choice" != "Custom (auto-detect)" ]; then
             hostProfile="$choice"
-            hostname=$(jq -r '.host.name // "nihil"' "/etc/nihil/hosts/$hostProfile/settings.json")
+            hostname=$(jq -r '.host.name // "btechos"' "/etc/btechos/hosts/$hostProfile/settings.json")
         fi
     fi
 fi
 
     until [[ ${hostname:-} =~ ^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$ ]]; do
-        hostname=$(gum input --header "$(t cfgHost)" --value "${hostname:-nihil}")
+        hostname=$(gum input --header "$(t cfgHost)" --value "${hostname:-btechos}")
     done
 
     mapfile -t disk_candidates < <(list_disks)
@@ -1206,7 +1206,7 @@ case ${1:-} in
         main_tui
         ;;
     *)
-        echo "nihil-install [probe [es] | apply | check-media | check-filesystem PARTITION | finish]" >&2
+        echo "btechos-install [probe [es] | apply | check-media | check-filesystem PARTITION | finish]" >&2
         trap - EXIT
         exit 2
         ;;

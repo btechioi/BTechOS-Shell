@@ -1,7 +1,7 @@
 # shaders.nix by poligle
 
 { pkgs }:
-pkgs.runCommand "nihil-glass-shaders" { } ''
+pkgs.runCommand "btechos-glass-shaders" { } ''
 	qsb=$(find -L ${pkgs.qt6.qtshadertools} -name qsb -type f | head -n 1)
 	[ -n "$qsb" ] || { echo "qsb not found in qtshadertools" >&2; exit 1; }
 	mkdir -p $out

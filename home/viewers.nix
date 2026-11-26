@@ -2,8 +2,8 @@
 
 { config, osConfig, pkgs, lib, ... }:
 let
-	p = osConfig.nihil.tokens.palette;
-	f = osConfig.nihil.tokens.fonts;
+	p = osConfig.btechos.tokens.palette;
+	f = osConfig.btechos.tokens.fonts;
 
 	bare = package: pkgs.symlinkJoin
 	{
@@ -70,7 +70,7 @@ let
 		"application/x-cbz"
 	];
 
-	viewer = pkgs.writeShellScript "nihil-viewer" ''
+	viewer = pkgs.writeShellScript "btechos-viewer" ''
 		if [ "$#" -ne 1 ] || [ ! -f "$1" ]; then
 			exec ${imv}/bin/imv -- "$@"
 		fi
@@ -153,7 +153,7 @@ in
 
 	xdg.desktopEntries =
 	{
-		nihil-viewer =
+		btechos-viewer =
 		{
 			name = "imv";
 			genericName = "Image viewer";
@@ -163,7 +163,7 @@ in
 			mimeType = pictures;
 		};
 
-		nihil-player =
+		btechos-player =
 		{
 			name = "mpv";
 			genericName = "Video player";
@@ -173,7 +173,7 @@ in
 			mimeType = videos;
 		};
 
-		nihil-reader =
+		btechos-reader =
 		{
 			name = "Zathura";
 			genericName = "Document viewer";
@@ -185,7 +185,7 @@ in
 	};
 
 	xdg.mimeApps.defaultApplications =
-		lib.genAttrs pictures (_: "nihil-viewer.desktop")
-		// lib.genAttrs videos (_: "nihil-player.desktop")
-		// lib.genAttrs documents (_: "nihil-reader.desktop");
+		lib.genAttrs pictures (_: "btechos-viewer.desktop")
+		// lib.genAttrs videos (_: "btechos-player.desktop")
+		// lib.genAttrs documents (_: "btechos-reader.desktop");
 }

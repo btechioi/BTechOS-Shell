@@ -2,7 +2,7 @@
 
 { config, osConfig, pkgs, lib, ... }:
 let
-	ipc = "${config.home.profileDirectory}/bin/nihil-ipc";
+	ipc = "${config.home.profileDirectory}/bin/btechos-ipc";
 	wpctl = "${pkgs.wireplumber}/bin/wpctl";
 	grep = "${pkgs.gnugrep}/bin/grep";
 	awk = "${pkgs.gawk}/bin/awk";
@@ -11,11 +11,11 @@ let
 	jq = "${pkgs.jq}/bin/jq";
 	notify = "${pkgs.libnotify}/bin/notify-send";
 	fileUri = ''${jq} -rn --arg path "$1" '"file://" + ($path | split("/") | map(@uri) | join("/"))' '';
-	strings = osConfig.nihil.strings;
-	sound = osConfig.nihil.sounds;
+	strings = osConfig.btechos.strings;
+	sound = osConfig.btechos.sounds;
 	volumeSound = sound.volume;
 
-	nihil-shot = pkgs.writeShellScriptBin "nihil-shot" ''
+	btechos-shot = pkgs.writeShellScriptBin "btechos-shot" ''
 		set -euo pipefail
 		pictures=$(${pkgs.xdg-user-dirs}/bin/xdg-user-dir PICTURES 2> /dev/null || true)
 		if [ -z "$pictures" ] || [ "$pictures" = "$HOME" ]; then
@@ -24,7 +24,7 @@ let
 		dir="$pictures/${strings.screenshotsDir}"
 		mkdir -p "$dir"
 		# Two in the same second keep both: the second gets a number.
-		file="$dir/NIHIL_$(date '+%Y-%m-%d_%H.%M.%S')"
+		file="$dir/BTechOS_$(date '+%Y-%m-%d_%H.%M.%S')"
 		name="$file.png"
 		n=1
 		while [ -e "$name" ]; do
@@ -41,11 +41,11 @@ let
 				area=$(${pkgs.slurp}/bin/slurp) || exit 0
 				${pkgs.grim}/bin/grim -g "$area" "$file"
 				;;
-			*) echo "Usage: nihil-shot screen | region" >&2; exit 2 ;;
+			*) echo "Usage: btechos-shot screen | region" >&2; exit 2 ;;
 		esac
 		${pkgs.wl-clipboard}/bin/wl-copy --type image/png < "$file"
 		set -- "$file"
-		${notify} -a NIHIL -h "string:image-path:$(${fileUri})" "${strings.screenshotSaved}" "''${file/#$HOME/\~}"
+		${notify} -a BTechOS -h "string:image-path:$(${fileUri})" "${strings.screenshotSaved}" "''${file/#$HOME/\~}"
 	'';
 
 	mic-led-sync = pkgs.writeShellScriptBin "mic-led-sync" ''
@@ -69,9 +69,9 @@ let
 		fi
 	'';
 
-	nihil-record = pkgs.writeShellScriptBin "nihil-record" ''
+	btechos-record = pkgs.writeShellScriptBin "btechos-record" ''
 		set -uo pipefail
-		run="''${XDG_RUNTIME_DIR:?}/nihil-record"
+		run="''${XDG_RUNTIME_DIR:?}/btechos-record"
 		mkdir -p "$run"
 		# One at a time: two starts at once would leave two recorders on one file.
 		exec 9> "$run/lock"
@@ -100,14 +100,14 @@ let
 				where=(-g "$(${pkgs.slurp}/bin/slurp)") || return 0
 			fi
 			local base name n=1
-			base="$dir/NIHIL_$(date '+%Y-%m-%d_%H.%M.%S')"
+			base="$dir/BTechOS_$(date '+%Y-%m-%d_%H.%M.%S')"
 			name="$base.mp4"
 			while [ -e "$name" ]; do
 				n=$((n + 1))
 				name="$base-$n.mp4"
 			done
 			printf '%s\n' "$name" > "$run/file"
-			printf '%s\n' "$dir/.nihil-record.mp4" > "$run/raw"
+			printf '%s\n' "$dir/.btechos-record.mp4" > "$run/raw"
 			${pkgs.wf-recorder}/bin/wf-recorder "''${where[@]}" -x yuv420p -c libx264 \
 				-p crf=20 -p preset=veryfast -f "$(cat "$run/raw")" > "$run/log" 2>&1 &
 			echo $! > "$run/pid"
@@ -123,7 +123,7 @@ let
 		# What wf-recorder said stays in its log, in its own words; the notice says where.
 		failed() {
 			local where="${strings.recordLog}"
-			${notify} -a NIHIL -- "${strings.recordFailed}" "''${where//%1/$run/log}" || true
+			${notify} -a BTechOS -- "${strings.recordFailed}" "''${where//%1/$run/log}" || true
 		}
 
 		stop() {
@@ -157,7 +157,7 @@ let
 				&& [ -s "$run/frame.png" ]; then
 				picture=(-h "string:image-path:$(set -- "$run/frame.png"; ${fileUri})")
 			fi
-			${notify} -a NIHIL "''${picture[@]}" "${strings.recordSaved}" "''${file/#$HOME/\~}" || true
+			${notify} -a BTechOS "''${picture[@]}" "${strings.recordSaved}" "''${file/#$HOME/\~}" || true
 		}
 
 		case "''${1:-toggle}" in
@@ -165,7 +165,7 @@ let
 			start) start "''${2:-region}" ;;
 			stop) stop ;;
 			status) if recording; then echo on; else echo off; fi ;;
-			*) echo "Usage: nihil-record toggle|start [region|screen] | stop | status" >&2; exit 2 ;;
+			*) echo "Usage: btechos-record toggle|start [region|screen] | stop | status" >&2; exit 2 ;;
 		esac
 	'';
 
@@ -240,8 +240,8 @@ in
 		osd-mic
 		lock-screen
 		power-off
-		nihil-shot
-		nihil-record
+		btechos-shot
+		btechos-record
 	];
 
 }

@@ -107,7 +107,7 @@ Item {
 
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "ex nihilo"
+                text: "ex btechoso"
                 font.italic: true
             }
 

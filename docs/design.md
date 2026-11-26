@@ -59,5 +59,5 @@ the switch reaches the kitties already open (they read their configuration again
 | Quick settings | Preferences, Appearance |
 
 <sub>Every picture, plain and in smoked glass, is in [`docs/assets/screens`](assets/screens)
-(the glass ones in `glass/`, the phone's in `android/`); on [nihilshell.com](https://nihilshell.com/) a
+(the glass ones in `glass/`, the phone's in `android/`); on [btechosshell.com](https://btechosshell.com/) a
 switch shows either.</sub>

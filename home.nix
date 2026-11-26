@@ -8,19 +8,19 @@
 		./home/nvim.nix
 		./home/zsh.nix
 		./home/thunar.nix
-		./home/hyprland.nix
+		# ./home/hyprland.nix  # replaced by DarkShadowShell
 		./home/kitty.nix
 		./home/scripts.nix
 		./home/desktop-entries.nix
 		./home/default-apps.nix
 		./home/viewers.nix
-		./home/wallpaper.nix
+		# ./home/wallpaper.nix  # replaced by DarkShadowShell
 		./home/hypridle.nix
 		./home/hyprlock.nix
 		./home/zen.nix
 		./home/bluetooth.nix
 		./home/cli.nix
-		./home/refresh.nix
+		# ./home/refresh.nix  # replaced by DarkShadowShell
 		# ./home/shell.nix  # replaced by DarkShadowShell
 		./home/fastfetch.nix
 		./home/clipboard.nix

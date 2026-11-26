@@ -10,7 +10,7 @@ let
   intro = 36;
   loop = 60;
 
-  script = pkgs.writeText "nihil.script" ''
+  script = pkgs.writeText "btechos.script" ''
     baseline_y = 0;
     message_y = 0;
 
@@ -70,7 +70,7 @@ let
     }
 
     fun status_callback (status) {
-      if (status == "nihil-open") {
+      if (status == "btechos-open") {
         open_logo();
       }
     }
@@ -212,18 +212,18 @@ let
     Plymouth.SetQuitFunction(quit_callback);
   '';
 in
-pkgs.runCommand "nihil-plymouth" { nativeBuildInputs = [ python ]; } ''
-  dir="$out/share/plymouth/themes/nihil"
+pkgs.runCommand "btechos-plymouth" { nativeBuildInputs = [ python ]; } ''
+  dir="$out/share/plymouth/themes/btechos"
   mkdir -p "$dir"
   python3 ${./plymouth.py} ${./art/snowflake-29.txt} "$dir"
-  cp ${script} "$dir/nihil.script"
+  cp ${script} "$dir/btechos.script"
   {
     printf '[Plymouth Theme]\n'
-    printf 'Name=NIHIL\n'
-    printf 'Description=ex nihilo\n'
+    printf 'Name=BTechOS\n'
+    printf 'Description=ex btechoso\n'
     printf 'ModuleName=script\n\n'
     printf '[script]\n'
     printf 'ImageDir=%s\n' "$dir"
-    printf 'ScriptFile=%s\n' "$dir/nihil.script"
-  } > "$dir/nihil.plymouth"
+    printf 'ScriptFile=%s\n' "$dir/btechos.script"
+  } > "$dir/btechos.plymouth"
 ''

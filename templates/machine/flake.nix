@@ -1,14 +1,14 @@
 {
-	description = "A machine running NIHIL";
+	description = "A machine running BTechOS";
 
-	inputs.nihil.url = "github:btechioi/Nihil-Shell";
+	inputs.btechos.url = "github:btechioi/BTechOS-Shell";
 
-	outputs = { nihil, ... }:
+	outputs = { btechos, ... }:
 	let
 		settings = builtins.fromJSON (builtins.readFile ./settings.json);
 	in
 	{
-		nixosConfigurations.${settings.host.name or "nihil"} = nihil.lib.mkSystem
+		nixosConfigurations.${settings.host.name or "btechos"} = btechos.lib.mkSystem
 		{
 			inherit settings;
 			modules = [ ./hardware-configuration.nix ./local.nix ];

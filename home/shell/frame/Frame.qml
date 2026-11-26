@@ -42,7 +42,7 @@ Scope {
         exclusionMode: ExclusionMode.Ignore
 
         WlrLayershell.layer: WlrLayer.Top
-        WlrLayershell.namespace: "nihil-frame"
+        WlrLayershell.namespace: "btechos-frame"
         // OnDemand, not Exclusive: Hyprland drops every focus grab when a layer turns exclusive.
         // A drawer the pointer opened, launcher included, takes no keys: with the pointer left at
         // an edge, what's typed into a window would go to it. A click on it, or its keys, do.

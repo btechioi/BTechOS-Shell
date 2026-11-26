@@ -9,7 +9,7 @@ Singleton {
     id: root
 
     readonly property bool enabled: Config.deck.enabled
-    readonly property string folder: (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/nihil/vector/in"
+    readonly property string folder: (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/btechos/vector/in"
     property var received: ({ id: "" })
     readonly property bool has: (root.received.id ?? "") !== ""
     property string text: ""
@@ -64,7 +64,7 @@ Singleton {
     // A body is markup, as the notification spec has it: a name a device chose is shown as written.
     function notify(title: string, body: string, picture: string): void {
         const shown = body.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        Quickshell.execDetached([Config.cmd.notifySend, "-a", "NIHIL"].concat(
+        Quickshell.execDetached([Config.cmd.notifySend, "-a", "BTechOS"].concat(
             picture !== "" ? ["-h", "string:image-path:" + root.fileUrl(picture)] : [], ["--", title, shown]));
     }
 

@@ -2,24 +2,24 @@
 
 { config, osConfig, pkgs, lib, ... }:
 let
-	nihil = osConfig.nihil;
-	t = nihil.tokens;
-	s = nihil.strings;
+	btechos = osConfig.btechos;
+	t = btechos.tokens;
+	s = btechos.strings;
 	rgb = hex: "rgb(${hex})";
 
-	state = "${config.xdg.stateHome}/nihil";
+	state = "${config.xdg.stateHome}/btechos";
 	# What the state's links point at: Home Manager's files, always this generation's, which no
 	# collection takes while it lives. A link straight into the store kept an older generation's,
 	# until a collection left it pointing at nothing.
-	data = "${config.xdg.dataHome}/nihil";
+	data = "${config.xdg.dataHome}/btechos";
 
-	# A screen not in nihil.outputs, a projector say, gets the primary's, under each screen's own:
+	# A screen not in btechos.outputs, a projector say, gets the primary's, under each screen's own:
 	# a layer below theirs, as hyprlock's sort doesn't keep the order of equal ones.
 	backgrounds =
 	[
 		{
 			monitor = "";
-			path = "${state}/lock-current/${nihil.primaryOutput}.png";
+			path = "${state}/lock-current/${btechos.primaryOutput}.png";
 			color = rgb t.palette.void;
 			brightness = 0.55;
 			zindex = -2;
@@ -33,7 +33,7 @@ let
 		crossfade_time = 0.4;
 		color = rgb t.palette.void;
 		brightness = 0.55;
-	}) nihil.outputs;
+	}) btechos.outputs;
 
 	field = { width = 280; height = 46; y = -40; };
 
@@ -85,18 +85,18 @@ let
 			outer_color = "rgba(0, 0, 0, 0.0)";
 			inner_color = "rgba(0, 0, 0, 0.0)";
 			position = "0%, ${percent field.y lh}";
-		}) nihil.outputs;
+		}) btechos.outputs;
 	});
 
 	glassPython = pkgs.python3.withPackages (ps: [ ps.numpy ps.pillow ]);
 
 	lockGlass = pkgs.writeShellApplication
 	{
-		name = "nihil-lock-glass";
+		name = "btechos-lock-glass";
 		runtimeInputs = [ pkgs.coreutils pkgs.findutils pkgs.util-linux ];
 		text = let
 			glass = "${glassPython}/bin/python3 ${./lock/glass.py}";
-			sizes = output: let o = nihil.outputs.${output}; in "--logical ${toString (o.width / o.scale)} ${toString (o.height / o.scale)}";
+			sizes = output: let o = btechos.outputs.${output}; in "--logical ${toString (o.width / o.scale)} ${toString (o.height / o.scale)}";
 			fieldArgs = "--field ${toString field.width} ${toString field.height} ${toString field.y}";
 			panelArgs = "--panel ${toString panel.x} ${toString panel.y} ${toString panel.width} ${toString panel.height} ${toString panel.radius}";
 		in ''
@@ -115,7 +115,7 @@ let
 					else
 						ln -s "$state/wallpaper-current/${output}.png" "$3/${output}.png"
 						${glass} "$2/${output}.png" "$3/${output}-media.png" ${sizes output} ${panelArgs} --flat ${t.palette.void} ${t.palette.line} || return 1
-					fi'') (lib.attrNames nihil.outputs)}
+					fi'') (lib.attrNames btechos.outputs)}
 			}
 			if [ "''${1:-}" = --links ]; then
 				# Links from before, into the store, point at Home Manager's files now.
@@ -167,7 +167,7 @@ let
 
 	python = pkgs.python3.withPackages (ps: [ ps.numpy ps.pillow ]);
 
-	cover = pkgs.runCommand "nihil-lock-cover"
+	cover = pkgs.runCommand "btechos-lock-cover"
 	{
 		nativeBuildInputs = [ python pkgs.makeWrapper ];
 	} ''
@@ -177,16 +177,16 @@ let
 		python3 $out/share/cover.py --placeholder $out/share/noart.png
 		python3 $out/share/cover.py --blank $out/share/blank.png
 		rm -rf $out/share/__pycache__
-		makeWrapper ${python}/bin/python3 $out/bin/nihil-lock-cover \
+		makeWrapper ${python}/bin/python3 $out/bin/btechos-lock-cover \
 			--set PYTHONDONTWRITEBYTECODE 1 --add-flags $out/share/cover.py
 	'';
 
-	media = pkgs.writeShellScript "nihil-lock-media" (''
+	media = pkgs.writeShellScript "btechos-lock-media" (''
 		export PATH=${lib.makeBinPath [ pkgs.playerctl pkgs.coreutils pkgs.util-linux pkgs.curl ]}
 		export INK=${t.palette.ink} DIM=${t.palette.dim} MUTED=${t.palette.muted}
 		export SANS=${lib.escapeShellArg t.fonts.sans} MONO=${lib.escapeShellArg t.fonts.mono} ICONS=${lib.escapeShellArg t.fonts.icons}
 		export PAUSED=${lib.escapeShellArg s.lockPaused} LOCK=${lib.escapeShellArg "${state}/lock-current"}
-		export RENDER=${cover}/bin/nihil-lock-cover BLANK=${cover}/share/blank.png NOART=${cover}/share/noart.png
+		export RENDER=${cover}/bin/btechos-lock-cover BLANK=${cover}/share/blank.png NOART=${cover}/share/noart.png
 	'' + builtins.readFile ./lock/media.sh);
 
 	mediaLabel = attrs:
@@ -219,11 +219,11 @@ in
 
 	home.packages = [ lockGlass ];
 
-	xdg.dataFile."nihil/hyprlock-plain.conf".source = plainLook;
-	xdg.dataFile."nihil/hyprlock-glass.conf".source = glassLook;
+	xdg.dataFile."btechos/hyprlock-plain.conf".source = plainLook;
+	xdg.dataFile."btechos/hyprlock-glass.conf".source = glassLook;
 
-	home.activation.nihilLockLinks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-		run ${lockGlass}/bin/nihil-lock-glass --links
+	home.activation.btechosLockLinks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+		run ${lockGlass}/bin/btechos-lock-glass --links
 	'';
 
 	programs.hyprlock =
@@ -317,7 +317,7 @@ in
 
 			auth =
 			{
-				"fingerprint:enabled" = nihil.fingerprint;
+				"fingerprint:enabled" = btechos.fingerprint;
 				"fingerprint:ready_message" = s.fingerprintReady;
 				"fingerprint:present_message" = s.fingerprintPresent;
 			};

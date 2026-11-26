@@ -31,7 +31,7 @@ Singleton {
     property var ssidOf: ({})
 
     readonly property bool connected: ssid !== "" || ethernet !== ""
-    readonly property string mark: "--nihil--"
+    readonly property string mark: "--btechos--"
 
     function watching(who: var, on: bool): void {
         const others = root.watchers.filter(other => other !== who);
@@ -89,7 +89,7 @@ Singleton {
 
     // The body is markup, as the notification spec has it: an SSID is shown as written.
     function notify(text: string): void {
-        Quickshell.execDetached([Config.cmd.notifySend, "-a", "NIHIL", "-u", "low", "--", "Wi-Fi",
+        Quickshell.execDetached([Config.cmd.notifySend, "-a", "BTechOS", "-u", "low", "--", "Wi-Fi",
             text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")]);
     }
 

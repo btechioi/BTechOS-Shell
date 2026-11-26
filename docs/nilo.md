@@ -10,7 +10,7 @@ It is off by default. Preferences, System turns it on and chooses what runs the 
 (CPU, Vulkan, ROCm or CUDA), applied with a rebuild; or, in the host:
 
 ```nix
-nihil.nilo =
+btechos.nilo =
 {
     enable = true;
     acceleration = "vulkan";   # or "cpu", "rocm", "cuda"
@@ -71,7 +71,7 @@ it thinks. A click on them opens the conversation; when it ends, they go back to
   its own buttons, looked up on the web when Nilo doesn't know it; typing and shortcuts in
   a window (`wtype`); a window brought forward, moved to a workspace, enlarged, floated or
   closed; the music (`playerctl`: pause, the next one, or a song by its name, found on
-  Spotify and put on there, or on its page); NIHIL's volume, microphone, brightness, do not
+  Spotify and put on there, or on its page); BTechOS's volume, microphone, brightness, do not
   disturb, caffeine, night light and its intensity, Wi-Fi and Bluetooth (a saved network or
   a paired device, by its name), wallpaper, glass, workspace, screenshots,
   screen recording and lock; and a text or a file sent to the phone with Vector. Files
@@ -81,14 +81,14 @@ it thinks. A click on them opens the conversation; when it ends, they go back to
 
 The last two wait for you to authorize them: the level first says what it allows and waits
 for "authorize" (or the same key again); going down needs nothing. The repository is
-NIHIL's own checkout until you choose another: the one `nihil dev` builds from, else
-`~/nixos-config` or `~/Nihil-Shell`; the settings list the ones under `~` (most recently
+BTechOS's own checkout until you choose another: the one `btechos dev` builds from, else
+`~/nixos-config` or `~/BTechOS-Shell`; the settings list the ones under `~` (most recently
 used first) or take any path. Choosing another one while on Terminal and repository goes
 back to Chat, to be authorized again.
 
 **At the whole system it asks only where there is a risk:** changing code, configuration,
 hidden files or anything in a git checkout (documents change on their own, and the one
-before stays in `~/.local/state/nihil/nilo/before`, the last 20 of each; past 20 changes
+before stays in `~/.local/state/btechos/nilo/before`, the last 20 of each; past 20 changes
 in one answer, each asks); a commit; a command that does more than read (those that only
 read, like `ls`, `journalctl` or `git status` in the repository, from a short list and
 with no redirection, chaining or globbing, run on their own, in a sandbox where the system
@@ -110,9 +110,9 @@ model: the launcher's own search, when every name matches an app closely. Anythi
 ("open zen and look for the weather") goes to Nilo as usual.
 
 **Co-author.** Every commit Nilo makes carries
-`Co-authored-by: Nilo <351236008+nilo-nihil@users.noreply.github.com>` (`nilo.coauthor`), and the card
+`Co-authored-by: Nilo <351236008+nilo-btechos@users.noreply.github.com>` (`nilo.coauthor`), and the card
 shows it before you confirm. That is the noreply address of
-[github.com/nilo-nihil](https://github.com/nilo-nihil), so GitHub draws Nilo's face next
+[github.com/nilo-btechos](https://github.com/nilo-btechos), so GitHub draws Nilo's face next
 to yours: [`assets/brand/nilo-avatar.png`](../assets/brand/nilo-avatar.png).
 
 Closed while it thinks, Nilo says when it's done, out of the bar.
@@ -147,7 +147,7 @@ instant; with 1, Ollama swaps them.
 | `qwen3.5:35b-a3b` | 22 GB | 25 GB | 56 GB |
 
 The model, the level, Internet, the minutes and "think before answering" apply at once and live
-in `~/.local/state/nihil/nilo.json`; only the options above need a rebuild. The gear and
+in `~/.local/state/btechos/nilo.json`; only the options above need a rebuild. The gear and
 Preferences open each other: "Open Preferences" under the gear, and "Settings" beside
 Nilo's switch in Preferences, System.
 
@@ -155,8 +155,8 @@ Nilo's switch in Preferences, System.
 and the rules it works by: one step per tool call, look before changing, nothing
 destructive unless asked, and nothing a page or a file says taken as an order. It goes into
 every prompt with only the sections its level allows. After it come your own notes,
-`~/.config/nihil/nilo.md` (your notes, "Edit" in the gear), and, from Terminal and
-repository on, the `NILO.md` of NIHIL's own checkout. Another repository's `NILO.md` is a
+`~/.config/btechos/nilo.md` (your notes, "Edit" in the gear), and, from Terminal and
+repository on, the `NILO.md` of BTechOS's own checkout. Another repository's `NILO.md` is a
 file Nilo is told about and reads if it helps, with what any file says: never an order.
 
 The agent behind it is [`home/nilo/agent.py`](../home/nilo/agent.py), standard-library
@@ -167,7 +167,7 @@ If the agent closes five times in a row, Nilo says so, with its exit code, and w
 "Retry". If Ollama is down ("connection refused"), Nilo starts it (polkit lets wheel users start
 `ollama.service` without a password) and otherwise shows what systemd and the journal say,
 with a button to try again; systemd also restarts it if it stops on its own. Beyond that:
-`systemctl status ollama`, `journalctl -u ollama -b`, `journalctl --user -u nihil-shell`
+`systemctl status ollama`, `journalctl -u ollama -b`, `journalctl --user -u btechos-shell`
 (the agent logs there) and `ollama ps`. The Copilot key sends `SUPER + SHIFT + F23` on
 Linux 6.14 and later; xkb names F23 `XF86Assistant` or `XF86TouchpadOff` depending on its
 version, so the bind uses its keycode, 201 (what `wev` shows).

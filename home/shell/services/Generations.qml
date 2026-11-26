@@ -64,7 +64,7 @@ Singleton {
 
     Process {
         id: lister
-        command: [Config.cmd.nihil, "generations", "--json"]
+        command: [Config.cmd.btechos, "generations", "--json"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
@@ -88,7 +88,7 @@ Singleton {
         property int number: 0
         property bool reading: false
 
-        command: [Config.cmd.nihil, "generations", "changes", String(number)]
+        command: [Config.cmd.btechos, "generations", "changes", String(number)]
         onRunningChanged: {
             if (!running)
                 Qt.callLater(root.next);

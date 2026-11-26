@@ -35,7 +35,7 @@
       "position": "2050x0"
     }
   },
-  "wallpaper": "night",
+  "wallpaper": "city-night",
   "nilo": {
     "enable": false,
     "acceleration": "cpu",

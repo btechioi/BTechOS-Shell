@@ -1,8 +1,8 @@
-# nihil.nix by poligle
+# btechos.nix by poligle
 
 { config, lib, pkgs, ... }:
 let
-    cfg = config.nihil;
+    cfg = config.btechos;
 
     outputType = lib.types.submodule
     {
@@ -62,17 +62,17 @@ in
     [
         ./nilo.nix
         ./settings.nix
-        (lib.mkRemovedOptionModule [ "nihil" "soundPack" ] "NIHIL has one pack of sounds, sounds/nihil.")
+        (lib.mkRemovedOptionModule [ "btechos" "soundPack" ] "BTechOS has one pack of sounds, sounds/btechos.")
     ];
 
-    options.nihil =
+    options.btechos =
     {
         tokens = lib.mkOption
         {
             type = lib.types.attrs;
-            default = import ../theme/nihil.nix;
+            default = import ../theme/btechos.nix;
             readOnly = true;
-            description = "NIHIL design tokens (theme/nihil.nix).";
+            description = "BTechOS design tokens (theme/btechos.nix).";
         };
 
         outputs = lib.mkOption
@@ -91,7 +91,7 @@ in
         wallpaper = lib.mkOption
         {
             type = lib.types.str;
-            default = "night";
+            default = "city-night";
             description = ''
                 Default wallpaper: a picture's name, its file name without the
                 extension in letters, digits, "_" and "-" (theme/wallpapers.nix).
@@ -109,7 +109,7 @@ in
         {
             type = lib.types.attrsOf lib.types.str;
             default = (import ../theme/i18n.nix).${cfg.language};
-            defaultText = lib.literalExpression "(import ../theme/i18n.nix).\${config.nihil.language}";
+            defaultText = lib.literalExpression "(import ../theme/i18n.nix).\${config.btechos.language}";
             readOnly = true;
             description = "Strings of the selected language.";
         };
@@ -132,7 +132,7 @@ in
             example = lib.literalExpression "[ ./wallpapers ]";
             description = ''
                 More folders of pictures (PNG, JPEG, GIF or WebP, any name), drawn
-                as dots like NIHIL's own; a name repeated replaces NIHIL's.
+                as dots like BTechOS's own; a name repeated replaces BTechOS's.
             '';
         };
 
@@ -153,7 +153,7 @@ in
         {
             type = lib.types.attrsOf lib.types.path;
             readOnly = true;
-            description = "Sound file for each interface event (sounds/nihil).";
+            description = "Sound file for each interface event (sounds/btechos).";
         };
 
         wallpapers = lib.mkOption
@@ -167,7 +167,7 @@ in
         {
             type = lib.types.package;
             readOnly = true;
-            description = "NIHIL font families.";
+            description = "BTechOS font families.";
         };
     };
 
@@ -177,11 +177,11 @@ in
         [
             {
                 assertion = cfg.outputs ? ${cfg.primaryOutput};
-                message = "nihil.primaryOutput must be one of nihil.outputs.";
+                message = "btechos.primaryOutput must be one of btechos.outputs.";
             }
             {
                 assertion = builtins.elem cfg.wallpaper cfg.wallpapers.names;
-                message = "nihil.wallpaper must be one of the wallpapers: ${lib.concatStringsSep ", " cfg.wallpapers.names}.";
+                message = "btechos.wallpaper must be one of the wallpapers: ${lib.concatStringsSep ", " cfg.wallpapers.names}.";
             }
             {
                 assertion = let languages = builtins.attrValues (import ../theme/i18n.nix); in
@@ -193,16 +193,16 @@ in
         # The lock screen's date is in the language's own locale, which the machine's may not be.
         i18n.extraLocales = lib.optional (cfg.strings.lockLocale != "C.UTF-8") "${cfg.strings.lockLocale}/UTF-8";
 
-        nihil.wallpapers = import ../theme/wallpapers.nix
+        btechos.wallpapers = import ../theme/wallpapers.nix
         {
             inherit pkgs lib;
             outputs = cfg.outputs;
-            dirs = [ ../wallpapers ] ++ cfg.extraWallpapers;
+            dirs = [ /home/banumath/DarkShadowShell/wallpapers ] ++ cfg.extraWallpapers;
         };
-        nihil.fonts = import ../theme/fonts.nix { inherit pkgs; };
+        btechos.fonts = import ../theme/fonts.nix { inherit pkgs; };
 
-        nihil.sounds = lib.genAttrs [ "switch" "open" "close" "special" "fullscreen" "lock" "power" "menu" "notify" "critical" "volume" "charge" ]
-            (event: ../sounds/nihil + "/${event}.ogg");
+        btechos.sounds = lib.genAttrs [ "switch" "open" "close" "special" "fullscreen" "lock" "power" "menu" "notify" "critical" "volume" "charge" ]
+            (event: ../sounds/btechos + "/${event}.ogg");
 
         fonts.packages = [ cfg.fonts ];
 

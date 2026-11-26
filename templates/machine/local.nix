@@ -2,5 +2,8 @@
 {
 	system.stateVersion = "26.05";
 
-	nihil.extraWallpapers = lib.optional (builtins.pathExists ./wallpapers) ./wallpapers;
+	btechos.extraWallpapers = lib.optional (builtins.pathExists ./wallpapers) ./wallpapers;
+
+	btechos.darkshadow.enable = true;
+	btechos.darkshadow.user = config.btechos.user.name;
 }

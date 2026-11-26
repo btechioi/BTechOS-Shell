@@ -4,7 +4,7 @@ const assert = require("assert");
 const source = fs.readFileSync(path.join(__dirname, "../services/Nmcli.js"), "utf8").replace(".pragma library", "");
 const N = new Function(source + "\nreturn { fields, sections, status, profiles, ssids, savedBySsid, networks, pick };")();
 
-const mark = "--nihil--";
+const mark = "--btechos--";
 let passed = 0;
 function test(name, body) { body(); passed++; console.log("ok", name); }
 

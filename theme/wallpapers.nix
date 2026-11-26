@@ -40,12 +40,12 @@ let
 	}))
 		(lib.filterAttrs isImage (builtins.readDir dir))) { } dirs;
 
-	renderer = builtins.path { path = ./dotmatrix.py; name = "nihil-dotmatrix.py"; };
+	renderer = builtins.path { path = ./dotmatrix.py; name = "btechos-dotmatrix.py"; };
 
-	render = name: picture: output: size: pkgs.runCommand "nihil-wallpaper-${name}-${output}"
+	render = name: picture: output: size: pkgs.runCommand "btechos-wallpaper-${name}-${output}"
 		{ nativeBuildInputs = [ python ]; }
 		''
-			echo "nihil: rendering ${name} for ${output}"
+			echo "btechos: rendering ${name} for ${output}"
 			python3 ${renderer} ${picture} $out --output ${output}:${toString size.width}x${toString size.height}:${toString size.pitch}
 		'';
 
@@ -56,7 +56,7 @@ let
 		'') outputs)}
 	'';
 in
-pkgs.runCommand "nihil-wallpapers"
+pkgs.runCommand "btechos-wallpapers"
 {
 	passthru.names = builtins.attrNames pictures;
 }

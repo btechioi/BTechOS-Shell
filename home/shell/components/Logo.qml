@@ -14,7 +14,7 @@ Item {
     })
     readonly property var columns: {
         const columns = [];
-        const word = "NIHIL";
+        const word = "BTechOS";
         for (let k = 0; k < word.length; k++) {
             const glyph = root.face[word[k]];
             if (k > 0)

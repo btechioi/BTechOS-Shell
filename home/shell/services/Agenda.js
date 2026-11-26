@@ -1,7 +1,7 @@
 .pragma library
 
 // Days and events as the calendar widget shows them, on this computer's clock.
-// Events are what nihil-calendar keeps: { cal, title, where, allDay, start, end }, from the
+// Events are what btechos-calendar keeps: { cal, title, where, allDay, start, end }, from the
 // soonest, start and end in seconds (end left out; an event without length ends as it starts).
 
 function key(date) {

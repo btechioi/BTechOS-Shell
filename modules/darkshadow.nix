@@ -10,7 +10,7 @@
         {
             type = lib.types.bool;
             default = false;
-            description = "Enable DarkShadow's Shell (replaces the NIHIL quickshell shell).";
+            description = "Enable DarkShadow's Shell (replaces the BTechOS quickshell shell).";
         };
 
         user = lib.mkOption

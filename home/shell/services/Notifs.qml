@@ -97,7 +97,7 @@ Singleton {
     }
 
     function tagOf(n): string {
-        return String(n?.hints?.["x-nihil-tag"] ?? "");
+        return String(n?.hints?.["x-btechos-tag"] ?? "");
     }
 
     function dismissTag(tag: string, except: var): void {
@@ -110,7 +110,7 @@ Singleton {
     }
 
     function niloKind(n): string {
-        return String(n?.hints?.["x-nihil-nilo"] ?? "");
+        return String(n?.hints?.["x-btechos-nilo"] ?? "");
     }
 
     function timeoutFor(n): int {

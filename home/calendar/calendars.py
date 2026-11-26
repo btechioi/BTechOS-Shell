@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 # calendars.py by poligle
 
-"""nihil-calendar: the calendars NIHIL shows, read from their iCalendar addresses.
+"""btechos-calendar: the calendars BTechOS shows, read from their iCalendar addresses.
 
 An address is a secret: whoever has it reads the calendar. They live in a file only the user can
-read, $XDG_CONFIG_HOME/nihil/calendars.json, never in settings.json, which ends in the Nix store
+read, $XDG_CONFIG_HOME/btechos/calendars.json, never in settings.json, which ends in the Nix store
 for every user to read. What they hold, from a month back to two ahead, is kept for the shell in
-$XDG_CACHE_HOME/nihil/calendar.json, the user's alone as well.
+$XDG_CACHE_HOME/btechos/calendar.json, the user's alone as well.
 
-  nihil-calendar list          the calendars, without their addresses: [{id, name, host}]
-  nihil-calendar add           an address on stdin, read once and kept if it gives a calendar:
+  btechos-calendar list          the calendars, without their addresses: [{id, name, host}]
+  btechos-calendar add           an address on stdin, read once and kept if it gives a calendar:
                                {id, name}, or {error}: url, fetch or calendar
-  nihil-calendar remove ID     {ok} or {error}
-  nihil-calendar sync          reads them all, keeps what they hold and prints it
+  btechos-calendar remove ID     {ok} or {error}
+  btechos-calendar sync          reads them all, keeps what they hold and prints it
 
 Every answer is JSON on stdout. An address comes on stdin, never as an argument, which anyone on
 the computer could read in /proc. A calendar that can't be read keeps what was read of it before.
@@ -43,7 +43,7 @@ MAX_TEXT = 200
 
 def home_dir(variable, fallback):
     base = os.environ.get(variable) or os.path.join(os.path.expanduser("~"), fallback)
-    return os.path.join(base, "nihil")
+    return os.path.join(base, "btechos")
 
 
 def config_path():
@@ -101,7 +101,7 @@ def host(url):
 
 
 def fetch(url):
-    request = urllib.request.Request(url, headers={"User-Agent": "NIHIL calendar", "Accept": "text/calendar, */*"})
+    request = urllib.request.Request(url, headers={"User-Agent": "BTechOS calendar", "Accept": "text/calendar, */*"})
     with urllib.request.urlopen(request, timeout=TIMEOUT) as answer:
         data = answer.read(MAX_BYTES + 1)
     if len(data) > MAX_BYTES:

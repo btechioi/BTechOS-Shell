@@ -2,7 +2,7 @@
 
 { config, osConfig, pkgs, ... }:
 let
-    p = osConfig.nihil.tokens.palette;
+    p = osConfig.btechos.tokens.palette;
 in
 {
     programs.zsh = 
@@ -34,9 +34,9 @@ in
             ll = "ls -lah";
             la = "ls -A";
 
-            nrebuild = "nihil rebuild";
-            nupdate = "nihil update";
-            ngc = "nihil generations clean ${toString osConfig.nihil.generations.days}";
+            nrebuild = "btechos rebuild";
+            nupdate = "btechos update";
+            ngc = "btechos generations clean ${toString osConfig.btechos.generations.days}";
             
             gs = "git status";
             ga = "git add .";

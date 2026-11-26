@@ -129,7 +129,7 @@ Singleton {
         id: unblock
         command: [Config.cmd.rfkill, "unblock", "bluetooth"]
         stderr: StdioCollector {
-            onStreamFinished: if (text.trim() !== "") console.warn("nihil: bluetooth: rfkill:", text.trim())
+            onStreamFinished: if (text.trim() !== "") console.warn("btechos: bluetooth: rfkill:", text.trim())
         }
         // Turned off again while this ran: block it once more, whichever finished first.
         onExited: {
@@ -142,7 +142,7 @@ Singleton {
         id: block
         command: [Config.cmd.rfkill, "block", "bluetooth"]
         stderr: StdioCollector {
-            onStreamFinished: if (text.trim() !== "") console.warn("nihil: bluetooth: rfkill:", text.trim())
+            onStreamFinished: if (text.trim() !== "") console.warn("btechos: bluetooth: rfkill:", text.trim())
         }
     }
 
@@ -157,7 +157,7 @@ Singleton {
                 root.turningOn = false;
                 stop();
             } else if (++root.waited > 30) {
-                console.warn("nihil: bluetooth: did not come on:", adapter ? BluetoothAdapterState.toString(adapter.state) : "no adapter");
+                console.warn("btechos: bluetooth: did not come on:", adapter ? BluetoothAdapterState.toString(adapter.state) : "no adapter");
                 root.turningOn = false;
                 stop();
             } else if (adapter?.state === BluetoothAdapterState.Disabled) {

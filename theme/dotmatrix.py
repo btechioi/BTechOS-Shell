@@ -67,7 +67,7 @@ def parse_output(spec, default_pitch):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="NIHIL dot-matrix wallpaper generator")
+    parser = argparse.ArgumentParser(description="BTechOS dot-matrix wallpaper generator")
     parser.add_argument("source")
     parser.add_argument("outdir")
     parser.add_argument("--output", action="append", required=True,

@@ -51,7 +51,7 @@ Item {
                 spacing: 4
 
                 Label {
-                    text: "ex nihilo"
+                    text: "ex btechoso"
                     font.italic: true
                 }
 

@@ -184,9 +184,9 @@ class Base(unittest.TestCase):
         deck.VECTOR_SPARE = 0
         self.config = {
             "port": 0,
-            "name": "nihil-test",
+            "name": "btechos-test",
             "strings": {"deckPaired": "%1 is a deck now", "deckPairedBody": "Forget it in Preferences."},
-            "ipc": script(bin_dir, "nihil-ipc", FAKE_IPC.replace("#!/usr/bin/env python3", "#!" + sys.executable)),
+            "ipc": script(bin_dir, "btechos-ipc", FAKE_IPC.replace("#!/usr/bin/env python3", "#!" + sys.executable)),
             "volume": script(bin_dir, "osd-volume", FAKE_LOGGER.replace("{name}", "osd-volume")),
             "notify": script(bin_dir, "notify-send", FAKE_LOGGER.replace("{name}", "notify-send")),
             "wpctl": script(bin_dir, "wpctl", FAKE_WPCTL),
@@ -273,7 +273,7 @@ class UrlTest(unittest.TestCase):
             self.assertTrue(deck.valid_url(url), url)
         for url in ("javascript:alert(1)", "file:///etc/passwd", "https://", "https://exa mple.com",
                     "https://example.com/\n", "ftp://example.com", "", None, 42, "https://" + "a" * 2050,
-                    "nihil-deck://pair", "about:blank"):
+                    "btechos-deck://pair", "about:blank"):
             self.assertFalse(deck.valid_url(url), url)
 
 
@@ -423,19 +423,19 @@ class ServerTest(Base):
         self.assertIn("code=" + reply["code"], reply["uri"])
         self.assertIn("pin=" + self.deck.pin, reply["uri"])
         self.assertIn("hosts=192.168.1.20,100.64.0.7", reply["uri"])
-        self.assertTrue(reply["uri"].startswith("nihil-deck://pair?v=1&name=nihil-test&"))
+        self.assertTrue(reply["uri"].startswith("btechos-deck://pair?v=1&name=btechos-test&"))
 
         self.assertEqual(self.phone.request("POST", "/v1/pair", {"code": "WRONGCODE", "device": "x"})[0], 403)
         self.answering()
         status, body = self.phone.request("POST", "/v1/pair", {"code": reply["code"], "device": "Pho\x07ne"})
         self.assertEqual(status, 200, body)
-        self.assertEqual(body["name"], "nihil-test")
+        self.assertEqual(body["name"], "btechos-test")
         self.assertEqual(self.phone.request("POST", "/v1/pair", {"code": reply["code"], "device": "other"}),
                          (403, {"error": "wrong"}))
 
         devices = self.deck.control({"op": "devices"})["devices"]
         self.assertEqual([(d["id"], d["name"]) for d in devices], [(body["device"], "Phone")])
-        self.assertIn("notify-send -a NIHIL -- Phone is a deck now Forget it in Preferences.", self.logged())
+        self.assertIn("notify-send -a BTechOS -- Phone is a deck now Forget it in Preferences.", self.logged())
         with open(os.path.join(self.folder, "state", "devices.json")) as file:
             stored = file.read()
         self.assertNotIn(body["token"], stored)
@@ -514,7 +514,7 @@ class ServerTest(Base):
         self.assertEqual(self.deck.control({"op": "vector"}), {"devices": ["Phone"]})
         note = os.path.join(self.folder, "note")
         with open(note, "w") as file:
-            file.write("ex nihilo")
+            file.write("ex btechoso")
         deck.vector_send(self.config, self.deck.vector, "file://" + urllib.parse.quote(note))
         waiting.join(10)
         self.assertLess(time.monotonic() - started, 6)
@@ -580,7 +580,7 @@ class ServerTest(Base):
         clipboard(b"hola", ["text/plain;charset=utf-8", "UTF8_STRING"])
         sent = deck.vector_send(self.config, vector)
         self.assertEqual((sent["kind"], sent["preview"]), ("text", "hola"))
-        self.assertEqual(deck.vector_send(self.config, vector, text="ex nihilo")["preview"], "ex nihilo")
+        self.assertEqual(deck.vector_send(self.config, vector, text="ex btechoso")["preview"], "ex btechoso")
         clipboard(b"", [])
         self.assertEqual(deck.vector_send(self.config, vector), {"error": "empty"})
         self.assertEqual(deck.vector_send(self.config, vector, self.folder), {"error": "folder"})
@@ -702,7 +702,7 @@ class ServerTest(Base):
             card = {"id": "r", "text": "Rank", "column": 0, "textStamp": 1, "placeStamp": 1, "rank": rank}
             self.assertEqual(self.phone.request("POST", "/v1/tasks", {"cards": [card]})[0], status, rank)
 
-    def upgrade(self, path, protocol="nihil-trackpad"):
+    def upgrade(self, path, protocol="btechos-trackpad"):
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         context.check_hostname = False
         context.verify_mode = ssl.CERT_NONE
@@ -941,7 +941,7 @@ class ServerTest(Base):
 
     def test_a_notifications_body_as_written(self):
         self.deck.session.notify("A <b>title</b>", "Forget <img src=x> & go")
-        self.assertIn("notify-send -a NIHIL -- A <b>title</b> Forget &lt;img src=x&gt; &amp; go", self.logged())
+        self.assertIn("notify-send -a BTechOS -- A <b>title</b> Forget &lt;img src=x&gt; &amp; go", self.logged())
 
     def test_a_text_like_an_option_from_the_command_line(self):
         config = os.path.join(self.folder, "config.json")
@@ -1218,7 +1218,7 @@ class ControlTest(Base):
         self.addCleanup(control.shutdown)
         self.assertEqual(os.stat(path).st_mode & 0o777, 0o600)
         reply = deck.ask({"op": "pair"}, path)
-        self.assertTrue(reply["uri"].startswith("nihil-deck://pair?"))
+        self.assertTrue(reply["uri"].startswith("btechos-deck://pair?"))
         self.assertTrue(deck.ask({"op": "status"}, path)["pairing"])
         self.assertEqual(deck.ask({"op": "cancel"}, path), {"ok": True})
         self.assertFalse(deck.ask({"op": "status"}, path)["pairing"])
@@ -1234,7 +1234,7 @@ class BluetoothTest(Base):
     PIN = "8-eMVPli0fpzjeUBe-b_bmRtjDMwo1bNYXaVTyPSbVc"
 
     def test_the_uuid_comes_from_the_pin(self):
-        raw = bytearray(hashlib.sha256(b"nihil-deck ble\0" + self.PIN.encode()).digest()[:16])
+        raw = bytearray(hashlib.sha256(b"btechos-deck ble\0" + self.PIN.encode()).digest()[:16])
         made = deck.ble_uuid(self.PIN)
         self.assertEqual(made, deck.ble_uuid(self.PIN))
         self.assertNotEqual(made, deck.ble_uuid(self.PIN[:-1] + "d"))
@@ -1246,9 +1246,9 @@ class BluetoothTest(Base):
         self.assertEqual(got[8] & 0x3F, raw[8] & 0x3F)
 
     def test_the_qr_says_where_over_bluetooth(self):
-        plain = deck.pair_uri("nihil", 64445, ["192.168.1.20"], "7JTX39F4", self.PIN)
+        plain = deck.pair_uri("btechos", 64445, ["192.168.1.20"], "7JTX39F4", self.PIN)
         self.assertNotIn("ble=", plain)
-        uri = deck.pair_uri("nihil", 64445, ["192.168.1.20"], "7JTX39F4", self.PIN, {"uuid": deck.ble_uuid(self.PIN), "psm": 129})
+        uri = deck.pair_uri("btechos", 64445, ["192.168.1.20"], "7JTX39F4", self.PIN, {"uuid": deck.ble_uuid(self.PIN), "psm": 129})
         query = urllib.parse.parse_qs(urllib.parse.urlsplit(uri).query)
         self.assertEqual(query["ble"], [deck.ble_uuid(self.PIN)])
         self.assertEqual(query["psm"], ["129"])

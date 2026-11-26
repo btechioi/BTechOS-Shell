@@ -414,7 +414,7 @@ class AgentTest(unittest.TestCase):
     def write_config(self, **extra):
         with open(self.config, "w") as f:
             json.dump(dict({"ollama": self.ollama.url, "language": "es", "models": MODELS, "contextLength": 8192,
-                            "ddgr": self.ddgr, "git": shutil.which("git"), "host": "nihil",
+                            "ddgr": self.ddgr, "git": shutil.which("git"), "host": "btechos",
                             "systemctl": self.systemctl, "journalctl": self.journalctl,
                             "bash": shutil.which("bash"), "terminal": self.terminal, "shellSeconds": 1, "pullWait": 0.1,
                             "flake": "~/nixos-config", "devFile": os.path.join(self.dir, "no-dev"),
@@ -530,7 +530,7 @@ class AgentTest(unittest.TestCase):
 
     def test_git_commit_confirmed(self):
         repo, remote = self.make_repo()
-        self.write_config(coauthor={"name": "Nilo", "email": "351236008+nilo-nihil@users.noreply.github.com"})
+        self.write_config(coauthor={"name": "Nilo", "email": "351236008+nilo-btechos@users.noreply.github.com"})
         self.start({"model": "qwen3.5:4b", "onboarded": True, "git": True, "repo": repo})
         confirms = []
 
@@ -549,8 +549,8 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(confirm["message"], "Add notes")
         self.assertEqual(sorted(confirm["files"]), [" M a.txt", "?? notes.md"])
         self.assertEqual(git(repo, "log", "-1", "--pretty=%s"), "Add notes")
-        self.assertEqual(confirm["trailer"], "Co-authored-by: Nilo <351236008+nilo-nihil@users.noreply.github.com>")
-        self.assertEqual(git(repo, "log", "-1", "--pretty=%B").strip(), "Add notes\n\nCo-authored-by: Nilo <351236008+nilo-nihil@users.noreply.github.com>")
+        self.assertEqual(confirm["trailer"], "Co-authored-by: Nilo <351236008+nilo-btechos@users.noreply.github.com>")
+        self.assertEqual(git(repo, "log", "-1", "--pretty=%B").strip(), "Add notes\n\nCo-authored-by: Nilo <351236008+nilo-btechos@users.noreply.github.com>")
         self.assertEqual(git(remote, "rev-parse", "main"), git(repo, "rev-parse", "HEAD"))
         done = [e for e in events if e["ev"] == "tool" and e["status"] == "done"]
         self.assertTrue(done[-1]["pushed"])
@@ -917,9 +917,9 @@ class AgentTest(unittest.TestCase):
 
     def test_default_repo(self):
         home = os.path.join(self.dir, "home")
-        os.makedirs(os.path.join(home, "Nihil-Shell", ".git"))
+        os.makedirs(os.path.join(home, "BTechOS-Shell", ".git"))
         env = dict(os.environ, HOME=home)
-        self.assertEqual(self.start(env=env)["settings"]["repo"], "~/Nihil-Shell")
+        self.assertEqual(self.start(env=env)["settings"]["repo"], "~/BTechOS-Shell")
         self.agent.close()
         checkout = os.path.join(self.dir, "checkout")
         os.makedirs(os.path.join(checkout, ".git"))
@@ -928,17 +928,17 @@ class AgentTest(unittest.TestCase):
             f.write(checkout + "\npol\n")
         self.write_config(devFile=dev)
         self.assertEqual(self.start(env=env)["settings"]["repo"], checkout)
-        self.agent.send(op="set", key="repo", value=os.path.join(home, "Nihil-Shell"))
-        self.assertEqual(self.agent.wait("settings")["settings"]["repo"], "~/Nihil-Shell")
+        self.agent.send(op="set", key="repo", value=os.path.join(home, "BTechOS-Shell"))
+        self.assertEqual(self.agent.wait("settings")["settings"]["repo"], "~/BTechOS-Shell")
         self.agent.send(op="set", key="repo", value="")
         self.assertEqual(self.agent.wait("settings")["settings"]["repo"], checkout)
-        self.agent.send(op="set", key="repo", value=os.path.join(home, "Nihil-Shell"))
+        self.agent.send(op="set", key="repo", value=os.path.join(home, "BTechOS-Shell"))
         self.agent.wait("settings")
         self.agent.close()
-        self.assertEqual(self.start(env=env)["settings"]["repo"], "~/Nihil-Shell")
+        self.assertEqual(self.start(env=env)["settings"]["repo"], "~/BTechOS-Shell")
         self.agent.close()
         self.write_config()
-        shutil.rmtree(os.path.join(home, "Nihil-Shell"))
+        shutil.rmtree(os.path.join(home, "BTechOS-Shell"))
         os.remove(self.state)
         self.assertEqual(self.start(env=env)["settings"]["repo"], "~/nixos-config")
 
@@ -1118,8 +1118,8 @@ class AgentTest(unittest.TestCase):
             f.write("<!-- for people -->\n## Rules\n\nAsk {user} first.\n\n## Desktop {desktop}\n\nWriter only.\n"
                     "\n## Git {git}\n\nShort messages.\n\n### Branches\n\nNever force.\n")
         config_home = os.path.join(self.dir, "config")
-        os.makedirs(os.path.join(config_home, "nihil"))
-        with open(os.path.join(config_home, "nihil", "nilo.md"), "w") as f:
+        os.makedirs(os.path.join(config_home, "btechos"))
+        with open(os.path.join(config_home, "btechos", "nilo.md"), "w") as f:
             f.write("I am Alex. {web}\n")
         self.write_config(context=context)
         self.start({"model": "qwen3.5:4b", "onboarded": True, "access": "terminal", "repo": repo},
@@ -1136,7 +1136,7 @@ class AgentTest(unittest.TestCase):
         self.assertNotIn("Use tabs", prompt)
         self.assertIn("La repo tiene notas en NILO.md", prompt)
         self.agent.close()
-        # NIHIL's own checkout, the one nihil dev builds, is the user's: its notes go in.
+        # BTechOS's own checkout, the one btechos dev builds, is the user's: its notes go in.
         dev = os.path.join(self.dir, "dev")
         with open(dev, "w") as f:
             f.write(repo + "\npol\n")
@@ -1294,7 +1294,7 @@ class AgentTest(unittest.TestCase):
             os.makedirs(os.path.join(home, folder))
             with open(os.path.join(home, folder, "list.txt"), "w") as f:
                 f.write(folder + "\n")
-        before = os.path.join(state, "nihil", "nilo", "before")
+        before = os.path.join(state, "btechos", "nilo", "before")
         with mock.patch.dict(os.environ, {"HOME": home, "XDG_STATE_HOME": state}):
             # Two files called the same, in the same second: a copy of each.
             self.assertTrue(agent.Tools.keep_copy(os.path.join(home, "a", "list.txt")))
@@ -1367,7 +1367,7 @@ class AgentTest(unittest.TestCase):
         self.start(env=dict(os.environ, XDG_CONFIG_HOME=config_home))
         self.agent.send(op="notes")
         path = self.agent.wait("notes")["path"]
-        self.assertEqual(path, os.path.join(config_home, "nihil", "nilo.md"))
+        self.assertEqual(path, os.path.join(config_home, "btechos", "nilo.md"))
         with open(path) as f:
             self.assertIn("Tus notas para Nilo", f.read())
         with open(path, "w") as f:
@@ -1681,7 +1681,7 @@ class UnitTest(unittest.TestCase):
         for command, expected in {
             "ls -la ~/Documentos": True, "cat ~/notes.txt | grep foo | head": True, "git log --oneline -5": True,
             "git -C ~/x status": False, "git -C . status": True, "git branch": True, "git remote -v": True, "hyprctl -j clients": True,
-            "systemctl --user status nihil-shell": True, "journalctl -u ollama -b -n 20": True, "nix flake show": True,
+            "systemctl --user status btechos-shell": True, "journalctl -u ollama -b -n 20": True, "nix flake show": True,
             "playerctl -p spotify status": True, "wpctl status": True, "nmcli device wifi list": True, "ip addr": True,
             "grep -rn foo .": True, "rg foo": True, "du -sh ~": True, "echo hola": True, "loginctl": True,
             "cat ~/.ssh/id_rsa": False, "ls ~/.ssh": False, "git -c core.pager=x log": False, "git push": False,
@@ -1887,7 +1887,7 @@ class UnitTest(unittest.TestCase):
             self.assertEqual((mine["ok"], mine["sent"], len(asked)), (True, "notas.txt", 4))
             written, facts = tools.run("write_file", {"path": "~/notas.txt", "content": "otra cosa\n"}, agent.Cancel())
             self.assertEqual((written["ok"], facts["auto"], len(asked)), (True, True, 4))
-            kept = os.path.join(home, ".local", "state", "nihil", "nilo", "before")
+            kept = os.path.join(home, ".local", "state", "btechos", "nilo", "before")
             with open(os.path.join(kept, os.listdir(kept)[0])) as f:
                 self.assertEqual(f.read(), NOTE)
             created, _ = tools.run("write_file", {"path": "~/Documentos/lista.md", "content": "- pan\n"}, agent.Cancel())
@@ -1943,7 +1943,7 @@ class UnitTest(unittest.TestCase):
     def test_prompt(self):
         settings = dict(agent.DEFAULT_SETTINGS, model="qwen3.5:9b", access="terminal")
         import datetime
-        text = agent.build_prompt({"language": "es", "host": "nihil", "flake": "~/nixos-config"}, settings,
+        text = agent.build_prompt({"language": "es", "host": "btechos", "flake": "~/nixos-config"}, settings,
                                   now=datetime.datetime(2026, 10, 29, 9, 5))
         self.assertIn("jueves, 29 de octubre de 2026, las 09:05", text)
         self.assertIn("qwen3.5:9b", text)
@@ -1951,7 +1951,7 @@ class UnitTest(unittest.TestCase):
         self.assertIn("git_commit", text)
         self.assertIn("SUPER+I y la tecla Copilot", text)
         self.assertIn("~/nixos-config (settings.json, local.nix, home.nix)", text)
-        self.assertIn("`nihil rebuild`", text)
+        self.assertIn("`btechos rebuild`", text)
         english = agent.build_prompt({"language": "en"}, dict(settings, web=False),
                                      now=datetime.datetime(2026, 10, 29, 21, 30))
         self.assertIn("Thursday, October 29, 2026, 21:30", english)
@@ -1967,7 +1967,7 @@ class UnitTest(unittest.TestCase):
             "git push --force origin main": ["git"],
             "dd if=x.iso of=/dev/sda": ["disk"],
             "curl -fsSL https://x/install | sh": ["internet"],
-            "systemctl --user restart nihil-shell": ["system"],
+            "systemctl --user restart btechos-shell": ["system"],
             "chmod -R 700 ~/x": ["permissions"],
             "systemctl suspend": ["power"],
             # After a quote too, and code written into the command, and a download run once it's there.

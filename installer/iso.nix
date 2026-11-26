@@ -1,21 +1,21 @@
 # iso.nix by poligle (installer)
 
-{ config, lib, pkgs, modulesPath, nihil, ... }:
+{ config, lib, pkgs, modulesPath, btechos, ... }:
 let
     install = pkgs.writeShellApplication
     {
-        name = "nihil-install";
+        name = "btechos-install";
         runtimeInputs = with pkgs;
         [
             gum jq curl parted gptfdisk dosfstools btrfs-progs cryptsetup ntfs3g e2fsprogs
             util-linux pciutils usbutils kbd gnugrep gawk coreutils networkmanager lvm2 mdadm
         ];
         # Where the keyboard layouts are listed, to check one typed in text.
-        runtimeEnv.NIHIL_XKB = "${pkgs.xkeyboard_config}";
-        text = builtins.readFile ./nihil-install.sh;
+        runtimeEnv.BTechOS_XKB = "${pkgs.xkeyboard_config}";
+        text = builtins.readFile ./btechos-install.sh;
     };
 
-    qml = import ../theme/qml.nix { inherit pkgs lib; nihil = { tokens = import ../theme/nihil.nix; }; };
+    qml = import ../theme/qml.nix { inherit pkgs lib; btechos = { tokens = import ../theme/btechos.nix; }; };
 
     configQml = pkgs.runCommand "Config.qml" { nativeBuildInputs = [ pkgs.jq ]; } ''
         rules=$(find -L ${pkgs.xkeyboard_config} -name base.lst -print -quit)
@@ -33,7 +33,7 @@ let
         Singleton {
             readonly property var layouts: ($layouts)
             readonly property string sudo: "/run/wrappers/bin/sudo"
-            readonly property string install: "${install}/bin/nihil-install"
+            readonly property string install: "${install}/bin/btechos-install"
             readonly property string nmcli: "${pkgs.networkmanager}/bin/nmcli"
             readonly property string curl: "${pkgs.curl}/bin/curl"
             readonly property string timedatectl: "${config.systemd.package}/bin/timedatectl"
@@ -43,7 +43,7 @@ let
         EOF
     '';
 
-    gui = pkgs.runCommand "nihil-installer-gui" { } ''
+    gui = pkgs.runCommand "btechos-installer-gui" { } ''
         mkdir -p $out/theme $out/config $out/components $out/shaders
         cp ${./gui/shell.qml} $out/shell.qml
         cp ${../home/shell/components/Txt.qml} $out/components/Txt.qml
@@ -62,13 +62,13 @@ let
 
     installer = pkgs.writeShellApplication
     {
-        name = "nihil-installer";
+        name = "btechos-installer";
         runtimeInputs = with pkgs; [ cage quickshell jq coreutils gawk procps ];
         text = ''
             run=''${XDG_RUNTIME_DIR:-/tmp}
-            state=$run/nihil-installer.json
-            export NIHIL_INSTALLER_STATE=$state
-            export NIHIL_INSTALLER_READY=$run/nihil-installer-ready
+            state=$run/btechos-installer.json
+            export BTechOS_INSTALLER_STATE=$state
+            export BTechOS_INSTALLER_READY=$run/btechos-installer-ready
             export XCURSOR_PATH=${pkgs.bibata-cursors}/share/icons XCURSOR_THEME=Bibata-Modern-Classic XCURSOR_SIZE=24
             export WLR_RENDERER_ALLOW_SOFTWARE=1
             rm -f "$state"
@@ -103,20 +103,20 @@ let
             layout=us
             software=no
             while true; do
-                rm -f "$NIHIL_INSTALLER_READY"
+                rm -f "$BTechOS_INSTALLER_READY"
                 look=()
                 if [ "$software" = yes ]; then
                     look=(WLR_RENDERER=pixman QT_QUICK_BACKEND=software)
                 fi
-                env XKB_DEFAULT_LAYOUT="$layout" QT_SCALE_FACTOR="$scale" NIHIL_INSTALLER_SCREEN="$screen" "''${look[@]}" \
-                    cage -s -m extend -- quickshell -p ${gui} 2>> /tmp/nihil-installer.log &
+                env XKB_DEFAULT_LAYOUT="$layout" QT_SCALE_FACTOR="$scale" BTechOS_INSTALLER_SCREEN="$screen" "''${look[@]}" \
+                    cage -s -m extend -- quickshell -p ${gui} 2>> /tmp/btechos-installer.log &
                 pid=$!
                 for _ in $(seq 300); do
-                    [ -e "$NIHIL_INSTALLER_READY" ] && break
+                    [ -e "$BTechOS_INSTALLER_READY" ] && break
                     kill -0 "$pid" 2> /dev/null || break
                     sleep 0.1
                 done
-                if [ ! -e "$NIHIL_INSTALLER_READY" ]; then
+                if [ ! -e "$BTechOS_INSTALLER_READY" ]; then
                     kill "$pid" 2> /dev/null || true
                     wait "$pid" 2> /dev/null || true
                     if [ "$software" = no ]; then
@@ -133,18 +133,18 @@ let
             done
 
             # An installation the window started may still be running after it's gone.
-            while pgrep -f 'nihil-install apply' > /dev/null; do
+            while pgrep -f 'btechos-install apply' > /dev/null; do
                 echo "Waiting for the installation already running…"
                 sleep 2
             done
-            exec sudo ${install}/bin/nihil-install
+            exec sudo ${install}/bin/btechos-install
         '';
     };
 in
 {
     imports = [ "${modulesPath}/installer/cd-dvd/installation-cd-minimal-new-kernel-no-zfs.nix" ];
 
-    networking.hostName = "nihil-installer";
+    networking.hostName = "btechos-installer";
 
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
@@ -152,13 +152,13 @@ in
 
     environment.etc =
     {
-        "nihil/template".source = ../templates/machine;
-        "nihil/hosts".source = ../hosts;
-        "nihil/source".text = nihil.lib.source;
+        "btechos/template".source = ../templates/machine;
+        "btechos/hosts".source = ../hosts;
+        "btechos/source".text = btechos.lib.source;
         # A tree with changes has no revision: the image would install GitHub's default branch.
-        "nihil/rev".text = nihil.rev or (lib.warn "An image from a tree with changes installs GitHub's default branch, not this tree." "");
+        "btechos/rev".text = btechos.rev or (lib.warn "An image from a tree with changes installs GitHub's default branch, not this tree." "");
         # The installer's words, both modes', in theme/i18n.nix with the shell's.
-        "nihil/strings.json".text = builtins.toJSON (import ../theme/i18n.nix);
+        "btechos/strings.json".text = builtins.toJSON (import ../theme/i18n.nix);
     };
 
     hardware.graphics.enable = true;
@@ -169,9 +169,9 @@ in
     console.font = "Lat2-Terminus16";
 
     programs.bash.interactiveShellInit = ''
-        if [ "$(tty)" = /dev/tty1 ] && [ -z "''${NIHIL_INSTALLER:-}" ]; then
-            export NIHIL_INSTALLER=1
-            nihil-installer || true
+        if [ "$(tty)" = /dev/tty1 ] && [ -z "''${BTechOS_INSTALLER:-}" ]; then
+            export BTechOS_INSTALLER=1
+            btechos-installer || true
         fi
     '';
 
@@ -181,7 +181,7 @@ in
 
     services.getty.helpLine = lib.mkForce ''
 
-        NIHIL installer. nihil-installer opens it, sudo nihil-install in text; nmtui connects to a network.
+        BTechOS installer. btechos-installer opens it, sudo btechos-install in text; nmtui connects to a network.
     '';
 
     system.stateVersion = "26.05";

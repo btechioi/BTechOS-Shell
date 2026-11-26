@@ -31,7 +31,7 @@ Scope {
         exclusionMode: ExclusionMode.Ignore
 
         WlrLayershell.layer: WlrLayer.Overlay
-        WlrLayershell.namespace: "nihil-settings"
+        WlrLayershell.namespace: "btechos-settings"
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
         HyprlandFocusGrab {

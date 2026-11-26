@@ -2,22 +2,23 @@
 
 { config, lib, pkgs, ... }:
 let
-    nihil = config.nihil;
-    tokens = nihil.tokens;
+    btechos = config.btechos;
+    tokens = btechos.tokens;
 in
 {
     stylix = 
     {
         enable = true;
-        image = "${nihil.wallpapers}/${nihil.wallpaper}/${nihil.primaryOutput}.png";
+        autoEnable = false;
+        image = /home/banumath/DarkShadowShell/wallpapers/city-night.jpg;
         base16Scheme = tokens.base16;
         polarity = lib.mkDefault "dark";
 
         cursor = 
         {
             package = lib.mkDefault pkgs.bibata-cursors;
-            name = lib.mkDefault "Bibata-Modern-Classic";
-            size = lib.mkDefault 15;
+            name = lib.mkDefault "Bibata-Modern-Ice";
+            size = lib.mkDefault 24;
         };
 
         fonts = 
@@ -29,7 +30,7 @@ in
             };
             sansSerif = 
             {
-                package = lib.mkDefault nihil.fonts;
+                package = lib.mkDefault btechos.fonts;
                 name = lib.mkDefault tokens.fonts.sans;
             };
             emoji = 

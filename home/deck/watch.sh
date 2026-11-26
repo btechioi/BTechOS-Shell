@@ -1,16 +1,16 @@
-# nihil-watch by poligle (home/deck/watch.nix): NIHIL for Wear OS on a watch,
+# btechos-watch by poligle (home/deck/watch.nix): BTechOS for Wear OS on a watch,
 
-repo=poligle/Nihil-Wear
-package=com.nihilshell.wear
-face=com.nihilshell.wear.watchface
-provider=content://com.nihilshell.wear.shell
+repo=poligle/BTechOS-Wear
+package=com.btechosshell.wear
+face=com.btechosshell.wear.watchface
+provider=content://com.btechosshell.wear.shell
 replaced=""
 
 # The words are theme/i18n.nix's, in the machine's language: t key [value…], each value in for
 # %1, %2…, as they come.
 t() {
     local text i=1 value
-    text=$(jq -r --arg k "$1" '.[$k] // $k' "$NIHIL_WATCH_STRINGS")
+    text=$(jq -r --arg k "$1" '.[$k] // $k' "$BTechOS_WATCH_STRINGS")
     shift
     for value in "$@"; do
         text=${text//"%$i"/"$value"}
@@ -164,7 +164,7 @@ call() {
 
 invite() {
     local serial=$1 uri name
-    uri=$(nihil-deck pair --json | jq -r '.uri // empty') || true
+    uri=$(btechos-deck pair --json | jq -r '.uri // empty') || true
     [ -n "$uri" ] || fail "$(t watchNoInvite "$(t cfgTitle), $(t cfgDevices), $(t deckUse)")"
     name=$(call "$serial" invite "$uri")
     adb -s "$serial" shell input keyevent KEYCODE_WAKEUP
@@ -216,14 +216,14 @@ case ${1:-install} in
     forget)
         serial=$(watch) || fail "$(t watchNoWatch)"
         device=$(call "$serial" forget)
-        if [ -n "$device" ] && nihil-deck forget "$device" > /dev/null; then
+        if [ -n "$device" ] && btechos-deck forget "$device" > /dev/null; then
             t watchForgotBoth; echo
         else
             t watchForgot; echo
         fi
         ;;
     *)
-        echo "Usage: nihil-watch [install | update | forget]" >&2
+        echo "Usage: btechos-watch [install | update | forget]" >&2
         exit 2
         ;;
 esac

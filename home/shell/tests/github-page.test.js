@@ -23,7 +23,7 @@ const page = days => `<div class="js-yearly-contributions"><h2 class="f4 text-no
     </tr></tbody></table></div>`;
 
 test("a login is letters, digits and single hyphens inside", () => {
-    for (const ok of ["poligle", "a", "nilo-nihil", "A1-b2-c3", "x".repeat(39)])
+    for (const ok of ["poligle", "a", "nilo-btechos", "A1-b2-c3", "x".repeat(39)])
         assert.ok(G.valid(ok), ok);
     for (const bad of ["", "-a", "a-", "a--b", "a b", "a/b", "../x", "x".repeat(40), "a?x=1", null])
         assert.ok(!G.valid(bad), String(bad));

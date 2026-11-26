@@ -2,7 +2,7 @@
 
 { config, lib, pkgs, ... }:
 let
-    cfg = config.nihil.nilo;
+    cfg = config.btechos.nilo;
 
     packages =
     {
@@ -44,7 +44,7 @@ let
     };
 in
 {
-    options.nihil.nilo =
+    options.btechos.nilo =
     {
         enable = lib.mkEnableOption "Nilo, the shell's assistant, with a local model on Ollama";
 
@@ -133,11 +133,11 @@ in
             default =
             {
                 name = "Nilo";
-                email = "351236008+nilo-nihil@users.noreply.github.com";
+                email = "351236008+nilo-btechos@users.noreply.github.com";
             };
             description = ''
                 Who Nilo signs its commits as, with a Co-authored-by trailer, so they
-                show both of you. By default the account github.com/nilo-nihil
+                show both of you. By default the account github.com/nilo-btechos
                 (picture: assets/brand/nilo-avatar.png); GitHub shows the picture of
                 whichever account the email belongs to. null leaves commits as they are.
             '';

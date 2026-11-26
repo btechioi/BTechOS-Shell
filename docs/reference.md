@@ -2,27 +2,27 @@
 
 ## Options
 
-Under `nihil.*`, across [`modules/`](../modules). A machine's `settings.json` sets those with
+Under `btechos.*`, across [`modules/`](../modules). A machine's `settings.json` sets those with
 a key in the last column ([`modules/settings.nix`](../modules/settings.nix)); its `local.nix`
 sets any of them, those without one only there.
 
 | Option          | Default    | What it does                                                    | `settings.json` |
 |-----------------|------------|-----------------------------------------------------------------|-----------------|
-| `user.name`     | `"nihil"`  | The account of the person using the machine                     | `user.name`     |
+| `user.name`     | `"btechos"`  | The account of the person using the machine                     | `user.name`     |
 | `user.fullName` | `""`       | Their name, as the greeter and the welcome say it               | `user.fullName` |
 | `user.greeting` | Its first word | The name the greeter uses                                   | —               |
 | `language`      | `"en"`     | `"es"` or `"en"`: shell, lock screen, greeter, script messages and their dates | `language` |
 | `outputs`       | —          | Screens of the host, by connector: `width` and `height`, the mode's pixels after rotation and before the scale; `bar`, whether it has the bar; `pitch`, between dots (`9`); and Hyprland's `mode` (`"preferred"`), `position` (`"auto"`), `scale` (`1`) and `transform` (`0`) | `outputs` |
 | `primaryOutput` | A laptop's panel, else the first | Screen for the desktop widgets, lock and login backgrounds | `primaryOutput` |
 | `wallpaper`     | `"night"`  | Default wallpaper, by name: its file's without the extension, with spaces and accents made plain (`Captura de pantalla.png` is `Captura-de-pantalla`) | `wallpaper` |
-| `extraWallpapers` | `[ ]`    | More folders of pictures, drawn as dots too; a machine's `local.nix` adds its `/etc/nixos/wallpapers`. A picture with the name of one of NIHIL's takes its place | — |
-| `binds`, `gestures` | See [Keybindings](#keybindings) | Keys and touchpad fingers for NIHIL's actions; `null` turns one off | `binds`, `gestures` |
+| `extraWallpapers` | `[ ]`    | More folders of pictures, drawn as dots too; a machine's `local.nix` adds its `/etc/nixos/wallpapers`. A picture with the name of one of BTechOS's takes its place | — |
+| `binds`, `gestures` | See [Keybindings](#keybindings) | Keys and touchpad fingers for BTechOS's actions; `null` turns one off | `binds`, `gestures` |
 | `programs`      | Terminal, Files, Zen | Programs with a key: a name, the command that opens it and its keys ([Keybindings](#keybindings)) | `programs` |
 | `clipboard`     | `8`        | How many copies the clipboard history keeps; `0` turns it off   | `clipboard`     |
 | `generations.days` | `7`     | How long generations stay: the weekly clean removes older ones, but the one in use and the one in use that many days ago | `generations.days` |
 | `bootSound`     | `true`     | A sound with the boot splash, unless the session was left muted | `bootSound`     |
 | `fingerprint`   | `false`    | The fingerprint reader for sudo, polkit and the greeter (fprintd) | `fingerprint` |
-| `greeter`       | `"nihil"`  | The login screen: NIHIL's own (`greeter/shell.qml`), with ReGreet in its place should it not start, or `"regreet"` alone | — |
+| `greeter`       | `"btechos"`  | The login screen: BTechOS's own (`greeter/shell.qml`), with ReGreet in its place should it not start, or `"regreet"` alone | — |
 | `trayHidden`    | `[ "nm-applet" "blueman" ]` | Tray items to hide, by part of their id or title. The Wi-Fi and Bluetooth applets keep running for password and pairing prompts | — |
 | `nilo.enable`   | `false`    | Nilo, the assistant, and Ollama to run its model ([Nilo](nilo.md)) | `nilo.enable` |
 | `nilo.acceleration` | `"cpu"` | `"cpu"`, `"vulkan"`, `"rocm"` or `"cuda"`: what runs the model | `nilo.acceleration` |
@@ -31,10 +31,10 @@ sets any of them, those without one only there.
 | `nilo.loadedModels` | `1` | Models Ollama keeps in memory at once; `2` lets the automatic choice switch without reloading | — |
 | `nilo.contextLength` | `16384` | Context window, in tokens                                     | —               |
 | `nilo.searxng`  | `null`     | A SearXNG instance for web searches instead of DuckDuckGo       | —               |
-| `nilo.coauthor` | [nilo-nihil](https://github.com/nilo-nihil) | Who Nilo signs its commits as (`Co-authored-by`); `null` for no trailer | — |
+| `nilo.coauthor` | [nilo-btechos](https://github.com/nilo-btechos) | Who Nilo signs its commits as (`Co-authored-by`); `null` for no trailer | — |
 | `deck.enable`   | `false`    | Devices as decks ([Devices](devices.md)): its service, its port in the firewall, its announcement on the network (mDNS), uinput for the trackpad | `deck.enable` |
 | `deck.interfaces` | `[ ]`    | The network interfaces where the deck is reached and announced; every one when empty | `deck.interfaces` |
-| `deck.port`     | `64445`    | The deck's HTTPS port ("NIHIL" on a phone's keypad)             | —               |
+| `deck.port`     | `64445`    | The deck's HTTPS port ("BTechOS" on a phone's keypad)             | —               |
 
 `settings.json` also has the computer's name (`host.name`), `locale`, `timeZone`,
 `keyboard` (`layout`, `variant`, `model`), `ssh` and `sshKeys` ([Install](install.md)). A key
@@ -76,11 +76,11 @@ Read-only: `tokens` (the design tokens), `strings` (the selected language), `sou
 Scrolling over the bar switches workspaces (on the LEDs) or changes the volume (on the
 status icons).
 
-These are the defaults. Preferences (Shortcuts) changes the keys of NIHIL's actions and
+These are the defaults. Preferences (Shortcuts) changes the keys of BTechOS's actions and
 the programs with a key of their own: a name, the command that opens it and its keys, to
 edit, remove or add. A machine keeps them in its `settings.json`, by the names in
 [`modules/binds.nix`](../modules/binds.nix): `binds`, a new combination for an action or
-`null` for none; `programs`, the whole list, which replaces NIHIL's; and `gestures`, the
+`null` for none; `programs`, the whole list, which replaces BTechOS's; and `gestures`, the
 fingers of each one or `null` for none, which only change there.
 
 ```json
@@ -110,36 +110,36 @@ them.
 
 ## Shell
 
-The shell lives in [`home/shell/`](../home/shell) and runs as the `nihil-shell` user
+The shell lives in [`home/shell/`](../home/shell) and runs as the `btechos-shell` user
 service. [`home/shell.nix`](../home/shell.nix) generates `Tokens.qml`, `Config.qml` and
 `Lang.qml` from the Nix side and references every external program by its store path.
 
 ```bash
-nihil-ipc drawers toggle launcher     # launcher | dashboard | panel | wallpapers; also: open <name>, close
-nihil-ipc osd volume 40 false
-nihil-ipc glyph test true             # light the frame (critical = red)
-nihil-ipc glyph charge                # the charger's light, rising from the bottom
-nihil-ipc glyph progress <id> 0.4     # work that takes a while; then done, failed or clear <id>
-nihil-ipc notifs toggleDnd            # also: hide (the popups, keeping the list), clear
-nihil-ipc nilo toggle                 # also: open, sleep, ask "…" (the chat says who asked), state, reset
-nihil-ipc caffeine toggle             # also: on, off, status
-nihil-ipc toggles state               # caffeine and the night light, as JSON
-nihil-ipc night level 40              # the night light at 40 %; also: toggle, on, off, status
-nihil-ipc tasks add "Hand in the lab" # also: list
-nihil-ipc battery warn 10             # show the low-battery warning
-nihil-ipc settings open               # Preferences; also: toggle, close, page keys, welcome, wallpapers, glass on|off, look
-nihil-ipc widgets arrange             # move the desktop widgets; also: done, cancel (what Enter and Esc do), list (which are on, where and how big, as JSON)
-nihil-ipc widgets photo /path/to.jpg  # a photo widget's picture, from a whole path: one with none, else a new one
-nihil-ipc clipboard open              # the history; also: next, previous, released, paste, cancel
-nihil-ipc apps list                   # the launcher's apps, as JSON; also: launch <id>, url <https://…>
-nihil-ipc media toggle                # also: next, previous, now (what plays, as JSON)
-nihil-ipc session lock                # the lock screen
-nihil-ipc recorder status             # whether it records; started and stopped are the recorder's own
-nihil-ipc vector received             # the deck, when the phone has sent something; reload, quietly
-nihil-wallpaper next                  # also: prev, set <name>, list, current, restore, glass [on|off]
-nihil-calendar list                   # the calendars, without their addresses; also: sync, remove <id>,
+btechos-ipc drawers toggle launcher     # launcher | dashboard | panel | wallpapers; also: open <name>, close
+btechos-ipc osd volume 40 false
+btechos-ipc glyph test true             # light the frame (critical = red)
+btechos-ipc glyph charge                # the charger's light, rising from the bottom
+btechos-ipc glyph progress <id> 0.4     # work that takes a while; then done, failed or clear <id>
+btechos-ipc notifs toggleDnd            # also: hide (the popups, keeping the list), clear
+btechos-ipc nilo toggle                 # also: open, sleep, ask "…" (the chat says who asked), state, reset
+btechos-ipc caffeine toggle             # also: on, off, status
+btechos-ipc toggles state               # caffeine and the night light, as JSON
+btechos-ipc night level 40              # the night light at 40 %; also: toggle, on, off, status
+btechos-ipc tasks add "Hand in the lab" # also: list
+btechos-ipc battery warn 10             # show the low-battery warning
+btechos-ipc settings open               # Preferences; also: toggle, close, page keys, welcome, wallpapers, glass on|off, look
+btechos-ipc widgets arrange             # move the desktop widgets; also: done, cancel (what Enter and Esc do), list (which are on, where and how big, as JSON)
+btechos-ipc widgets photo /path/to.jpg  # a photo widget's picture, from a whole path: one with none, else a new one
+btechos-ipc clipboard open              # the history; also: next, previous, released, paste, cancel
+btechos-ipc apps list                   # the launcher's apps, as JSON; also: launch <id>, url <https://…>
+btechos-ipc media toggle                # also: next, previous, now (what plays, as JSON)
+btechos-ipc session lock                # the lock screen
+btechos-ipc recorder status             # whether it records; started and stopped are the recorder's own
+btechos-ipc vector received             # the deck, when the phone has sent something; reload, quietly
+btechos-wallpaper next                  # also: prev, set <name>, list, current, restore, glass [on|off]
+btechos-calendar list                   # the calendars, without their addresses; also: sync, remove <id>,
                                       # add (the address on stdin: an argument shows in /proc)
-journalctl --user -u nihil-shell -f   # logs
+journalctl --user -u btechos-shell -f   # logs
 ```
 
 | Folder        | Contents                                                        |

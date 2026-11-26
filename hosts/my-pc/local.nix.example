@@ -4,7 +4,10 @@
 
 	users.users.banumath.extraGroups = [ "input" "dialout" "uinput" ];
 
-	nihil.extraWallpapers = lib.optional (builtins.pathExists ./wallpapers) ./wallpapers;
+	btechos.extraWallpapers = lib.optional (builtins.pathExists ./wallpapers) ./wallpapers;
+
+	btechos.darkshadow.enable = true;
+	btechos.darkshadow.user = config.btechos.user.name;
 
 	nix.settings.substituters = [ "https://freesmlauncher.cachix.org" "https://cache.nixos.org/" ];
 	nix.settings.trusted-public-keys = [

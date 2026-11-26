@@ -2,7 +2,7 @@
 
 { config, lib, pkgs, ... }:
 let
-    user = config.nihil.user;
+    user = config.btechos.user;
 in
 {
     programs.zsh.enable = true;
@@ -13,8 +13,8 @@ in
         description = user.fullName;
         # Above nixpkgs' own default for normal users (a mkDefault too), below a plain value in local.nix.
         shell = lib.mkOverride 900 pkgs.zsh;
-        extraGroups = [ "wheel" "networkmanager" "video" "nihil-leds" ];
+        extraGroups = [ "wheel" "networkmanager" "video" "btechos-leds" ];
     };
 
-    users.groups.nihil-leds = { };
+    users.groups.btechos-leds = { };
 }

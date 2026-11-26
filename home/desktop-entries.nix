@@ -13,11 +13,11 @@ let
     };
 in
 {
-    xdg.desktopEntries.nihil-settings =
+    xdg.desktopEntries.btechos-settings =
     {
-        name = osConfig.nihil.strings.cfgTitle;
-        comment = osConfig.nihil.strings.cfgComment;
-        exec = "nihil-ipc settings open";
+        name = osConfig.btechos.strings.cfgTitle;
+        comment = osConfig.btechos.strings.cfgComment;
+        exec = "btechos-ipc settings open";
         icon = "preferences-system";
         terminal = false;
         categories = [ "Settings" ];
@@ -25,10 +25,10 @@ in
 
     # Files' Open with, for the kinds the photo widget shows; out of the launcher, and no
     # picture's default (viewers.nix keeps imv for each of them).
-    xdg.desktopEntries.nihil-photo =
+    xdg.desktopEntries.btechos-photo =
     {
-        name = osConfig.nihil.strings.widgetPhotoApp;
-        exec = "nihil-ipc widgets photo %f";
+        name = osConfig.btechos.strings.widgetPhotoApp;
+        exec = "btechos-ipc widgets photo %f";
         icon = "image-x-generic";
         terminal = false;
         noDisplay = true;
