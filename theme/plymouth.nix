@@ -10,9 +10,12 @@ let
   # that picture's average colour instead of a fixed grey.
   inkFile = if wallpaper == null then null else pkgs.runCommand "btechos-wallpaper-ink"
   {
-      nativeBuildInputs = [ python ];
+      nativeBuildInputs = [ pkgs.imagemagick pkgs.gawk ];
   } ''
-      python3 ${./wallpaper-ink.py} ${wallpaper} > $out
+      means=$(magick ${wallpaper} -resize '64x64!' \
+          -format '%[fx:mean.r],%[fx:mean.g],%[fx:mean.b]' info:)
+      awk -F, '{ m = $1; if ($2 > m) m = $2; if ($3 > m) m = $3;
+          printf "%.3f,%.3f,%.3f\n", $1/m, $2/m, $3/m }' <<< "$means" > $out
   '';
 
   ink = if inkFile == null then "0.949, 0.949, 0.949" else "__INK__";
