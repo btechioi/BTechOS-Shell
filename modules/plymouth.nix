@@ -1,7 +1,10 @@
 # plymouth.nix by poligle
 
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs ? { }, ... }:
 let
+  shellSrc = inputs.darkshadowShell.outPath or null;
+  wallpaper = if shellSrc == null then null else "${shellSrc}/wallpapers/${config.btechos.wallpaper}.jpg";
+
   splashSeconds = "4.5";
   waitForSound = config.btechos.bootSound;
   litSeconds = "1.5";
@@ -39,7 +42,10 @@ in
       enable = lib.mkDefault true;
 
       theme = lib.mkDefault "btechos";
-      themePackages = [ (import ../theme/plymouth.nix { inherit pkgs waitForSound; passphrase = config.btechos.strings.diskPassphrase; }) ];
+      themePackages = [ (import ../theme/plymouth.nix {
+          inherit pkgs waitForSound wallpaper;
+          passphrase = config.btechos.strings.diskPassphrase;
+      }) ];
     };
 
     consoleLogLevel = lib.mkDefault 3;

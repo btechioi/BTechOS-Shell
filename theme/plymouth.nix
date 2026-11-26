@@ -2,11 +2,20 @@
 
 # passphrase: what the disk's password is called, in the system's language (theme/i18n.nix). It's
 # shown instead of what asks for it: systemd-cryptsetup's words are English, whatever the language.
-{ pkgs, waitForSound ? false, passphrase ? "Disk passphrase" }:
+{ pkgs, waitForSound ? false, passphrase ? "Disk passphrase", wallpaper ? null }:
 let
   python = pkgs.python3.withPackages (ps: [ ps.pillow ]);
 
-  ink = "0.949, 0.949, 0.949";
+  # When a wallpaper is given, the boot animation and its text are tinted with
+  # that picture's average colour instead of a fixed grey.
+  inkFile = if wallpaper == null then null else pkgs.runCommand "btechos-wallpaper-ink"
+  {
+      nativeBuildInputs = [ python ];
+  } ''
+      python3 ${./wallpaper-ink.py} ${wallpaper} > $out
+  '';
+
+  ink = if inkFile == null then "0.949, 0.949, 0.949" else "__INK__";
   intro = 36;
   loop = 60;
 
@@ -212,11 +221,17 @@ let
     Plymouth.SetQuitFunction(quit_callback);
   '';
 in
-pkgs.runCommand "btechos-plymouth" { nativeBuildInputs = [ python ]; } ''
+pkgs.runCommand "btechos-plymouth" { nativeBuildInputs = [ python pkgs.gawk ]; } ''
   dir="$out/share/plymouth/themes/btechos"
   mkdir -p "$dir"
-  python3 ${./plymouth.py} ${./art/snowflake-29.txt} "$dir"
-  cp ${script} "$dir/btechos.script"
+
+  tint="${if inkFile == null then "1,1,1" else "$(cat ${inkFile})"}"
+  python3 ${./plymouth.py} ${./art/snowflake-29.txt} "$dir" --tint "$tint"
+
+  # Plymouth's Image.Text wants components in 0..1; keep the old brightness
+  # while taking the hue from the wallpaper.
+  text=$(awk -F, -v s=0.949 '{ printf "%s, %s, %s", $1*s, $2*s, $3*s }' <<< "$tint")
+  sed "s/__INK__/$text/g" ${script} > "$dir/btechos.script"
   {
     printf '[Plymouth Theme]\n'
     printf 'Name=BTechOS\n'

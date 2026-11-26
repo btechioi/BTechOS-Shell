@@ -27,10 +27,11 @@ let
         chmod -R u+w $out
         cd $out
         patch -p1 --forward < ${patch}
+        patch -p1 --forward < ${../patches/darkshadow/igpu-stats.patch}
     '';
 
     scripts = [ "darkshadow-portal" "rice-app" "rice-apps-helper" "rice-hotcorner"
-        "rice-idle-guard" "rice-lock" "rice-sddm" "rice-theme" ];
+        "rice-idle-guard" "rice-lock" "rice-sddm" "rice-stats" "rice-theme" ];
 
     scriptPackage = pkgs.runCommand "darkshadow-patched-scripts" { } ''
         mkdir -p $out/bin

@@ -16,7 +16,7 @@ def load(path):
     return [[int(c) / 9 for c in row] for row in rows]
 
 
-def render(grid, pitch, levels, supersample=4):
+def render(grid, pitch, levels, tint=(1.0, 1.0, 1.0), supersample=4):
     n = len(grid)
     size = n * pitch
     s = supersample
@@ -31,8 +31,9 @@ def render(grid, pitch, levels, supersample=4):
                 draw.ellipse((cx - r, cy - r, cx + r, cy + r), fill=(28, 28, 28, 255))
                 continue
             r = (0.22 + 0.2 * scale) * pitch * s
-            g = round(40 + 215 * level)
-            draw.ellipse((cx - r, cy - r, cx + r, cy + r), fill=(g, g, g, 255))
+            g = 40 + 215 * level
+            color = tuple(min(255, round(g * channel)) for channel in tint)
+            draw.ellipse((cx - r, cy - r, cx + r, cy + r), fill=(*color, 255))
     return img.resize((size, size), Image.LANCZOS)
 
 
@@ -41,7 +42,13 @@ def main():
     ap.add_argument("grid")
     ap.add_argument("outdir")
     ap.add_argument("--pitch", type=int, default=9)
+    ap.add_argument("--tint", default="1,1,1",
+                    help="comma-separated RGB multipliers (0..1), from the wallpaper")
     args = ap.parse_args()
+
+    tint = tuple(float(x) for x in args.tint.split(","))
+    if len(tint) != 3:
+        ap.error("--tint needs three comma-separated numbers")
 
     grid = load(args.grid)
     n = len(grid)
@@ -65,7 +72,7 @@ def main():
             flash = max(0.0, 1 - age / 4)
             return min(1.0, lit[j][i] * 0.86 + 0.5 * flash), 0.75 + 0.25 * flash
 
-        render(grid, args.pitch, levels).save(os.path.join(args.outdir, f"frame-{f}.png"))
+        render(grid, args.pitch, levels, tint=tint).save(os.path.join(args.outdir, f"frame-{f}.png"))
 
     for f in range(LOOP):
         pos = -0.35 + 1.7 * f / LOOP
@@ -77,9 +84,9 @@ def main():
             band = math.exp(-(d / 0.09) ** 2)
             return min(1.0, lit[j][i] * 0.86 + 0.14 * band), 0.75 + 0.25 * band
 
-        render(grid, args.pitch, levels).save(os.path.join(args.outdir, f"frame-{INTRO + f}.png"))
+        render(grid, args.pitch, levels, tint=tint).save(os.path.join(args.outdir, f"frame-{INTRO + f}.png"))
 
-    render(grid, args.pitch, lambda i, j: (lit[j][i] * 0.86, 0.75) if lit[j][i] else (0, 0)).save(
+    render(grid, args.pitch, lambda i, j: (lit[j][i] * 0.86, 0.75) if lit[j][i] else (0, 0), tint=tint).save(
         os.path.join(args.outdir, "logo.png"))
 
 

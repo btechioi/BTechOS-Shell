@@ -1,0 +1,39 @@
+--- a/bin/rice-stats
++++ b/bin/rice-stats
+@@ -139,10 +139,25 @@
+ 
+ NV = shutil.which("nvidia-smi")
+ DRM = [p for p in glob.glob("/sys/class/drm/card*/device/gpu_busy_percent")]
++# Intel i915 does not publish gpu_busy_percent on every kernel. Its GT frequency
++# tracks load closely enough for the shell's GPU widgets, so fall back to that.
++IGT = (glob.glob("/sys/class/drm/card*/gt/gt0/rps_cur_freq_mhz")
++       + glob.glob("/sys/class/drm/card*/gt_cur_freq_mhz"))
++
++
++def intel_busy():
++    for cur in IGT:
++        d = os.path.dirname(cur)
++        c = read(cur)
++        lo = read(os.path.join(d, "rps_min_freq_mhz")) or read(os.path.join(d, "gt_min_freq_mhz"))
++        hi = read(os.path.join(d, "rps_max_freq_mhz")) or read(os.path.join(d, "gt_max_freq_mhz"))
++        if all(str(x).isdigit() for x in (c, lo, hi)) and int(hi) > int(lo):
++            return round((int(c) - int(lo)) / (int(hi) - int(lo)) * 100)
++    return 0
+ 
+ 
+ def gpu():
+-    """(busy %, temperature) of the first GPU that tells: NVIDIA via nvidia-smi, AMD / Intel via sysfs"""
++    """(busy %, temperature) of the first GPU that tells: NVIDIA, AMD, or the Intel iGPU"""
+     if NV:
+         try:
+             o = subprocess.run([NV, "--query-gpu=utilization.gpu,temperature.gpu", "--format=csv,noheader,nounits"],
+@@ -154,7 +169,8 @@
+         v = read(p)
+         if v.isdigit():
+             return int(v), hwmon(("amdgpu", "i915", "xe"))
+-    return 0, hwmon(("amdgpu", "nouveau", "i915", "xe"))
++    busy = intel_busy()
++    return busy, hwmon(("amdgpu", "nouveau", "i915", "xe"))
+ 
+ 
+ every = 2.0

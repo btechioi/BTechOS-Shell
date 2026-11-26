@@ -667,7 +667,7 @@ apply_plan() {
                 timeZone: $zone,
                 keyboard: { layout: $layout, variant: "", model: $model },
                 outputs: $outputs,
-                wallpaper: "night",
+                wallpaper: "city-night",
                 nilo: { enable: false, acceleration: "cpu", integratedGpu: false },
                 fingerprint: $fingerprint,
                 ssh: false,
@@ -740,7 +740,14 @@ apply_plan() {
 {
 	system.stateVersion = "$release";
 
+	# The built-in wallpapers come from the DarkShadowShell flake input;
+	# this folder is only for pictures added by the user.
 	btechos.extraWallpapers = lib.optional (builtins.pathExists ./wallpapers) ./wallpapers;
+
+	btechos.darkshadow.enable = true;
+	btechos.darkshadow.user = config.btechos.user.name;
+	programs.shadows-shell.sddm = lib.mkForce true;
+	btechos.flatpaks.enable = true;
 
 	fileSystems = lib.genAttrs [ "/" "/home" "/nix" "/var/log" ] (_: { options = [ "compress=zstd" "noatime" ]; });
 	services.btrfs.autoScrub = { enable = true; fileSystems = [ "/" ]; };
