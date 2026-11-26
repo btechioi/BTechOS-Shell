@@ -3,6 +3,8 @@
 {
 	system.stateVersion = "26.05";
 
+	btechos.flake = "/home/banumath/BTechOS";
+
 	users.users.banumath.extraGroups = [ "input" "dialout" "uinput" ];
 
 	btechos.darkshadow.enable = true;
