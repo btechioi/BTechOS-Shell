@@ -22,4 +22,14 @@
 	services.tlp.enable = lib.mkDefault true;
 	services.thermald.enable = lib.mkDefault true;
 	powerManagement.enable = lib.mkDefault true;
+
+	# DarkShadow's own SDDM login screen; the older greeters stay off.
+	programs.shadows-shell.sddm = lib.mkForce true;
+	services.greetd.enable = lib.mkForce false;
+	programs.regreet.enable = lib.mkForce false;
+
+	hardware.uinput.enable = true;
+	fileSystems = lib.genAttrs [ "/" "/home" "/nix" "/var/log" ] (_: { options = [ "compress=zstd" "noatime" ]; });
+	services.btrfs.autoScrub = { enable = true; fileSystems = [ "/" ]; };
+	nix.settings.trusted-users = [ "root" "banumath" ];
 }

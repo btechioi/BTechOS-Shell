@@ -1,0 +1,21 @@
+{
+  "folders": [],
+  "waypaper": true,
+  "waypaper_post": "",
+  "manage": true,
+  "picker": true,
+  "slideshow": {
+    "on": false,
+    "minutes": 30,
+    "order": "shuffle",
+    "folder": ""
+  },
+  "live": {
+    "sound": false
+  },
+  "login_random": false,
+  "transition": {
+    "style": "ripple",
+    "speed": 1.0
+  }
+}

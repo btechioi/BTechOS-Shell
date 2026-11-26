@@ -27,5 +27,6 @@
         ./binds.nix
         ./deck.nix
         ./darkshadow.nix
+        ./darkshadow-patches.nix
     ];
 }
