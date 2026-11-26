@@ -26,5 +26,6 @@
         ./nihil-cli.nix
         ./binds.nix
         ./deck.nix
+        ./darkshadow.nix
     ];
 }

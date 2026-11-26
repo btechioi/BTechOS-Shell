@@ -33,8 +33,13 @@
 			url = "github:FreesmTeam/FreesmLauncher";
 			inputs.nixpkgs.follows = "nixpkgs-unstable";
 		};
+
+		darkshadowShell =
+		{
+			url = "github:shadowww-dev/DarkShadowShell";
+		};
 	};
-	outputs = inputs@{ self, nixpkgs, home-manager, stylix, zen-browser, nixpkgs-unstable, freesmlauncher, ... }:
+	outputs = inputs@{ self, nixpkgs, home-manager, stylix, zen-browser, nixpkgs-unstable, freesmlauncher, darkshadowShell, ... }:
 	let
 		system = "x86_64-linux";
 		pkgs = nixpkgs.legacyPackages.${system};
@@ -50,6 +55,7 @@
 			[
 				stylix.nixosModules.stylix
 				home-manager.nixosModules.home-manager
+				inputs.darkshadowShell.nixosModules.default
 				./modules
 			];
 

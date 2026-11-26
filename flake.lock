@@ -68,6 +68,21 @@
         "type": "github"
       }
     },
+    "darkshadowShell": {
+      "locked": {
+        "lastModified": 1795644578,
+        "narHash": "sha256-Di0AWkwG5WImsVPT70VHU/D8KsNQrfDujhs18hIGatI=",
+        "owner": "shadowww-dev",
+        "repo": "DarkShadowShell",
+        "rev": "55defbabe64696440fb5c9ae2dc8edf1e575709a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "shadowww-dev",
+        "repo": "DarkShadowShell",
+        "type": "github"
+      }
+    },
     "firefox-gnome-theme": {
       "flake": false,
       "locked": {
@@ -271,6 +286,7 @@
     },
     "root": {
       "inputs": {
+        "darkshadowShell": "darkshadowShell",
         "freesmlauncher": "freesmlauncher",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",

@@ -21,7 +21,7 @@
 		./home/bluetooth.nix
 		./home/cli.nix
 		./home/refresh.nix
-		./home/shell.nix
+		# ./home/shell.nix  # replaced by DarkShadowShell
 		./home/fastfetch.nix
 		./home/clipboard.nix
 		./home/deck.nix
