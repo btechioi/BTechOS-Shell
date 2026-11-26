@@ -3,17 +3,6 @@
 { config, osConfig, pkgs, ... }:
 let
     t = osConfig.btechos.tokens;
-
-    rainbowDelimiters = pkgs.vimPlugins.rainbow-delimiters-nvim.overrideAttrs
-    {
-        src = pkgs.fetchFromGitHub
-        {
-            owner = "HiPhish";
-            repo = "rainbow-delimiters.nvim";
-            rev = "v0.12.0";
-            hash = "sha256-q4cBvF8d5h+BM1LTm5aq02OBVmwSUb9rC1smHlxbRzg=";
-        };
-    };
 in
 {
     programs.neovim = 
@@ -72,7 +61,7 @@ in
             comment-nvim
             nvim-autopairs
             indent-blankline-nvim
-            rainbowDelimiters
+            rainbow-delimiters-nvim
             which-key-nvim
             lualine-nvim
             oil-nvim
