@@ -1,3 +1,285 @@
+diff --git a/bin/darkshadow-portal b/bin/darkshadow-portal
+new file mode 100644
+index 0000000..9db3b1d
+--- /dev/null
++++ b/bin/darkshadow-portal
+@@ -0,0 +1,276 @@
++#!/usr/bin/env darkshadow-portal-python
++"""DarkShadow's xdg-desktop-portal FileChooser backend.
++
++It owns org.freedesktop.impl.portal.desktop.darkshadow. An OpenFile/SaveFile/
++SaveFiles call opens DarkShadow Files in picker mode and blocks the portal call
++until the picker writes its answer to ~/.cache/rice/portal.
++"""
++import dbus
++import dbus.service
++import dbus.mainloop.glib
++from gi.repository import GLib
++
++import json
++import os
++import pathlib
++import subprocess
++import urllib.parse
++
++HOME = os.path.expanduser("~")
++BIN = HOME + "/.local/bin"
++CACHE = os.path.join(os.environ.get("XDG_CACHE_HOME", HOME + "/.cache"), "rice", "portal")
++LOG = os.path.join(CACHE, "backend.log")
++os.makedirs(CACHE, exist_ok=True)
++
++BUS = "org.freedesktop.impl.portal.desktop.darkshadow"
++FC = "org.freedesktop.impl.portal.FileChooser"
++REQ = "org.freedesktop.impl.portal.Request"
++
++dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
++bus = dbus.SessionBus()
++# Keep the BusName alive: dbus-python releases the name when this object is collected.
++bus_name = dbus.service.BusName(BUS, bus, do_not_queue=True)
++
++states = {}
++
++
++def log(*parts):
++    try:
++        with open(LOG, "a") as f:
++            f.write(" ".join(str(x) for x in parts) + "\n")
++    except OSError:
++        pass
++
++
++def plain(v):
++    """dbus-python values -> plain JSON-able Python values."""
++    if v is None or isinstance(v, (str, int, float, bool)):
++        return v
++    if isinstance(v, dbus.Boolean):
++        return bool(v)
++    if isinstance(v, (dbus.Byte, dbus.Int16, dbus.Int32, dbus.Int64,
++                      dbus.UInt16, dbus.UInt32, dbus.UInt64, dbus.Double)):
++        return int(v) if not isinstance(v, dbus.Double) else float(v)
++    if isinstance(v, (dbus.String, dbus.ObjectPath, dbus.Signature)):
++        return str(v)
++    if isinstance(v, dict):
++        return {str(k): plain(x) for k, x in v.items()}
++    if isinstance(v, (list, tuple, dbus.Array, dbus.Struct)):
++        if isinstance(v, dbus.Struct):
++            return tuple(plain(x) for x in v)
++        return [plain(x) for x in v]
++    return str(v)
++
++
++def ay_text(v):
++    """a{ay} byte arrays from the portal are NUL-terminated UTF-8 strings."""
++    if isinstance(v, str):
++        return v
++    try:
++        b = bytes(int(x) for x in plain(v))
++    except Exception:
++        return ""
++    if b and b[-1] == 0:
++        b = b[:-1]
++    return os.fsdecode(b)
++
++
++def uri_to_path(u):
++    p = urllib.parse.urlparse(str(u))
++    if p.scheme == "file":
++        return urllib.parse.unquote(p.path)
++    return os.fsdecode(str(u))
++
++
++def path_to_uri(p):
++    return pathlib.Path(os.path.abspath(p)).as_uri()
++
++
++class Request(dbus.service.Object):
++    def __init__(self, conn, path, state):
++        dbus.service.Object.__init__(self, conn, path)
++        self.state = state
++
++    @dbus.service.signal(REQ, signature="")
++    def Created(self):
++        pass
++
++    @dbus.service.method(REQ, in_signature="", out_signature="")
++    def Close(self):
++        log("Close", self.state["handle"])
++        finish(self.state, {"action": "cancel"})
++
++
++def results_from(state, answer):
++    opts = state["options"]
++    method = state["method"]
++    uris = [uri_to_path(x) for x in (answer.get("uris") or [])]
++    if method == "SaveFiles":
++        folder = answer.get("current_folder") or (os.path.dirname(uris[0]) if uris else str(HOME))
++        names = [ay_text(x) for x in opts.get("files", [])]
++        uris = [os.path.join(folder, n) for n in names if n]
++    elif method == "SaveFile" and uris:
++        # The picker returns the full path it wants; keep exactly one result.
++        uris = uris[:1]
++    results = {"uris": dbus.Array([dbus.String(path_to_uri(p)) for p in uris], signature="s")}
++    # xdg-desktop-portal-gtk also reports this. Some clients treat a FileChooser
++    # answer without it as unusable, even though the spec only requires uris.
++    results["writable"] = dbus.Boolean(True, variant_level=1)
++    return results
++
++
++def finish(state, answer):
++    if state["done"]:
++        return
++    state["done"] = True
++    log("finish", state["method"], answer.get("action"), state["handle"])
++    if state.get("timer"):
++        GLib.source_remove(state["timer"])
++        state["timer"] = None
++    for p in (state["request_file"], state["response_file"]):
++        try:
++            os.unlink(p)
++        except OSError:
++            pass
++    proc = state.get("proc")
++    if proc and proc.poll() is None:
++        try:
++            proc.terminate()
++        except OSError:
++            pass
++    obj = state.get("obj")
++    if obj:
++        try:
++            obj.remove_from_connection()
++        except Exception:
++            pass
++    states.pop(state["handle"], None)
++    action = answer.get("action")
++    if action == "accept":
++        code = 0
++        try:
++            results = results_from(state, answer)
++        except Exception as e:
++            log("results error", e)
++            code, results = 2, {}
++    elif action == "cancel":
++        code, results = 1, {}
++    else:
++        code, results = 2, {}
++    try:
++        state["reply"](code, results)
++    except Exception as e:
++        log("reply error", e)
++        try:
++            state["error"](dbus.exceptions.DBusException(
++                "org.freedesktop.impl.portal.Error.Failed: " + str(e)))
++        except Exception:
++            pass
++
++
++def poll(state):
++    if state["done"]:
++        return False
++    try:
++        if os.path.exists(state["response_file"]):
++            with open(state["response_file"]) as f:
++                answer = json.load(f)
++            finish(state, answer)
++            return False
++    except Exception as e:
++        log("poll error", e)
++        finish(state, {"action": "error"})
++        return False
++    proc = state.get("proc")
++    if proc and proc.poll() is not None:
++        finish(state, {"action": "cancel"})
++        return False
++    return True
++
++
++class FileChooser(dbus.service.Object):
++    def __init__(self):
++        # xdg-desktop-portal calls backend interfaces on /org/freedesktop/portal/desktop.
++        dbus.service.Object.__init__(self, bus, "/org/freedesktop/portal/desktop")
++
++    def start(self, method, handle, app_id, title, opts, kind, state):
++        token = str(handle).rstrip("/").split("/")[-1] or "request"
++        safe = "".join(c for c in token if c.isalnum() or c in "-_") or "request"
++        log("request", method, "app_id=" + str(app_id), "title=" + str(title),
++            "options=" + json.dumps(plain(opts), default=str))
++        state.update({
++            "request_file": os.path.join(CACHE, safe + ".json"),
++            "response_file": os.path.join(CACHE, safe + ".response.json"),
++            "options": plain(opts),
++            "method": method,
++            "handle": str(handle),
++            "done": False,
++        })
++        descriptor = {
++            "kind": kind,
++            "title": str(title) or "",
++            "app_id": str(app_id) or "",
++            "multiple": bool(state["options"].get("multiple")),
++            "current_name": str(state["options"].get("current_name") or ""),
++            "current_folder": state["current_folder"],
++            "current_file": state["current_file"],
++            "filters": state["options"].get("filters") or [],
++            "current_filter": state["options"].get("current_filter"),
++            "choices": state["options"].get("choices") or [],
++        }
++        with open(state["request_file"], "w") as f:
++            json.dump(descriptor, f)
++        obj = Request(bus, str(handle), state)
++        state["obj"] = obj
++        obj.Created()
++        env = os.environ.copy()
++        env["RICE_PICK"] = state["request_file"]
++        try:
++            state["proc"] = subprocess.Popen(
++                [BIN + "/rice-app", "pick", state["request_file"]],
++                env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
++                start_new_session=True)
++        except Exception as e:
++            log("launch error", e)
++            finish(state, {"action": "error"})
++            return
++        state["timer"] = GLib.timeout_add(100, poll, state)
++        log("opened", method, state["request_file"], state["proc"].pid)
++
++    def common(self, method, handle, app_id, parent_window, title, opts, kind, reply, error):
++        handle = str(handle)
++        if handle in states:
++            finish(states[handle], {"action": "cancel"})
++        o = plain(opts)
++        state = {
++            "reply": reply,
++            "error": error,
++            "current_folder": ay_text(o.get("current_folder")),
++            "current_file": ay_text(o.get("current_file")),
++        }
++        if not state["current_folder"] and state["current_file"] and kind == "save":
++            state["current_folder"] = os.path.dirname(state["current_file"])
++        states[handle] = state
++        self.start(method, handle, app_id, title, o, kind, state)
++
++    @dbus.service.method(FC, in_signature="osssa{sv}", out_signature="ua{sv}",
++                         async_callbacks=("reply", "error"))
++    def OpenFile(self, handle, app_id, parent_window, title, opts, reply, error):
++        o = plain(opts)
++        kind = "folder" if o.get("directory") else "open"
++        self.common("OpenFile", handle, app_id, parent_window, title, opts, kind, reply, error)
++
++    @dbus.service.method(FC, in_signature="osssa{sv}", out_signature="ua{sv}",
++                         async_callbacks=("reply", "error"))
++    def SaveFile(self, handle, app_id, parent_window, title, opts, reply, error):
++        self.common("SaveFile", handle, app_id, parent_window, title, opts, "save", reply, error)
++
++    @dbus.service.method(FC, in_signature="osssa{sv}", out_signature="ua{sv}",
++                         async_callbacks=("reply", "error"))
++    def SaveFiles(self, handle, app_id, parent_window, title, opts, reply, error):
++        self.common("SaveFiles", handle, app_id, parent_window, title, opts, "savefiles", reply, error)
++
++
++FileChooser()
++log("backend started")
++GLib.MainLoop().run()
 diff --git a/bin/rice-app b/bin/rice-app
 index 61034c7..c250a9c 100755
 --- a/bin/rice-app
@@ -130,6 +412,20 @@ index 96b892a..b56cda9 100755
      if pid:
          os.kill(pid, signal.SIGTERM)
          os.remove(AWAKE_PID)
+diff --git a/bin/rice-idle-guard b/bin/rice-idle-guard
+new file mode 100644
+index 0000000..0653562
+--- /dev/null
++++ b/bin/rice-idle-guard
+@@ -0,0 +1,8 @@
++#!/usr/bin/env bash
++# hypridle condition_cmd for every idle timer.
++# exit 0 = no media playing -> let hypridle lock / blank / suspend.
++# exit 1 = something is playing -> defer the action; hypridle retries in 30s.
++if command -v playerctl >/dev/null 2>&1; then
++    playerctl -a status 2>/dev/null | grep -qx 'Playing' && exit 1
++fi
++exit 0
 diff --git a/bin/rice-lock b/bin/rice-lock
 index e0ffb6e..13bea19 100755
 --- a/bin/rice-lock
@@ -367,6 +663,43 @@ index 69bc48b..33243f6 100644
  output_path = '~/.config/rice/palette.json'
 -post_hook = 'setsid -f $HOME/.local/bin/rice-theme sync >/dev/null 2>&1; setsid -f $HOME/.local/bin/rice-look files-theme >/dev/null 2>&1; [ -w /usr/share/sddm/themes/darkshadow-shell/user ] && setsid -f $HOME/.local/bin/rice-sddm sync >/dev/null 2>&1; true'
 +post_hook = 'setsid -f $HOME/.local/bin/rice-theme sync >/dev/null 2>&1; setsid -f $HOME/.local/bin/rice-look files-theme >/dev/null 2>&1; setsid -f $HOME/.local/bin/rice-sddm sync >/dev/null 2>&1; true'
+diff --git a/portal/darkshadow.portal b/portal/darkshadow.portal
+new file mode 100644
+index 0000000..015860d
+--- /dev/null
++++ b/portal/darkshadow.portal
+@@ -0,0 +1,4 @@
++[portal]
++DBusName=org.freedesktop.impl.portal.desktop.darkshadow
++Interfaces=org.freedesktop.impl.portal.FileChooser
++UseIn=Hyprland;hyprland;wlroots;sway;Wayfire;river;
+diff --git a/portal/hyprland-portals.conf b/portal/hyprland-portals.conf
+new file mode 100644
+index 0000000..2422e2f
+--- /dev/null
++++ b/portal/hyprland-portals.conf
+@@ -0,0 +1,3 @@
++[preferred]
++default=hyprland;gtk
++org.freedesktop.impl.portal.FileChooser=darkshadow
+diff --git a/portal/org.freedesktop.impl.portal.desktop.darkshadow.service b/portal/org.freedesktop.impl.portal.desktop.darkshadow.service
+new file mode 100644
+index 0000000..a33fe2e
+--- /dev/null
++++ b/portal/org.freedesktop.impl.portal.desktop.darkshadow.service
+@@ -0,0 +1,3 @@
++[D-BUS Service]
++Name=org.freedesktop.impl.portal.desktop.darkshadow
++Exec=/home/banumath/.local/bin/darkshadow-portal
+diff --git a/portal/portals.conf b/portal/portals.conf
+new file mode 100644
+index 0000000..b16586c
+--- /dev/null
++++ b/portal/portals.conf
+@@ -0,0 +1,3 @@
++[preferred]
++default=gtk
++org.freedesktop.impl.portal.FileChooser=darkshadow
 diff --git a/quickshell/hyprquickpaper/commands.sh b/quickshell/hyprquickpaper/commands.sh
 index 47a2a48..5cf0653 100755
 --- a/quickshell/hyprquickpaper/commands.sh
@@ -656,6 +989,55 @@ index c9ac88b..000d179 100644
                  }
  
                  // ---- FPS
+diff --git a/quickshell/rice-desktop/MediaPick.qml b/quickshell/rice-desktop/MediaPick.qml
+new file mode 100644
+index 0000000..4d041e3
+--- /dev/null
++++ b/quickshell/rice-desktop/MediaPick.qml
+@@ -0,0 +1,43 @@
++pragma Singleton
++import Quickshell
++import Quickshell.Services.Mpris
++import QtQuick
++
++// Prefer the Plasma Browser Integration MPRIS bridge when it is playing: it
++// carries media-session titles, artwork, duration and seek support from the
++// browser extension. A normal playing player still wins over an idle bridge.
++Singleton {
++    id: mediaPick
++
++    function isPlasmaBridge(p) {
++        if (!p) return false
++        const s = (String(p.dbusName || "") + " " + String(p.identity || "") + " " + String(p.desktopEntry || "")).toLowerCase()
++        return s.indexOf("plasma-browser-integration") >= 0
++    }
++
++    function rank(p) {
++        if (!p) return -1
++        if (p.isPlaying) return isPlasmaBridge(p) ? 3 : 2
++        return isPlasmaBridge(p) ? 1 : 0
++    }
++
++    // fallback=true keeps the old "show the first player even when paused"
++    // behaviour for panels such as the dock and the music widget.
++    function pick(fallback) {
++        const l = Mpris.players.values
++        let best = null
++        let bestRank = -1
++        let first = null
++        for (let i = 0; i < l.length; i++) {
++            const p = l[i]
++            if (!first) first = p
++            const r = rank(p)
++            if (r > bestRank) {
++                best = p
++                bestRank = r
++            }
++        }
++        if (bestRank > 0) return best
++        return fallback ? first : null
++    }
++}
 diff --git a/quickshell/rice-desktop/Player.qml b/quickshell/rice-desktop/Player.qml
 index 63de7dd..63a03df 100644
 --- a/quickshell/rice-desktop/Player.qml
