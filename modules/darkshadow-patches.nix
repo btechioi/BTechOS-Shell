@@ -230,6 +230,13 @@ in
                 ${lib.concatMapStringsSep "\n" (pair:
                     "copy_if_missing ${lib.escapeShellArg pair.src} ${lib.escapeShellArg pair.dst}")
                     configCopies}
+
+                # rice-settings.lua is generated from ~/.config/rice/hypr.json by
+                # the Settings app (hypr-set). Rebuilds must never overwrite it:
+                # only create it when missing, from the saved settings.
+                if [ ! -f "$HOME/.config/hypr/rice-settings.lua" ] && [ -x "$HOME/.local/bin/hypr-set" ]; then
+                    "$HOME/.local/bin/hypr-set" regen >/dev/null 2>&1 || true
+                fi
             '';
             # A rebuild can change the patched shell files. Restart the running
             # shell once so the new QML/scripts take effect, but only when the
