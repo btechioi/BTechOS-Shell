@@ -180,6 +180,21 @@ in
                     "copy_if_missing ${lib.escapeShellArg pair.src} ${lib.escapeShellArg pair.dst}")
                     configCopies}
             '';
+            # A rebuild can change the patched shell files. Restart the running
+            # shell once so the new QML/scripts take effect, but only when the
+            # patched tree actually changed (a plain login does not restart it).
+            home.activation.btechosDarkshadowRestart = lib.hm.dag.entryAfter [ "btechosDarkshadowConfigs" ] ''
+                stamp="$HOME/.cache/btechos/darkshadow-shell-rev"
+                want="${patched}"
+                if [ "$(cat "$stamp" 2>/dev/null || true)" != "$want" ]; then
+                    mkdir -p "$(dirname "$stamp")"
+                    printf '%s\n' "$want" > "$stamp"
+                    if [ -x "$HOME/.local/bin/rice-desktop" ] \\
+                        && "$HOME/.local/bin/rice-desktop" status >/dev/null 2>&1; then
+                        setsid -f "$HOME/.local/bin/rice-desktop" restart >/dev/null 2>&1 </dev/null &
+                    fi
+                fi
+            '';
             # DarkShadow owns the look: stop home-manager from writing GTK files
             # and a cursor theme over it.
             gtk.enable = lib.mkForce false;
