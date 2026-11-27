@@ -10,11 +10,15 @@ let
 
     src = inputs.darkshadowShell.outPath or null;
     version = if src == null then "" else lib.trim (builtins.readFile "${src}/VERSION");
+    # One combined patch per supported base: custom portal/theme/media changes,
+    # the iGPU stats fallbacks, and the GPU dial removal + memory dial.
     patch =
         if lib.hasPrefix "6.13" version then
             ../patches/darkshadow/custom-v6.13.patch
+        else if lib.hasPrefix "6.55" version then
+            ../patches/darkshadow/custom-v6.55-full.patch
         else
-            ../patches/darkshadow/custom-v6.55.patch;
+            ../patches/darkshadow/custom-v6.82.patch;
 
     # A copy of the shell source with our patch applied. The upstream Nix module
     # installs the same unpatched nixpkgs packages either way; these are the
@@ -27,9 +31,6 @@ let
         chmod -R u+w $out
         cd $out
         patch -p1 --forward < ${patch}
-        patch -p1 --forward < ${../patches/darkshadow/igpu-stats.patch}
-        patch -p1 --forward < ${../patches/darkshadow/igpu-dashboard.patch}
-        patch -p1 --forward < ${../patches/darkshadow/no-gpu-dials.patch}
     '';
 
     scripts = [ "darkshadow-portal" "rice-app" "rice-apps-helper" "rice-hotcorner"

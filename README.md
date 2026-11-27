@@ -23,6 +23,11 @@ The shell comes from the `darkshadowShell` flake input, currently pinned to **V6
 `flake.lock`. NixOS installs the packages and the SDDM login screen; the shell's own
 installer and the patches in this repository manage the user's dotfiles.
 
+The vendored patches support V6.13, V6.55 and V6.82 (`b69b9b2`); the module picks the
+right combined patch from the shell's `VERSION` file. Each combined patch includes the
+custom portal/theme/media changes, the iGPU fallbacks, removal of the GPU dials, and a
+memory dial in the game panel.
+
 ## What the shell provides
 
 From DarkShadowShell's own description:
