@@ -697,6 +697,96 @@ index 69bc48b..33243f6 100644
  output_path = '~/.config/rice/palette.json'
 -post_hook = 'setsid -f $HOME/.local/bin/rice-theme sync >/dev/null 2>&1; setsid -f $HOME/.local/bin/rice-look files-theme >/dev/null 2>&1; [ -w /usr/share/sddm/themes/darkshadow-shell/user ] && setsid -f $HOME/.local/bin/rice-sddm sync >/dev/null 2>&1; true'
 +post_hook = 'setsid -f $HOME/.local/bin/rice-theme sync >/dev/null 2>&1; setsid -f $HOME/.local/bin/rice-look files-theme >/dev/null 2>&1; setsid -f $HOME/.local/bin/rice-sddm sync >/dev/null 2>&1; true'
+diff --git a/lua/rice-keymap.lua b/lua/rice-keymap.lua
+index 606df56..3f83932 100644
+--- a/lua/rice-keymap.lua
++++ b/lua/rice-keymap.lua
+@@ -14,18 +14,18 @@ local function exec(cmd) return function() return hl.dsp.exec_cmd(cmd) end end
+ -- id -> default keys, what it does (a function that gives the dispatcher, so nothing is made before it is needed)
+ RK.actions = {
+     terminal  = { "SUPER + Return",    exec(BIN .. "rice-term") },
+-    launcher  = { "SUPER + R",         exec(BIN .. "rice-launch") },
++    launcher  = { "SUPER + r",         exec(BIN .. "rice-launch") },
+     launcher2 = { "ALT + Space",       exec(BIN .. "rice-launch") },
+-    settings  = { "SUPER + U",         exec(BIN .. "rice-settings") },
+-    wallpaper = { "SUPER + W",         exec(BIN .. "rice-dashboard wallpaper") },
+-    quick     = { "SUPER + A",         exec(BIN .. "rice-dashboard open control") },
+-    cc        = { "SUPER + N",         exec(BIN .. "rice-cc") },
+-    gamebar   = { "SUPER + G",         exec(BIN .. "rice-gamebar") },
++    settings  = { "SUPER + u",         exec(BIN .. "rice-settings") },
++    wallpaper = { "SUPER + w",         exec(BIN .. "rice-dashboard wallpaper") },
++    quick     = { "SUPER + a",         exec(BIN .. "rice-dashboard open control") },
++    cc        = { "SUPER + n",         exec(BIN .. "rice-cc") },
++    gamebar   = { "SUPER + g",         exec(BIN .. "rice-gamebar") },
+     dashboard = { "SUPER + ALT + D",   exec(BIN .. "rice-dashboard open") },
+-    lock      = { "SUPER + L",         exec(BIN .. "rice-lock now") },
+-    close     = { "SUPER + Q",         function() return hl.dsp.window.close() end },
++    lock      = { "SUPER + l",         exec(BIN .. "rice-lock now") },
++    close     = { "SUPER + q",         function() return hl.dsp.window.close() end },
+     float     = { "SUPER + SHIFT + V", function() return hl.dsp.window.float({ action = "toggle" }) end },
+-    clipboard = { "SUPER + V",         exec(BIN .. "rice-clip toggle") },
++    clipboard = { "SUPER + v",         exec(BIN .. "rice-clip toggle") },
+     shot      = { "Print",             exec(BIN .. "rice-hotcorner shot region") },
+     shotfull  = { "SHIFT + Print",     exec(BIN .. "rice-hotcorner shot full") },
+     record    = { "SUPER + SHIFT + R", exec(BIN .. "rice-hotcorner record region") },
+@@ -34,14 +34,14 @@ RK.actions = {
+     switcher  = { "ALT + TAB",         exec(BIN .. "rice-taskview switch") },
+     keys      = { "SUPER + slash",     exec(BIN .. "rice-keymap show") },
+     -- minimizing and stacking windows (rice-win)
+-    minimize  = { "SUPER + H", exec(BIN .. "rice-win minimize"), true },
++    minimize  = { "SUPER + h", exec(BIN .. "rice-win minimize"), true },
+     restore   = { "SUPER + SHIFT + H", exec(BIN .. "rice-win restore"), true },
+-    stack     = { "SUPER + T", exec(BIN .. "rice-win stack"), true },
++    stack     = { "SUPER + t", exec(BIN .. "rice-win stack"), true },
+     stack_next= { "SUPER + CTRL + right", exec(BIN .. "rice-win stack-next"), true },
+     stack_prev= { "SUPER + CTRL + left", exec(BIN .. "rice-win stack-prev"), true },
+     join_left = { "SUPER + CTRL + SHIFT + left", exec(BIN .. "rice-win join left"), true },
+     join_right= { "SUPER + CTRL + SHIFT + right", exec(BIN .. "rice-win join right"), true },
+-    infinite  = { "SUPER + F",         function() return function() if RiceInfinite then RiceInfinite.toggle() end end end },
++    infinite  = { "SUPER + f",         function() return function() if RiceInfinite then RiceInfinite.toggle() end end end },
+ }
+ 
+ RK.cur = RK.cur or {}   -- id -> the keys it has now (when not the default)
+diff --git a/lua/rice-keys.lua b/lua/rice-keys.lua
+index d0abab9..d16c03d 100644
+--- a/lua/rice-keys.lua
++++ b/lua/rice-keys.lua
+@@ -2,9 +2,9 @@
+ local bin = os.getenv("HOME") .. "/.local/bin/"
+ 
+ -- wallpaper picker: unbind first so only ONE menu opens even if another config also binds SUPER + W
+-hl.unbind("SUPER + W")
++hl.unbind("SUPER + w")
+ -- the Wallpaper tab of the dashboard (or the old picker when the dashboard is off)
+-hl.bind("SUPER + W", hl.dsp.exec_cmd(bin .. "rice-dashboard wallpaper"))
++hl.bind("SUPER + w", hl.dsp.exec_cmd(bin .. "rice-dashboard wallpaper"))
+ 
+ -- volume, microphone and brightness: laptop Fn keys and headset +/- buttons
+ hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd(bin .. "rice-media up"),          { locked = true })
+@@ -18,18 +18,18 @@ hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(bin .. "rice-media bright-down"
+ hl.bind("Print",               hl.dsp.exec_cmd(bin .. "rice-hotcorner shot region"))
+ hl.bind("SHIFT + Print",       hl.dsp.exec_cmd(bin .. "rice-hotcorner shot full"))
+ hl.bind("SUPER + SHIFT + R",   hl.dsp.exec_cmd(bin .. "rice-hotcorner record region"))   -- press again to stop
+-hl.bind("SUPER + A",           hl.dsp.exec_cmd(bin .. "rice-dashboard open control"))   -- quick switches
++hl.bind("SUPER + a",           hl.dsp.exec_cmd(bin .. "rice-dashboard open control"))   -- quick switches
+ -- widget editor on the desktop (Esc or Done to finish)
+ hl.bind("SUPER + ALT + W",     hl.dsp.exec_cmd(bin .. "desktop-set edit toggle"))
+ -- dashboard (also: point at the middle of the bar edge)
+ hl.bind("SUPER + ALT + D",     hl.dsp.exec_cmd(bin .. "rice-dashboard open"))
+ -- the game bar: CPU / GPU, capture, power mode, gaming mode, volume and brightness over your game
+-hl.bind("SUPER + G",           hl.dsp.exec_cmd(bin .. "rice-gamebar"))
++hl.bind("SUPER + g",           hl.dsp.exec_cmd(bin .. "rice-gamebar"))
+ -- the control center: switches, sliders, music and notifications
+-hl.bind("SUPER + N",           hl.dsp.exec_cmd(bin .. "rice-cc"))
++hl.bind("SUPER + n",           hl.dsp.exec_cmd(bin .. "rice-cc"))
+ -- the clipboard history (float / tile moved to SUPER + SHIFT + V)
+-pcall(hl.unbind, "SUPER + V")
+-hl.bind("SUPER + V",           hl.dsp.exec_cmd(bin .. "rice-clip toggle"))
++pcall(hl.unbind, "SUPER + v")
++hl.bind("SUPER + v",           hl.dsp.exec_cmd(bin .. "rice-clip toggle"))
+ 
+ -- every key on one sheet (Cheatsheet.qml)
+ pcall(hl.bind, "SUPER + slash",     hl.dsp.exec_cmd(bin .. "rice-keymap show"))
 diff --git a/portal/darkshadow.portal b/portal/darkshadow.portal
 new file mode 100644
 index 0000000..015860d
