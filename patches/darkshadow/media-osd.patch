@@ -1,0 +1,12 @@
+--- a/bin/rice-media
++++ b/bin/rice-media
+@@ -22,7 +22,8 @@
+ vol() { "$HOME/.local/bin/rice-sound" get 2>/dev/null || wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{printf "%d", $2 * 100}'; }
+ show() { # show TITLE VALUE ICON
+   command -v notify-send >/dev/null 2>&1 || return 0
+-  notify-send -a rice-media -i "$3" -h "int:value:$2" -h string:x-canonical-private-synchronous:rice-media -t 1200 "$1" "$2%"
++  # No -i icon hint: Quickshell turns it into a large image that fails to load (checkerboard).
++  notify-send -a rice-media -h "int:value:$2" -h string:x-canonical-private-synchronous:rice-media -t 1200 "$1" "$2%"
+ }
+ case "${1:-}" in
+   up)
