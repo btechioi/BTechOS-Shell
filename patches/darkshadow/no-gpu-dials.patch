@@ -1,0 +1,21 @@
+--- a/quickshell/rice-desktop/DynIsland.qml
++++ b/quickshell/rice-desktop/DynIsland.qml
+@@ -813,8 +813,6 @@
+                     anchors.horizontalCenter: parent.horizontalCenter; y: 6
+                     spacing: 26
+                     Ring { label: "CPU"; value: isl.st.cpu ? isl.st.cpu.usage / 100 : 0; temp: isl.st.cpu ? isl.st.cpu.temp : null }
+-                    Ring { label: "GPU"; value: isl.st.gpu && isl.st.gpu.usage !== null ? isl.st.gpu.usage / 100 : 0; temp: isl.st.gpu ? isl.st.gpu.temp : null
+-                        none: !isl.st.gpu || isl.st.gpu.usage === null }
+                     Ring { label: "RAM"; value: isl.st.mem ? isl.st.mem.pct / 100 : 0
+                         sub: isl.st.mem ? isl.gb(isl.st.mem.used) + " / " + isl.gb(isl.st.mem.total) : "" }
+                 }
+--- a/quickshell/rice-desktop/GamePanel.qml
++++ b/quickshell/rice-desktop/GamePanel.qml
+@@ -322,7 +322,6 @@
+                     anchors.horizontalCenter: parent.horizontalCenter
+                     spacing: 18
+                     Ring { name: "CPU"; v: gp.st.cpu; heat: gp.st.temp }
+-                    Ring { name: "GPU"; v: gp.st.gpu; heat: gp.st.gtemp; na: !gp.haveGpu }
+                 }
+ 
+                 // ---- FPS

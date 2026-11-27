@@ -29,6 +29,7 @@ let
         patch -p1 --forward < ${patch}
         patch -p1 --forward < ${../patches/darkshadow/igpu-stats.patch}
         patch -p1 --forward < ${../patches/darkshadow/igpu-dashboard.patch}
+        patch -p1 --forward < ${../patches/darkshadow/no-gpu-dials.patch}
     '';
 
     scripts = [ "darkshadow-portal" "rice-app" "rice-apps-helper" "rice-hotcorner"
@@ -82,17 +83,20 @@ let
         ]
     ];
 
-    # DarkShadowShell owns these files: its Settings app and rice-* scripts rewrite
-    # them while the system is running. Home Manager must never replace them, so
-    # they are copied only when missing instead of being managed with home.file.
+    # Patched code (scripts, QML, portal config): always reinstall so fixes and
+    # new patches actually reach the running shell. These are not user settings.
+    codeFiles = lib.concatMap
+        (pairs: lib.map (pair: {
+            src = "${patched}/${builtins.elemAt pair 0}";
+            dst = builtins.elemAt pair 1;
+        }) pairs)
+        shellFiles;
+
+    # DarkShadowShell owns these settings: its Settings app rewrites them while
+    # the system runs. Copy them only when missing, never overwrite the user's
+    # layout, widget positions or saved choices.
     configCopies =
-        (lib.concatMap
-            (pairs: lib.map (pair: {
-                src = "${patched}/${builtins.elemAt pair 0}";
-                dst = builtins.elemAt pair 1;
-            }) pairs)
-            shellFiles)
-        ++ (lib.map (name: {
+        (lib.map (name: {
             src = ../patches/darkshadow/external/home/banumath/.config/rice/${name}.json;
             dst = ".config/rice/${name}.json";
         }) (let
@@ -176,6 +180,20 @@ in
                     mkdir -p "$(dirname "$HOME/$2")"
                     cp "$1" "$HOME/$2"
                 }
+                install_code() {
+                    target="$HOME/$2"
+                    # Replace a Home Manager symlink, but keep real user data.
+                    if [ -L "$target" ] || [ ! -e "$target" ]; then
+                        rm -f "$target"
+                        mkdir -p "$(dirname "$target")"
+                        cp "$1" "$target"
+                    else
+                        cp "$1" "$target"
+                    fi
+                }
+                ${lib.concatMapStringsSep "\n" (pair:
+                    "install_code ${lib.escapeShellArg pair.src} ${lib.escapeShellArg pair.dst}")
+                    codeFiles}
                 ${lib.concatMapStringsSep "\n" (pair:
                     "copy_if_missing ${lib.escapeShellArg pair.src} ${lib.escapeShellArg pair.dst}")
                     configCopies}
