@@ -5,10 +5,13 @@ let
 	brightnessctl = "${pkgs.brightnessctl}/bin/brightnessctl";
 	dpms = state: "${osConfig.programs.hyprland.package}/bin/hyprctl dispatch 'hl.dsp.dpms({ action = \"${state}\" })'";
 
-	# Defer every idle action while something is playing (e.g. YouTube in a
-	# browser). The guard lives in the repo so Home Manager owns it; exit 0
-	# lets hypridle act, exit 1 makes it retry in 30s.
-	guard = ../patches/darkshadow/external/home/banumath/.local/bin/rice-idle-guard;
+	# hypridle 0.1.x (what nixpkgs ships) does NOT support condition_cmd, so the
+	# guard has to be part of the command itself. If anything is playing (e.g.
+	# YouTube in a browser) the action is skipped; hypridle will try again on
+	# the next timeout/resume. `pgrep`-free and works with any player MPRIS
+	# exposes via playerctl.
+	guard = "${pkgs.bash}/bin/bash -c 'if command -v playerctl >/dev/null 2>&1 && playerctl -a status 2>/dev/null | grep -qx Playing; then exit 0; fi; exec \"$@\"' _";
+	guarded = cmd: "${guard} ${cmd}";
 in
 {
 	services.hypridle =
@@ -30,29 +33,21 @@ in
 			[
 				{
 					timeout = 150;
-					on-timeout = "${brightnessctl} -s set 10";
+					on-timeout = guarded "${brightnessctl} -s set 10";
 					on-resume = "${brightnessctl} -r";
-					condition_cmd = "${guard}";
-					condition_retry = 30;
 				}
 				{
 					timeout = 240;
-					on-timeout = "loginctl lock-session";
-					condition_cmd = "${guard}";
-					condition_retry = 30;
+					on-timeout = guarded "loginctl lock-session";
 				}
 				{
 					timeout = 270;
-					on-timeout = dpms "off";
+					on-timeout = guarded (dpms "off");
 					on-resume = dpms "on";
-					condition_cmd = "${guard}";
-					condition_retry = 30;
 				}
 				{
 					timeout = 900;
-					on-timeout = "systemctl suspend";
-					condition_cmd = "${guard}";
-					condition_retry = 30;
+					on-timeout = guarded "systemctl suspend";
 				}
 			];
 		};
