@@ -36,6 +36,19 @@ let
     scripts = [ "darkshadow-portal" "rice-app" "rice-apps-helper" "rice-hotcorner"
         "rice-dashboard" "rice-idle-guard" "rice-lock" "rice-sddm" "rice-stats" "rice-theme" ];
 
+    # Install every file under quickshell/ from the shell source, so a new QML
+    # type added in a version bump (e.g. ScreenFrame.qml in V6.82) is never
+    # missing from ~/.config/quickshell when the shell loads.
+    allQuickshellFiles =
+        lib.pipe (lib.filesystem.listFilesRecursive inputs.darkshadowShell)
+        [
+            (lib.filter (p: lib.hasPrefix "${inputs.darkshadowShell.outPath}/quickshell/" (builtins.toString p)))
+            (map (p: {
+                src = "${patched}/${lib.removePrefix "${inputs.darkshadowShell.outPath}/" (builtins.toString p)}";
+                dst = ".config/quickshell/${lib.removePrefix "${inputs.darkshadowShell.outPath}/quickshell/" (builtins.toString p)}";
+            }))
+        ];
+
     scriptPackage = pkgs.runCommand "darkshadow-patched-scripts" { } ''
         mkdir -p $out/bin
         ${lib.concatMapStringsSep "\n" (n: "install -Dm0755 ${patched}/bin/${n} $out/bin/${n}") scripts}
@@ -87,7 +100,7 @@ let
 
     # Patched code (scripts, QML, portal config): always reinstall so fixes and
     # new patches actually reach the running shell. These are not user settings.
-    codeFiles = lib.concatMap
+    codeFiles = allQuickshellFiles ++ lib.concatMap
         (pairs: lib.map (pair: {
             src = "${patched}/${builtins.elemAt pair 0}";
             dst = builtins.elemAt pair 1;
