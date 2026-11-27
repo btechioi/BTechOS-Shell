@@ -58,6 +58,15 @@ let
             pkgs.util-linux pkgs.openssh pkgs.xkbvalidate config.systemd.package config.nix.package ];
         text = ''
             flake=''${BTechOS_FLAKE:-${flake}}
+            # Multi-host: settings.json lives in hosts/<name>/, not at the flake root.
+            settings="$flake/settings.json"
+            if [ ! -f "$settings" ]; then
+                for candidate in "$flake"/hosts/*/settings.json; do
+                    [ -f "$candidate" ] || continue
+                    settings="$candidate"
+                    break
+                done
+            fi
             run=/run/btechos
             aside=$run/aside
             dev=/var/lib/btechos/dev
@@ -149,7 +158,7 @@ let
                 local status=$?
                 if [ -n "$before" ]; then
                     if [ "$status" != 0 ] && [ -n "$kept" ] && [ "$(readlink -f /run/current-system)" = "$before" ]; then
-                        put_back "$flake/settings.json" settings.json
+                        put_back "$settings" settings.json
                         put_back "$flake/flake.lock" flake.lock
                         put_back "$dev" dev
                         echo "Nothing was applied: the system and its files are as they were."
@@ -238,7 +247,7 @@ let
 
             rebuild() {
                 local host from override=()
-                host=$(jq -r '.host.name // empty' "$flake/settings.json")
+                host=$(jq -r '.host.name // empty' "$settings")
                 from=$(checkout)
                 if [ -n "$from" ]; then
                     echo "BTechOS from $from (btechos dev off goes back to the one pinned)."
@@ -270,7 +279,7 @@ let
             valid() {
                 local current problem key n=0
                 local -a keys
-                current=$(jq -r '.user.name // "btechos"' "$flake/settings.json" 2> /dev/null || echo ${lib.escapeShellArg config.btechos.user.name})
+                current=$(jq -r '.user.name // "btechos"' "$settings" 2> /dev/null || echo ${lib.escapeShellArg config.btechos.user.name})
                 if ! jq empty "$1" 2> /dev/null; then
                     echo "Those settings are not valid: it's not JSON." >&2
                     return 1
@@ -530,11 +539,11 @@ let
                         # is valid, and goes back if the rebuild that applies it fails.
                         draft=$(mktemp --suffix=.json)
                         temporary+=("$draft")
-                        cp "$flake/settings.json" "$draft"
+                        cp "$settings" "$draft"
                         read -r -a editor <<< "''${VISUAL:-''${EDITOR:-nano}}"
                         while true; do
                             "''${editor[@]}" "$draft"
-                            if cmp -s "$draft" "$flake/settings.json"; then
+                            if cmp -s "$draft" "$settings"; then
                                 echo "settings.json is as it was: nothing to apply."
                                 exit 0
                             fi
@@ -567,8 +576,8 @@ let
                         exit 2
                     fi
                     begin
-                    keep "$flake/settings.json" settings.json
-                    install -m 0644 "$staged" "$flake/settings.json"
+                    keep "$settings" settings.json
+                    install -m 0644 "$staged" "$settings"
                     rebuild
                     ;;
                 dev)
@@ -709,8 +718,8 @@ let
                     ;;
                 apply-run)
                     unit_start
-                    keep "$flake/settings.json" settings.json
-                    install -m 0644 "$run/settings.json" "$flake/settings.json"
+                    keep "$settings" settings.json
+                    install -m 0644 "$run/settings.json" "$settings"
                     rebuild
                     ;;
                 update-run)
