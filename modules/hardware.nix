@@ -105,18 +105,11 @@ in
         intel-media-driver intel-vaapi-driver
     ]);
 
-    # Power management
-    services.tlp = {
-        enable = true;
-        settings = {
-            CPU_SCALING_GOVERNOR_ON_AC = "performance";
-            CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
-            CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
-            CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
-        } // lib.optionalAttrs (config.btechos.gpu == "intel" || config.btechos.gpu == "auto") {
-            INTEL_GPU_MIN_FREQ_ON_AC = 0;
-            INTEL_GPU_MAX_FREQ_ON_AC = 0;
-        };
+    # Power management: power-profiles-daemon, the desktop's own power modes.
+    # TLP is off so it does not fight the shell's power-mode switch.
+    services.tlp.enable = false;
+    services.power-profiles-daemon = {
+        enable = lib.mkDefault true;
     };
 
     services.udev.extraRules = ''

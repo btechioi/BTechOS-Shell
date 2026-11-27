@@ -2,11 +2,11 @@
   "nodes": {
     "darkshadowShell": {
       "locked": {
-        "lastModified": 1795695769,
-        "narHash": "sha256-yPDOpBTeZh8sEHwjWxTa1Sp8ACCPLzdQUmDPjv9hVGc=",
+        "lastModified": 1795734762,
+        "narHash": "sha256-3jEmG7+hlyMoy7vUM+uW291zNrJDGqmxhtZjjvVVaMY=",
         "owner": "shadowww-dev",
         "repo": "DarkShadowShell",
-        "rev": "819305f05973656718313397ae29b60da47bbcd0",
+        "rev": "b69b9b2e53af3e227e65655374505740942970b3",
         "type": "github"
       },
       "original": {

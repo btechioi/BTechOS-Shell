@@ -24,8 +24,9 @@
 		scale = lib.mkForce 0.67;
 	};
 
-	# Laptop power and thermal tuning.
-	services.tlp.enable = lib.mkDefault true;
+	# Laptop power: the shell's own power modes via power-profiles-daemon.
+	services.power-profiles-daemon.enable = true;
+	services.tlp.enable = false;
 	services.thermald.enable = lib.mkDefault true;
 	powerManagement.enable = lib.mkDefault true;
 
