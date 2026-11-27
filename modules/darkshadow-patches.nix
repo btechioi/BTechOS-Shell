@@ -56,8 +56,12 @@ let
         lib.pipe (lib.filesystem.listFilesRecursive inputs.darkshadowShell)
         [
             (lib.filter (p:
-                let s = builtins.toString p; in
-                lib.hasSuffix ".lua" s && (
+                let
+                    s = builtins.toString p;
+                    name = builtins.baseNameOf s;
+                in
+                lib.hasSuffix ".lua" s &&
+                name != "rice-settings.lua" && name != "user.lua" && (
                     lib.hasPrefix "${inputs.darkshadowShell.outPath}/config/hypr/" s ||
                     lib.hasPrefix "${inputs.darkshadowShell.outPath}/lua/" s)))
             (map (p: {
