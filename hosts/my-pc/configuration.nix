@@ -10,6 +10,10 @@
 	btechos.darkshadow.enable = true;
 	btechos.darkshadow.user = config.btechos.user.name;
 
+	# Boot to DarkShadow's SDDM login screen, not a TTY.
+	programs.shadows-shell.sddm = lib.mkForce true;
+	services.greetd.enable = lib.mkForce false;
+
 	btechos.flatpaks.enable = true;
 
 	# Keep the machine's own disk layout and input device.
