@@ -34,7 +34,7 @@ let
     '';
 
     scripts = [ "darkshadow-portal" "rice-app" "rice-apps-helper" "rice-hotcorner"
-        "rice-dashboard" "rice-idle-guard" "rice-lock" "rice-media" "rice-sddm" "rice-stats" "rice-theme" ];
+        "rice-dashboard" "rice-desktop" "rice-idle-guard" "rice-lock" "rice-media" "rice-sddm" "rice-stats" "rice-theme" ];
 
     # Install every file under quickshell/ from the shell source, so a new QML
     # type added in a version bump (e.g. ScreenFrame.qml in V6.82) is never
