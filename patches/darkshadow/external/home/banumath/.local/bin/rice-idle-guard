@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# hypridle condition_cmd for every idle timer.
+# exit 0 = no media playing -> let hypridle lock / blank / suspend.
+# exit 1 = something is playing -> defer the action; hypridle retries in 30s.
+if command -v playerctl >/dev/null 2>&1; then
+    playerctl -a status 2>/dev/null | grep -qx 'Playing' && exit 1
+fi
+exit 0
