@@ -1162,6 +1162,25 @@ index 0000000..4d041e3
 +        return fallback ? first : null
 +    }
 +}
+diff --git a/quickshell/rice-desktop/NotifCard.qml b/quickshell/rice-desktop/NotifCard.qml
+index 61496bb..78a6dbe 100644
+--- a/quickshell/rice-desktop/NotifCard.qml
++++ b/quickshell/rice-desktop/NotifCard.qml
+@@ -19,7 +19,13 @@ Item {
+     readonly property var made: new Date()
+     readonly property int fs: nf ? nf.fontSize : 13
+     readonly property bool fromRight: !nf || nf.posX !== "left"
+-    readonly property string img: n && n.image && (!nf || nf.images) ? n.image : ""
++    // Only real image paths are shown large. An -i icon name (e.g.
++    // "dialog-information") is resolved by Quickshell into a broken 256px
++    // image, which paints a magenta/black checkerboard in the card.
++    readonly property string img: {
++        const v = n && n.image && (!nf || nf.images) ? String(n.image) : ""
++        return v.indexOf("/") === 0 || v.indexOf("file:") === 0 || v.indexOf("image://") === 0 ? v : ""
++    }
+     implicitHeight: body.implicitHeight + 30
+     height: implicitHeight
+ 
 diff --git a/quickshell/rice-desktop/Player.qml b/quickshell/rice-desktop/Player.qml
 index 63de7dd..63a03df 100644
 --- a/quickshell/rice-desktop/Player.qml

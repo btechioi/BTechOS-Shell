@@ -256,6 +256,14 @@ in
                     "copy_if_missing ${lib.escapeShellArg pair.src} ${lib.escapeShellArg pair.dst}")
                     configCopies}
 
+                # install.sh substitutes @HOME@/@USER@ in the shipped Lua files;
+                # our Nix copy must do the same or keybind commands (Super+Shift+S
+                # screenshot, Super+W, Super+Shift+R) point at @HOME@ literally.
+                for f in "$HOME/.config/hypr/hyprland-gui.lua"; do
+                    [ -f "$f" ] || continue
+                    sed -i "s|@HOME@|$HOME|g; s|@USER@|$(id -un)|g" "$f"
+                done
+
                 # rice-settings.lua is generated from ~/.config/rice/hypr.json by
                 # the Settings app (hypr-set). Rebuilds must never overwrite it:
                 # only create it when missing, from the saved settings.
