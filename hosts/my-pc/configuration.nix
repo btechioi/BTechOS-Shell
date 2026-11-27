@@ -12,6 +12,33 @@
 
 	btechos.flatpaks.enable = true;
 
+	# Keep the machine's own disk layout and input device.
+	fileSystems = lib.genAttrs [ "/" "/home" "/nix" "/var/log" ] (_: { options = [ "compress=zstd" "noatime" ]; });
+	services.btrfs.autoScrub = { enable = true; fileSystems = [ "/" ]; };
+	hardware.uinput.enable = true;
+	hardware.amdgpu.initrd.enable = true;
+
+	# Open the KVM port and keep the PC's wired static address.
+	networking.firewall.allowedTCPPorts = [ 24850 ];
+	networking.networkmanager.ensureProfiles.profiles."nihil-wired" = {
+		connection = {
+			id = "nihil-wired";
+			uuid = "970f961d-d241-42da-a7cf-1354b9cbf140";
+			type = "ethernet";
+			"interface-name" = "enp2s0";
+			autoconnect = true;
+			"autoconnect-priority" = 100;
+		};
+		ipv4 = {
+			method = "manual";
+			addresses = "192.168.1.3/24";
+			gateway = "192.168.1.1";
+			dns = "192.168.1.1;";
+			"may-fail" = false;
+		};
+		ipv6.method = "auto";
+	};
+
 	nix.settings.trusted-users = [ "root" "banumath" ];
 	nix.settings.substituters = [
 		"https://cache.nixos.org/"
