@@ -152,6 +152,14 @@ let
                 src = plasmaBrowserHostManifest;
                 dst = ".mozilla/native-messaging-hosts/org.kde.plasma.browser_integration.json";
             }
+            {
+                src = ../patches/darkshadow/external/home/banumath/.config/gtk-3.0/settings.ini;
+                dst = ".config/gtk-3.0/settings.ini";
+            }
+            {
+                src = ../patches/darkshadow/external/home/banumath/.config/gtk-4.0/settings.ini;
+                dst = ".config/gtk-4.0/settings.ini";
+            }
         ];
 in
 {
@@ -241,6 +249,15 @@ in
                 if [ ! -f "$HOME/.config/hypr/rice-settings.lua" ] && [ -x "$HOME/.local/bin/hypr-set" ]; then
                     "$HOME/.local/bin/hypr-set" regen >/dev/null 2>&1 || true
                 fi
+
+                # Old installs have the plain Adwaita theme; move them to adw-gtk3
+                # so GTK apps follow the dark/material look. Never touch a real
+                # user choice that is already adw-gtk3-dark.
+                for f in "$HOME/.config/gtk-3.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"; do
+                    [ -f "$f" ] || continue
+                    grep -q '^gtk-theme-name=Adwaita-dark$' "$f" && \
+                        sed -i 's/^gtk-theme-name=Adwaita-dark$/gtk-theme-name=adw-gtk3-dark/' "$f"
+                done
             '';
             # A rebuild can change the patched shell files. Restart the running
             # shell once so the new QML/scripts take effect, but only when the
@@ -260,6 +277,9 @@ in
             # and a cursor theme over it.
             gtk.enable = lib.mkForce false;
             home.pointerCursor.enable = lib.mkForce false;
+
+            # Home Manager's gtk module is off, so GTK settings are seeded once
+            # by the activation below (never overwrite runtime changes).
         };
     };
 }
