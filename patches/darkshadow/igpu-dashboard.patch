@@ -1,0 +1,19 @@
+--- a/bin/rice-dashboard
++++ b/bin/rice-dashboard
+@@ -327,6 +327,16 @@
+     for card in sorted(glob.glob("/sys/class/drm/card[0-9]")):
+         dev = card + "/device"
+         busy = read(dev + "/gpu_busy_percent")
++        # Intel i915 often has no gpu_busy_percent. Estimate from the GT frequency.
++        if not busy:
++            cur = glob.glob(card + "/gt/gt0/rps_cur_freq_mhz") + glob.glob(card + "/gt_cur_freq_mhz")
++            for c in cur:
++                lo = read(os.path.dirname(c) + "/rps_min_freq_mhz") or read(os.path.dirname(c) + "/gt_min_freq_mhz")
++                hi = read(os.path.dirname(c) + "/rps_max_freq_mhz") or read(os.path.dirname(c) + "/gt_max_freq_mhz")
++                n = read(c)
++                if all(str(x).isdigit() for x in (n, lo, hi)) and int(hi) > int(lo):
++                    busy = str(round((int(n) - int(lo)) / (int(hi) - int(lo)) * 100))
++                break
+         if busy:
+             out["usage"] = int(busy)
+             for h in glob.glob(dev + "/hwmon/hwmon*/temp1_input"):

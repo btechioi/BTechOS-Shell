@@ -1,0 +1,15 @@
+{
+  "theme": "preset-nightsakura",
+  "apps": {
+    "vscode": true,
+    "discord": true
+  },
+  "extra_was": {
+    "minimal": {
+      "on": false,
+      "frame": "double"
+    },
+    "notify_colors": "tinted",
+    "lock_style": "glance"
+  }
+}

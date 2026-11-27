@@ -1,0 +1,99 @@
+{
+ "name": "My setup",
+ "desc": "How your desktop looked before the first preset",
+ "wallpaper_path": "/home/banumath/Pictures/Wallpapers/fuji-dusk.jpg",
+ "theme": {
+  "name": "My setup",
+  "desc": "Your own theme",
+  "colors": "auto",
+  "corners": 1.0,
+  "shape": "verysunny",
+  "wavy": true,
+  "motion": "expressive",
+  "bounce": 1.0,
+  "bar": "dynamic",
+  "bar_opacity": 0.72,
+  "widgets": "google",
+  "notify": "outline",
+  "notify_radius": 18,
+  "rounding": 12,
+  "gaps_in": 4,
+  "gaps_out": 6,
+  "border": 1,
+  "font": "Google Sans Flex",
+  "preview": [
+   "#131313",
+   "#ffffff",
+   "#e2e2e2"
+  ]
+ },
+ "extra": {
+  "anim_style": "calm",
+  "minimal": {
+   "on": false,
+   "frame": "double"
+  },
+  "fonts": {
+   "main": "Google Sans Flex",
+   "title": "Google Sans Flex"
+  },
+  "cursor": {
+   "theme": "Bibata-Modern-Ice",
+   "size": 24
+  },
+  "notify_colors": "graphite",
+  "lock_style": "cards"
+ },
+ "bar": {
+  "position": "top",
+  "autohide": false,
+  "ws_style": "dots",
+  "layout": {
+   "left": [
+    "launcher",
+    "workspaces",
+    "title"
+   ],
+   "center": [
+    "island"
+   ],
+   "right": [
+    "music",
+    "tray",
+    "volume",
+    "bluetooth",
+    "network",
+    "battery",
+    "notifications",
+    "power"
+   ],
+   "available": [
+    "media",
+    "visualizer",
+    "weather",
+    "sysmon"
+   ]
+  }
+ },
+ "launcher": {
+  "layout": "drawer",
+  "position": "center"
+ },
+ "clock": {
+  "enabled": true,
+  "style": "digital",
+  "font": "bebas"
+ },
+ "dock": {
+  "enabled": false,
+  "style": "floating",
+  "magnify": 0
+ },
+ "lock": {
+  "clock": "stacked",
+  "clock_font": "bebas",
+  "input": "line"
+ },
+ "sddm": "classic",
+ "tags": []
+}

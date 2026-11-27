@@ -1,0 +1,19 @@
+{
+  "opts": {
+    "decoration.rounding": 14,
+    "general.gaps_in": 5,
+    "general.gaps_out": 10,
+    "general.border_size": 2,
+    "input.touchpad.natural_scroll": true,
+    "general.extend_border_grab_area": 5
+  },
+  "borders": {},
+  "anim": {
+    "style": "emphasized"
+  },
+  "monitors": {},
+  "binds": [],
+  "autostart": [],
+  "kbd": {},
+  "off": []
+}

@@ -28,10 +28,11 @@ let
         cd $out
         patch -p1 --forward < ${patch}
         patch -p1 --forward < ${../patches/darkshadow/igpu-stats.patch}
+        patch -p1 --forward < ${../patches/darkshadow/igpu-dashboard.patch}
     '';
 
     scripts = [ "darkshadow-portal" "rice-app" "rice-apps-helper" "rice-hotcorner"
-        "rice-idle-guard" "rice-lock" "rice-sddm" "rice-stats" "rice-theme" ];
+        "rice-dashboard" "rice-idle-guard" "rice-lock" "rice-sddm" "rice-stats" "rice-theme" ];
 
     scriptPackage = pkgs.runCommand "darkshadow-patched-scripts" { } ''
         mkdir -p $out/bin
@@ -81,16 +82,33 @@ let
         ]
     ];
 
-    homeFiles = lib.listToAttrs (lib.concatMap
-        (pairs: lib.map (pair: lib.nameValuePair (builtins.elemAt pair 1) { source = "${patched}/${builtins.elemAt pair 0}"; }) pairs)
-        shellFiles)
-    // builtins.listToAttrs (lib.map (name: lib.nameValuePair ".config/rice/${name}.json" {
-        source = ../patches/darkshadow/external/home/banumath/.config/rice/${name}.json;
-    }) [ "bar" "desktop" "effects" "vibe" "wallpapers" ])
-    // {
-        ".config/hypr/user.lua".source = ../patches/darkshadow/external/home/banumath/.config/hypr/user.lua;
-        ".mozilla/native-messaging-hosts/org.kde.plasma.browser_integration.json".source = plasmaBrowserHostManifest;
-    };
+    # DarkShadowShell owns these files: its Settings app and rice-* scripts rewrite
+    # them while the system is running. Home Manager must never replace them, so
+    # they are copied only when missing instead of being managed with home.file.
+    configCopies =
+        (lib.concatMap
+            (pairs: lib.map (pair: {
+                src = "${patched}/${builtins.elemAt pair 0}";
+                dst = builtins.elemAt pair 1;
+            }) pairs)
+            shellFiles)
+        ++ (lib.map (name: {
+            src = ../patches/darkshadow/external/home/banumath/.config/rice/${name}.json;
+            dst = ".config/rice/${name}.json";
+        }) (let
+            dir = ../patches/darkshadow/external/home/banumath/.config/rice;
+        in lib.mapAttrsToList (name: _: lib.removeSuffix ".json" name)
+            (builtins.readDir dir)))
+        ++ [
+            {
+                src = ../patches/darkshadow/external/home/banumath/.config/hypr/user.lua;
+                dst = ".config/hypr/user.lua";
+            }
+            {
+                src = plasmaBrowserHostManifest;
+                dst = ".mozilla/native-messaging-hosts/org.kde.plasma.browser_integration.json";
+            }
+        ];
 in
 {
     options.btechos.darkshadow.patches = {
@@ -142,13 +160,26 @@ in
 
         xdg.portal.extraPortals = [ portalPackage ];
 
-        home-manager.users.${user} = {
+        home-manager.users.${user} =
+            { lib, ... }:
+            {
             home.sessionVariables = {
                 QT_QPA_PLATFORMTHEME = lib.mkForce "qt6ct";
                 QT_STYLE_OVERRIDE = lib.mkForce "Adwaita-Dark";
                 GTK_USE_PORTAL = lib.mkForce "1";
             };
-            home.file = homeFiles;
+            # Create the shell's files once, but never overwrite what
+            # DarkShadowShell (or the user, through its Settings app) changed.
+            home.activation.btechosDarkshadowConfigs = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+                copy_if_missing() {
+                    [ -e "$HOME/$2" ] || [ -L "$HOME/$2" ] && return 0
+                    mkdir -p "$(dirname "$HOME/$2")"
+                    cp "$1" "$HOME/$2"
+                }
+                ${lib.concatMapStringsSep "\n" (pair:
+                    "copy_if_missing ${lib.escapeShellArg pair.src} ${lib.escapeShellArg pair.dst}")
+                    configCopies}
+            '';
             # DarkShadow owns the look: stop home-manager from writing GTK files
             # and a cursor theme over it.
             gtk.enable = lib.mkForce false;

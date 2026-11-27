@@ -1,0 +1,11 @@
+{
+  "gaming": {
+    "on": true,
+    "ws": "9",
+    "launchers": false,
+    "fullscreen": false,
+    "nogaps": true,
+    "follow": true
+  },
+  "rules": []
+}
