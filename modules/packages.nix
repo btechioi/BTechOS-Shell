@@ -54,6 +54,10 @@ in
         wl-clipboard
         kdePackages.plasma-browser-integration
 
+        # Dynamic theming: matugen generates the app palette from the wallpaper.
+        matugen
+        imagemagick
+
         # Dev tooling
         uv
         fnm
