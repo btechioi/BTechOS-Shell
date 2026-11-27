@@ -128,8 +128,8 @@ let
     # ./install.sh run is needed.
     allAssetFiles =
         (lib.map (p: {
-            src = "${patched}/sounds/${builtins.baseNameOf (builtins.toString p)}";
-            dst = ".local/share/rice/sounds/${builtins.baseNameOf (builtins.toString p)}";
+            src = "${patched}/${lib.removePrefix "${inputs.darkshadowShell.outPath}/" (builtins.toString p)}";
+            dst = ".local/share/rice/sounds/${lib.removePrefix "${inputs.darkshadowShell.outPath}/sounds/" (builtins.toString p)}";
         }) (lib.filesystem.listFilesRecursive "${inputs.darkshadowShell.outPath}/sounds"))
         ++ [
             { src = "${patched}/assets/icon.png"; dst = ".local/share/rice/icon.png"; }
