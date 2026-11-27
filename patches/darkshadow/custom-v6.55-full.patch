@@ -1089,6 +1089,19 @@ index 6c56497..85e065b 100644
      readonly property var sink: Pipewire.defaultAudioSink
      PwObjectTracker { objects: [vb.sink] }
      readonly property real vol: Vol.of(sink)
+diff --git a/quickshell/rice-desktop/shell.qml b/quickshell/rice-desktop/shell.qml
+index 026e9e6..f0cadc6 100644
+--- a/quickshell/rice-desktop/shell.qml
++++ b/quickshell/rice-desktop/shell.qml
+@@ -359,7 +359,7 @@ ShellRoot {
+         id: busyProc
+         command: ["bash", "-c", "exec \"$HOME/.local/bin/rice-busy\" \"$1\"", "_", root.scr ? root.scr.name : ""]
+         // always on (it only listens to the window manager's events): auto-hide and the widgets' motion use it
+-        running: true
++        running: root.scr !== null
+         stdout: SplitParser { onRead: function(line) { root.busy = line.trim() === "1" } }
+         onRunningChanged: if (!running) root.busy = false
+     }
 diff --git a/quickshell/rice-lockscreen/LockPlayer.qml b/quickshell/rice-lockscreen/LockPlayer.qml
 index cf91da4..7c849c5 100644
 --- a/quickshell/rice-lockscreen/LockPlayer.qml
