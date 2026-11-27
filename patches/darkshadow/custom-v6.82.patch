@@ -653,6 +653,26 @@ index a384823..d4b7318 100755
      a = c["apps"]
      v, bad = vscode(a.get("vscode", True), p) if vscode_files() else ([], [])
      d = discord(a.get("discord", True), p) if discord_dirs() else []
+diff --git a/bin/rice-walls b/bin/rice-walls
+index e85f464..19f3537 100755
+--- a/bin/rice-walls
++++ b/bin/rice-walls
+@@ -428,6 +428,15 @@ def apply_picture(p, live=False):
+                 break
+         os.makedirs(os.path.dirname(CURRENT), exist_ok=True)
+         open(CURRENT, "w").write(p)
++        # BTechOS: keep the flake's Plymouth wallpaper in sync so the next
++        # rebuild tints the boot splash from the picture actually on screen.
++        btechos = os.environ.get("BTECHOS_FLAKE", HOME + "/BTechOS")
++        target = btechos + "/wallpapers/current.jpg"
++        if os.path.isdir(btechos):
++            try:
++                shutil.copyfile(p, target)
++            except OSError:
++                pass
+     # the login screen (SDDM) follows the wallpaper, when it is the shell's (commands.sh does it itself)
+     if os.path.isfile(APPLY):
+         return
 diff --git a/config/matugen/config.toml b/config/matugen/config.toml
 index 69bc48b..33243f6 100644
 --- a/config/matugen/config.toml

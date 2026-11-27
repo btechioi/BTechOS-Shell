@@ -1,0 +1,18 @@
+--- a/bin/rice-walls
++++ b/bin/rice-walls
+@@ -428,6 +428,15 @@
+                 break
+         os.makedirs(os.path.dirname(CURRENT), exist_ok=True)
+         open(CURRENT, "w").write(p)
++        # BTechOS: keep the flake's Plymouth wallpaper in sync so the next
++        # rebuild tints the boot splash from the picture actually on screen.
++        btechos = os.environ.get("BTECHOS_FLAKE", HOME + "/BTechOS")
++        target = btechos + "/wallpapers/current.jpg"
++        if os.path.isdir(btechos):
++            try:
++                shutil.copyfile(p, target)
++            except OSError:
++                pass
+     # the login screen (SDDM) follows the wallpaper, when it is the shell's (commands.sh does it itself)
+     if os.path.isfile(APPLY):
+         return

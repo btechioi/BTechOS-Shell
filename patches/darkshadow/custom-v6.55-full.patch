@@ -1,740 +1,402 @@
-diff --git a/bin/rice-app b/bin/rice-app
-index 61034c7..c250a9c 100755
---- a/bin/rice-app
-+++ b/bin/rice-app
-@@ -4,6 +4,7 @@
- #   rice-app photos [PICTURE|FOLDER]  Photos
- #   rice-app music [FILE...]          Music (the player); one player: a new file goes to the one that is open
- #   rice-app videos [FILE...]         Videos (the same player, on your videos)
-+#   rice-app pick REQUEST             Files in portal picker mode (used by DarkShadow's Open/Save dialogs)
- #   rice-app install                  their entries and icons in the app menu (the icons take the wallpaper's colors)
- #   rice-app icons                    color the icons again (the wallpaper changed)
- #   rice-app defaults on|off|state    open folders, pictures, music and videos in them (off: what you had before)
-@@ -135,6 +136,7 @@ run_app() {   # app tab arg...
-   [ -f "$APPS/shell.qml" ] || { echo "rice-app: $APPS is missing (run rice-update)"; exit 1; }
-   local app="$1" tab="$2"; shift 2
-   local args="" a p
-+  if [ -n "${RICE_PICK:-}" ]; then args="portal:$RICE_PICK"$'\n'; fi
-   for a in "$@"; do
-     case "$a" in file://*) a="$(python3 -c 'import sys,urllib.parse;print(urllib.parse.unquote(sys.argv[1][7:]))' "$a")" ;; esac
-     p="$(realpath -m -- "$a" 2>/dev/null || printf '%s' "$a")"
-@@ -157,6 +159,7 @@ run_app() {   # app tab arg...
- need_entries() { [ -f "$LA/darkshadow-$1.desktop" ] || install_entries >/dev/null 2>&1; }
- case "${1:-}" in
-   files|photos) app="$1"; shift; need_entries "$app"; run_app "$app" "" "$@" ;;
-+  pick) shift; need_entries files; export RICE_PICK="$1"; run_app files "" ;;
-   music|player) shift; need_entries music; run_app player home "$@" ;;
-   videos) shift; need_entries videos; run_app player videos "$@" ;;
-   install) install_entries; echo "Files, Photos, Music and Videos are in the app menu" ;;
-diff --git a/bin/rice-apps-helper b/bin/rice-apps-helper
-index 08ca458..46e83f7 100755
---- a/bin/rice-apps-helper
-+++ b/bin/rice-apps-helper
-@@ -20,6 +20,8 @@
-   rice-apps-helper exif FILE                  a picture's size, camera and the time it was taken
-   rice-apps-helper icons [DIR]                the apps' icons in the wallpaper's colors (~/.local/share/icons/hicolor)
-   rice-apps-helper prefs APP get | prefs APP set JSON
-+  rice-apps-helper portal-read FILE           a Files picker request written by DarkShadow's portal
-+  rice-apps-helper portal-response FILE JSON  answer that request (accept/cancel)
- """
- import concurrent.futures as cf
- import configparser
-@@ -1097,6 +1099,36 @@ def prefs(app, op, val=None):
-     out({"ok": True})
- 
- 
-+def portal_read(path):
+diff --git a/bin/darkshadow-portal b/bin/darkshadow-portal
+new file mode 100644
+index 0000000..9db3b1d
+--- /dev/null
++++ b/bin/darkshadow-portal
+@@ -0,0 +1,276 @@
++#!/usr/bin/env darkshadow-portal-python
++"""DarkShadow's xdg-desktop-portal FileChooser backend.
++
++It owns org.freedesktop.impl.portal.desktop.darkshadow. An OpenFile/SaveFile/
++SaveFiles call opens DarkShadow Files in picker mode and blocks the portal call
++until the picker writes its answer to ~/.cache/rice/portal.
++"""
++import dbus
++import dbus.service
++import dbus.mainloop.glib
++from gi.repository import GLib
++
++import json
++import os
++import pathlib
++import subprocess
++import urllib.parse
++
++HOME = os.path.expanduser("~")
++BIN = HOME + "/.local/bin"
++CACHE = os.path.join(os.environ.get("XDG_CACHE_HOME", HOME + "/.cache"), "rice", "portal")
++LOG = os.path.join(CACHE, "backend.log")
++os.makedirs(CACHE, exist_ok=True)
++
++BUS = "org.freedesktop.impl.portal.desktop.darkshadow"
++FC = "org.freedesktop.impl.portal.FileChooser"
++REQ = "org.freedesktop.impl.portal.Request"
++
++dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
++bus = dbus.SessionBus()
++# Keep the BusName alive: dbus-python releases the name when this object is collected.
++bus_name = dbus.service.BusName(BUS, bus, do_not_queue=True)
++
++states = {}
++
++
++def log(*parts):
 +    try:
-+        out(json.load(open(path)))
-+    except Exception as e:
-+        out({"ok": False, "error": str(e)})
-+
-+
-+def portal_response(path, val):
-+    try:
-+        j = json.loads(val)
-+    except Exception:
-+        out({"ok": False})
-+        return
-+    # Files passes the request descriptor path. The portal backend polls the
-+    # matching .response.json file, so never overwrite the descriptor itself.
-+    if path.endswith(".response.json"):
-+        dest = path
-+    elif path.endswith(".json"):
-+        dest = path[:-5] + ".response.json"
-+    else:
-+        dest = path + ".response.json"
-+    d = os.path.dirname(dest)
-+    if d:
-+        os.makedirs(d, exist_ok=True)
-+    with open(dest + ".tmp", "w") as f:
-+        json.dump(j, f)
-+    os.replace(dest + ".tmp", dest)
-+    out({"ok": True})
-+
-+
- def main():
-     a = sys.argv[1:]
-     if not a:
-@@ -1162,6 +1194,10 @@ def main():
-         icons(a[1] if len(a) > 1 else None)
-     elif c == "prefs" and len(a) >= 3:
-         prefs(a[1], a[2], a[3] if len(a) > 3 else None)
-+    elif c == "portal-read" and len(a) == 2:
-+        portal_read(a[1])
-+    elif c == "portal-response" and len(a) == 3:
-+        portal_response(a[1], a[2])
-     else:
-         print(__doc__)
-         sys.exit(2)
-diff --git a/bin/rice-dashboard b/bin/rice-dashboard
-index d12c0ce..0d4a0a5 100755
---- a/bin/rice-dashboard
-+++ b/bin/rice-dashboard
-@@ -327,6 +327,16 @@ def gpu_info():
-     for card in sorted(glob.glob("/sys/class/drm/card[0-9]")):
-         dev = card + "/device"
-         busy = read(dev + "/gpu_busy_percent")
-+        # Intel i915 often has no gpu_busy_percent. Estimate from the GT frequency.
-+        if not busy:
-+            cur = glob.glob(card + "/gt/gt0/rps_cur_freq_mhz") + glob.glob(card + "/gt_cur_freq_mhz")
-+            for c in cur:
-+                lo = read(os.path.dirname(c) + "/rps_min_freq_mhz") or read(os.path.dirname(c) + "/gt_min_freq_mhz")
-+                hi = read(os.path.dirname(c) + "/rps_max_freq_mhz") or read(os.path.dirname(c) + "/gt_max_freq_mhz")
-+                n = read(c)
-+                if all(str(x).isdigit() for x in (n, lo, hi)) and int(hi) > int(lo):
-+                    busy = str(round((int(n) - int(lo)) / (int(hi) - int(lo)) * 100))
-+                break
-         if busy:
-             out["usage"] = int(busy)
-             for h in glob.glob(dev + "/hwmon/hwmon*/temp1_input"):
-diff --git a/bin/rice-hotcorner b/bin/rice-hotcorner
-index 506448e..55e135b 100755
---- a/bin/rice-hotcorner
-+++ b/bin/rice-hotcorner
-@@ -298,7 +298,7 @@ def state():
-             pass
-     out = {
-         "schemes": schemes, "scheme": scheme,
--        "awake": bool(alive(AWAKE_PID, "rice-sys")), "recording": bool(rec), "rec_start": rec.get("start", 0),
-+        "awake": bool(alive(AWAKE_PID, "Keep Awake")), "recording": bool(rec), "rec_start": rec.get("start", 0),
-         "wifi": wifi_on(), "bluetooth": bt_on(), "dnd": dnd_on(), "gaming": gaming_on(), "mic_muted": mic_muted(),
-         "recordings": recordings(), "rec_dir": REC_DIR, "walls": wl[0], "wall": wl[1], "shot_dir": SHOT_DIR, "accent": accent(), "tools": tools,
-         "now": time.time(),
-@@ -326,7 +326,7 @@ def apply_blur(c=None):
- 
- 
- def toggle_awake():
--    pid = alive(AWAKE_PID, "rice-sys")
-+    pid = alive(AWAKE_PID, "Keep Awake")
-     if pid:
-         os.kill(pid, signal.SIGTERM)
-         os.remove(AWAKE_PID)
-diff --git a/bin/rice-lock b/bin/rice-lock
-index e0ffb6e..13bea19 100755
---- a/bin/rice-lock
-+++ b/bin/rice-lock
-@@ -273,6 +273,8 @@ def lock_text(c):
- # ---------------- hypridle ----------------
- def idle_text(c):
-     sc = BIN + "/rice-lock screen"
-+    guard = BIN + "/rice-idle-guard"
-+    cond = "    condition_cmd = %s\n    condition_retry = 30\n" % guard
-     g = ["general {", "    lock_cmd = %s now" % (BIN + "/rice-lock")]
-     if c["lock_before_sleep"]:
-         g.append("    before_sleep_cmd = loginctl lock-session")
-@@ -280,12 +282,14 @@ def idle_text(c):
-     g.append("}")
-     out = ["# Generated by rice-lock (Settings > Idle & Lockscreen). 0 minutes = never.", "\n".join(g)]
-     if c["lock_after"] > 0:
--        out.append("# lock\nlistener {\n    timeout = %d\n    on-timeout = loginctl lock-session\n}" % (c["lock_after"] * 60))
-+        out.append("# lock\nlistener {\n    timeout = %d\n%s    on-timeout = loginctl lock-session\n}"
-+                   % (c["lock_after"] * 60, cond))
-     if c["screen_off_after"] > 0:
--        out.append("# screen off\nlistener {\n    timeout = %d\n    on-timeout = %s off\n    on-resume = %s on\n}"
--                   % (c["screen_off_after"] * 60, sc, sc))
-+        out.append("# screen off\nlistener {\n    timeout = %d\n%s    on-timeout = %s off\n    on-resume = %s on\n}"
-+                   % (c["screen_off_after"] * 60, cond, sc, sc))
-     if c["suspend_after"] > 0:
--        out.append("# sleep\nlistener {\n    timeout = %d\n    on-timeout = $HOME/.local/bin/rice-sys suspend\n}" % (c["suspend_after"] * 60))
-+        out.append("# sleep\nlistener {\n    timeout = %d\n%s    on-timeout = $HOME/.local/bin/rice-sys suspend\n}"
-+                   % (c["suspend_after"] * 60, cond))
-     return "\n\n".join(out) + "\n"
- 
- 
-@@ -481,7 +485,7 @@ FALLBACK = HOME + "/.cache/rice/lock-fallback"
- SHARED = ["Look", "Fonts", "DashFont", "MIcon", "T", "Blob", "ShapeImage", "WavyLine", "WavyArc",
-           "RoundImage", "NPal", "Trigger", "Shadow", "Tr",
-           # V6.10 Vibe: the ring around the cover (LockBeat.qml)
--          "CavaFeed", "CavaUser", "LiquidWave", "LiquidRing"]
-+          "CavaFeed", "CavaUser", "LiquidWave", "LiquidRing", "MediaPick"]
- 
- 
- def sync_shared():
-diff --git a/bin/rice-sddm b/bin/rice-sddm
-index e6e8e4d..454d0ce 100755
---- a/bin/rice-sddm
-+++ b/bin/rice-sddm
-@@ -16,6 +16,13 @@
- set -u
- NAME=darkshadow-shell
- THEME="/usr/share/sddm/themes/$NAME"
-+# NixOS puts the theme in the Nix store, linked into the system profile instead of /usr/share.
-+# Follow the link SDDM itself uses, so checks for Main.qml and the preview see the real theme.
-+if [ ! -f "$THEME/Main.qml" ]; then
-+  for d in /run/current-system/sw/share/sddm/themes /nix/var/nix/profiles/default/share/sddm/themes; do
-+    [ -f "$d/$NAME/Main.qml" ] && { THEME="$d/$NAME"; break; }
-+  done
-+fi
- CONFD=/etc/sddm.conf.d
- CONF="$CONFD/99-darkshadow-shell.conf"
- OLDCONF="$CONFD/10-darkshadow-shell.conf"   # where V4.37 put it
-@@ -29,7 +36,13 @@ NIXU=/var/lib/darkshadow-shell-sddm
- repo() { local r; r="$(cat "$HOME/.config/rice/repo" 2>/dev/null)"; [ -d "$r/sddm/$NAME" ] && echo "$r" && return; [ -d "$HOME/shadows-shell/sddm/$NAME" ] && echo "$HOME/shadows-shell"; }
- is_nixos() { [ -e /etc/NIXOS ] || grep -qi '^ID=nixos' /etc/os-release 2>/dev/null; }
- have_sddm() { command -v sddm >/dev/null 2>&1 || [ -x /usr/bin/sddm ]; }
--dm_now() { [ -L /etc/systemd/system/display-manager.service ] || return 0; local l; l="$(readlink -f /etc/systemd/system/display-manager.service 2>/dev/null)"; l="${l##*/}"; echo "${l%.service}"; }
-+dm_now() {
-+  [ -L /etc/systemd/system/display-manager.service ] || return 0
-+  local l; l="$(readlink -f /etc/systemd/system/display-manager.service 2>/dev/null)"; l="${l##*/}"; l="${l%.service}"
-+  # NixOS calls the unit display-manager.service; it still starts SDDM
-+  if [ "$l" = "display-manager" ] && systemctl cat display-manager.service 2>/dev/null | grep -qi sddm; then l=sddm; fi
-+  echo "$l"
-+}
- theme_now() {
-   local f v=""
-   # the order SDDM reads them: its own defaults, sddm.conf.d (by name), then sddm.conf, which wins
-diff --git a/bin/rice-stats b/bin/rice-stats
-index c736f01..d896b9f 100755
---- a/bin/rice-stats
-+++ b/bin/rice-stats
-@@ -139,10 +139,25 @@ def freq():
- 
- NV = shutil.which("nvidia-smi")
- DRM = [p for p in glob.glob("/sys/class/drm/card*/device/gpu_busy_percent")]
-+# Intel i915 does not publish gpu_busy_percent on every kernel. Its GT frequency
-+# tracks load closely enough for the shell's GPU widgets, so fall back to that.
-+IGT = (glob.glob("/sys/class/drm/card*/gt/gt0/rps_cur_freq_mhz")
-+       + glob.glob("/sys/class/drm/card*/gt_cur_freq_mhz"))
-+
-+
-+def intel_busy():
-+    for cur in IGT:
-+        d = os.path.dirname(cur)
-+        c = read(cur)
-+        lo = read(os.path.join(d, "rps_min_freq_mhz")) or read(os.path.join(d, "gt_min_freq_mhz"))
-+        hi = read(os.path.join(d, "rps_max_freq_mhz")) or read(os.path.join(d, "gt_max_freq_mhz"))
-+        if all(str(x).isdigit() for x in (c, lo, hi)) and int(hi) > int(lo):
-+            return round((int(c) - int(lo)) / (int(hi) - int(lo)) * 100)
-+    return 0
- 
- 
- def gpu():
--    """(busy %, temperature) of the first GPU that tells: NVIDIA via nvidia-smi, AMD / Intel via sysfs"""
-+    """(busy %, temperature) of the first GPU that tells: NVIDIA, AMD, or the Intel iGPU"""
-     if NV:
-         try:
-             o = subprocess.run([NV, "--query-gpu=utilization.gpu,temperature.gpu", "--format=csv,noheader,nounits"],
-@@ -154,7 +169,8 @@ def gpu():
-         v = read(p)
-         if v.isdigit():
-             return int(v), hwmon(("amdgpu", "i915", "xe"))
--    return 0, hwmon(("amdgpu", "nouveau", "i915", "xe"))
-+    busy = intel_busy()
-+    return busy, hwmon(("amdgpu", "nouveau", "i915", "xe"))
- 
- 
- every = 2.0
-diff --git a/bin/rice-theme b/bin/rice-theme
-index a384823..d4b7318 100755
---- a/bin/rice-theme
-+++ b/bin/rice-theme
-@@ -2,8 +2,8 @@
- """rice-theme: whole-desktop themes, and your colors in your apps (Settings > Appearance > Themes).
- 
- A theme is a color scheme and a design: corners, shapes, the bar, the widgets, notifications, window corners and
--gaps, motion and the font. Your apps take the colors too: VSCodium / VS Code and Discord (Vesktop, Vencord,
--Equicord, BetterDiscord), every time the colors change (a new wallpaper, another scheme).
-+gaps, motion and the font. Your apps take the colors too: GTK, Qt, Zed, VSCodium / VS Code and Discord
-+(Vesktop, Vencord, Equicord, BetterDiscord), every time the colors change (a new wallpaper, another scheme).
- 
-   rice-theme list              the themes (JSON)
-   rice-theme state             the theme you have and the apps it colors (JSON)
-@@ -770,9 +770,96 @@ def wave(key):
-         pass
- 
- 
-+def put(path, text):
-+    os.makedirs(os.path.dirname(path), exist_ok=True)
-+    with open(path, "w") as f:
-+        f.write(text)
-+
-+
-+def qt_theme(p):
-+    """Qt apps: Fusion + a qt6ct palette made from the wallpaper's colors."""
-+    surf, high, fg, prim = p["surface"], p["surface_high"], p["on_surface"], p["primary"]
-+    # QPalette order (Qt 6, with Accent at the end).
-+    active = [fg, high, mix(high, "#ffffff", 0.18), mix(high, "#ffffff", 0.09),
-+              mix(surf, "#000000", 0.4), mix(surf, "#000000", 0.2), fg, fg, fg,
-+              p["surface_low"], surf, "#000000", prim, p["on_primary"], prim,
-+              mix(prim, "#ffffff", 0.2), p["surface_container"], surf, high, fg,
-+              p["outline"], prim]
-+    inactive = active[:]
-+    disabled = [mix(fg, surf, 0.55) if i in (0, 6, 7, 8, 13, 19) else c
-+                for i, c in enumerate(active)]
-+    qdir = XDG + "/qt6ct"
-+    scheme = qdir + "/colors/darkshadow.conf"
-+
-+    def row(colors):
-+        return ",".join("#ff" + c.lstrip("#").lower() for c in colors)
-+
-+    put(scheme, "[ColorScheme]\nactive_colors=%s\ninactive_colors=%s\ndisabled_colors=%s\n" %
-+        (row(active), row(inactive), row(disabled)))
-+    put(qdir + "/qt6ct.conf", "[Appearance]\nstyle=Fusion\nstandard_dialogs=xdgdesktopportal\ncustom_palette=true\ncolor_scheme_path=%s\n" % scheme)
-+
-+
-+ZED_THEME = "DarkShadow Dynamic"
-+
-+
-+def zed_theme(p):
-+    """Zed: a local theme family using the same palette; select it in settings.json."""
-+    s = lambda k: p[k].lower()
-+    mixc = lambda a, b, t: mix(p[a], b, t)
-+    style = {
-+        "background": s("surface"), "background.appearance": "opaque",
-+        "surface.background": s("surface_container"), "elevated_surface.background": s("surface_high"),
-+        "border": s("outline_variant"), "border.variant": s("outline"), "border.focused": s("primary"),
-+        "border.selected": s("primary"), "border.transparent": "#00000000", "border.disabled": s("outline_variant"),
-+        "element.background": s("surface_high"), "element.hover": mixc("surface_high", "#ffffff", 0.10),
-+        "element.active": s("primary"), "element.selected": s("secondary_container"),
-+        "element.disabled": s("surface_container"), "text": s("on_surface"),
-+        "text.muted": s("on_surface_variant"), "text.placeholder": s("outline"), "text.accent": s("primary"),
-+        "icon": s("on_surface"), "icon.muted": s("on_surface_variant"),
-+        "status_bar.background": s("surface_low"), "title_bar.background": s("surface"),
-+        "toolbar.background": s("surface"), "tab_bar.background": s("surface_low"),
-+        "tab.inactive_background": s("surface_low"), "tab.active_background": s("surface"),
-+        "panel.background": s("surface_low"), "search.match_background": s("secondary_container"),
-+        "editor.background": s("surface"), "editor.foreground": s("on_surface"),
-+        "editor.gutter.background": s("surface"), "editor.line_number": s("outline"),
-+        "editor.active_line_number": s("on_surface"),
-+        "editor.active_line.background": mix(p["surface"], p["primary"], 0.10),
-+        "editor.selection.background": s("secondary_container"), "editor.subheader.background": s("surface_container"),
-+        "terminal.background": s("surface"), "terminal.foreground": s("on_surface"),
-+        "syntax": {
-+            "keyword": {"color": s("primary")}, "string": {"color": s("tertiary")},
-+            "comment": {"color": s("outline")}, "function": {"color": s("secondary")},
-+            "type": {"color": s("primary_container")}, "variable": {"color": s("on_surface")},
-+            "constant": {"color": s("tertiary")}, "punctuation": {"color": s("on_surface_variant")},
-+            "tag": {"color": s("primary")},
-+        },
-+    }
-+    family = {"$schema": "https://zed.dev/schema/themes/v0.2.0.json", "name": ZED_THEME,
-+              "author": "DarkShadowShell",
-+              "themes": [{"name": ZED_THEME, "appearance": "dark", "style": style}]}
-+    put(XDG + "/zed/themes/darkshadow.json", json.dumps(family, indent=2) + "\n")
-+    # keep the user's other settings; only the theme name changes
-+    settings = XDG + "/zed/settings.json"
-+    try:
-+        text = open(settings).read()
++        with open(LOG, "a") as f:
++            f.write(" ".join(str(x) for x in parts) + "\n")
 +    except OSError:
-+        text = ""
-+    if '"%s"' % ZED_THEME in text:
++        pass
++
++
++def plain(v):
++    """dbus-python values -> plain JSON-able Python values."""
++    if v is None or isinstance(v, (str, int, float, bool)):
++        return v
++    if isinstance(v, dbus.Boolean):
++        return bool(v)
++    if isinstance(v, (dbus.Byte, dbus.Int16, dbus.Int32, dbus.Int64,
++                      dbus.UInt16, dbus.UInt32, dbus.UInt64, dbus.Double)):
++        return int(v) if not isinstance(v, dbus.Double) else float(v)
++    if isinstance(v, (dbus.String, dbus.ObjectPath, dbus.Signature)):
++        return str(v)
++    if isinstance(v, dict):
++        return {str(k): plain(x) for k, x in v.items()}
++    if isinstance(v, (list, tuple, dbus.Array, dbus.Struct)):
++        if isinstance(v, dbus.Struct):
++            return tuple(plain(x) for x in v)
++        return [plain(x) for x in v]
++    return str(v)
++
++
++def ay_text(v):
++    """a{ay} byte arrays from the portal are NUL-terminated UTF-8 strings."""
++    if isinstance(v, str):
++        return v
++    try:
++        b = bytes(int(x) for x in plain(v))
++    except Exception:
++        return ""
++    if b and b[-1] == 0:
++        b = b[:-1]
++    return os.fsdecode(b)
++
++
++def uri_to_path(u):
++    p = urllib.parse.urlparse(str(u))
++    if p.scheme == "file":
++        return urllib.parse.unquote(p.path)
++    return os.fsdecode(str(u))
++
++
++def path_to_uri(p):
++    return pathlib.Path(os.path.abspath(p)).as_uri()
++
++
++class Request(dbus.service.Object):
++    def __init__(self, conn, path, state):
++        dbus.service.Object.__init__(self, conn, path)
++        self.state = state
++
++    @dbus.service.signal(REQ, signature="")
++    def Created(self):
++        pass
++
++    @dbus.service.method(REQ, in_signature="", out_signature="")
++    def Close(self):
++        log("Close", self.state["handle"])
++        finish(self.state, {"action": "cancel"})
++
++
++def results_from(state, answer):
++    opts = state["options"]
++    method = state["method"]
++    uris = [uri_to_path(x) for x in (answer.get("uris") or [])]
++    if method == "SaveFiles":
++        folder = answer.get("current_folder") or (os.path.dirname(uris[0]) if uris else str(HOME))
++        names = [ay_text(x) for x in opts.get("files", [])]
++        uris = [os.path.join(folder, n) for n in names if n]
++    elif method == "SaveFile" and uris:
++        # The picker returns the full path it wants; keep exactly one result.
++        uris = uris[:1]
++    results = {"uris": dbus.Array([dbus.String(path_to_uri(p)) for p in uris], signature="s")}
++    # xdg-desktop-portal-gtk also reports this. Some clients treat a FileChooser
++    # answer without it as unusable, even though the spec only requires uris.
++    results["writable"] = dbus.Boolean(True, variant_level=1)
++    return results
++
++
++def finish(state, answer):
++    if state["done"]:
 +        return
-+    if re.search(r'"theme"\s*:\s*"[^"]*"', text):
-+        text = re.sub(r'"theme"\s*:\s*"[^"]*"', '"theme": "%s"' % ZED_THEME, text, count=1)
-+    elif text.strip().startswith("{"):
-+        text = re.sub(r"\{", '{\n  "theme": "%s",' % ZED_THEME, text, count=1)
++    state["done"] = True
++    log("finish", state["method"], answer.get("action"), state["handle"])
++    if state.get("timer"):
++        GLib.source_remove(state["timer"])
++        state["timer"] = None
++    for p in (state["request_file"], state["response_file"]):
++        try:
++            os.unlink(p)
++        except OSError:
++            pass
++    proc = state.get("proc")
++    if proc and proc.poll() is None:
++        try:
++            proc.terminate()
++        except OSError:
++            pass
++    obj = state.get("obj")
++    if obj:
++        try:
++            obj.remove_from_connection()
++        except Exception:
++            pass
++    states.pop(state["handle"], None)
++    action = answer.get("action")
++    if action == "accept":
++        code = 0
++        try:
++            results = results_from(state, answer)
++        except Exception as e:
++            log("results error", e)
++            code, results = 2, {}
++    elif action == "cancel":
++        code, results = 1, {}
 +    else:
-+        text = '{\n  "theme": "%s"\n}\n' % ZED_THEME
-+    put(settings, text)
++        code, results = 2, {}
++    try:
++        state["reply"](code, results)
++    except Exception as e:
++        log("reply error", e)
++        try:
++            state["error"](dbus.exceptions.DBusException(
++                "org.freedesktop.impl.portal.Error.Failed: " + str(e)))
++        except Exception:
++            pass
 +
 +
- def sync():
-     c = load()
-     p = palette()
-+    qt_theme(p)
-+    zed_theme(p)
-     a = c["apps"]
-     v, bad = vscode(a.get("vscode", True), p) if vscode_files() else ([], [])
-     d = discord(a.get("discord", True), p) if discord_dirs() else []
-diff --git a/config/matugen/config.toml b/config/matugen/config.toml
-index 69bc48b..33243f6 100644
---- a/config/matugen/config.toml
-+++ b/config/matugen/config.toml
-@@ -35,4 +35,4 @@ post_hook = '$HOME/.local/bin/border-sync'
- [templates.palette]
- input_path = '~/.config/matugen/templates/palette.json'
- output_path = '~/.config/rice/palette.json'
--post_hook = 'setsid -f $HOME/.local/bin/rice-theme sync >/dev/null 2>&1; setsid -f $HOME/.local/bin/rice-look files-theme >/dev/null 2>&1; [ -w /usr/share/sddm/themes/darkshadow-shell/user ] && setsid -f $HOME/.local/bin/rice-sddm sync >/dev/null 2>&1; true'
-+post_hook = 'setsid -f $HOME/.local/bin/rice-theme sync >/dev/null 2>&1; setsid -f $HOME/.local/bin/rice-look files-theme >/dev/null 2>&1; setsid -f $HOME/.local/bin/rice-sddm sync >/dev/null 2>&1; true'
-diff --git a/quickshell/hyprquickpaper/commands.sh b/quickshell/hyprquickpaper/commands.sh
-index 47a2a48..5cf0653 100755
---- a/quickshell/hyprquickpaper/commands.sh
-+++ b/quickshell/hyprquickpaper/commands.sh
-@@ -136,6 +136,8 @@ wait
- [ -x "$HOME/.local/bin/rice-app" ] && "$HOME/.local/bin/rice-app" icons >/dev/null 2>&1 &
- # the login screen (SDDM) takes the new wallpaper and colors, when it is the shell's (V5.01: only rice-walls did it,
- # so a wallpaper picked in the picker, in Files or in Photos never got there and the login screen kept the old one)
--if [ -x "$HOME/.local/bin/rice-sddm" ] && { [ -w /usr/share/sddm/themes/darkshadow-shell/user ] || [ -w /var/lib/darkshadow-shell-sddm ]; }; then
-+sddm_u=/usr/share/sddm/themes/darkshadow-shell/user
-+[ -d /var/lib/darkshadow-shell-sddm ] && sddm_u=/var/lib/darkshadow-shell-sddm
-+if [ -x "$HOME/.local/bin/rice-sddm" ] && [ -w "$sddm_u" ]; then
-   "$HOME/.local/bin/rice-sddm" sync >/dev/null 2>&1 &
- fi
-diff --git a/quickshell/rice-apps/FilesApp.qml b/quickshell/rice-apps/FilesApp.qml
-index 0d34a3f..66632f8 100644
---- a/quickshell/rice-apps/FilesApp.qml
-+++ b/quickshell/rice-apps/FilesApp.qml
-@@ -8,7 +8,8 @@ Item {
-     id: files
-     objectName: "app"
-     focus: true
--    readonly property string title: "Files — " + placeName
-+    readonly property string title: portalRequest !== "" ? (portalTitle || (portalKind === "save" || portalKind === "savefiles" ? "Save" : "Open"))
-+                                                          : "Files — " + placeName
-     readonly property string placeName: mode === "trash" ? "Trash" : (mode === "recent" ? "Recent" : (mode === "starred" ? "Starred"
-                                         : (mode === "search" ? "Search" : (cur === Theme.home ? "Home" : (cur === "/" ? "Computer" : cur.replace(/^.*\//, ""))))))
- 
-@@ -37,6 +38,14 @@ Item {
-     property real mx: 0
-     property real my: 0
-     property bool prefsLoaded: false
-+    // portal picker mode: an app asked us to choose a file or folder for its Open/Save dialog
-+    property string portalRequest: ""
-+    property string portalKind: ""            // open, folder, save, savefiles
-+    property string portalTitle: ""
-+    property string portalName: ""
-+    property bool portalMultiple: false
-+    property var portalFilter: null
-+    property var portalPatterns: []
-     readonly property bool rail: width < 880
-     readonly property var model: mode === "folder" && query === "" ? fm : lm
-     readonly property int count: model === fm ? fm.count : lm.count
-@@ -54,7 +63,27 @@ Item {
-             starred = j.starred || []
-             prefsLoaded = true
-         })
--        if (a !== "") {
-+        if (a.indexOf("portal:") === 0) {
-+            portalRequest = a.substring(7)
-+            Sys.run(["portal-read", portalRequest], function(j) {
-+                if (!j || j.ok === false) { Ui.snack("That Open/Save dialog is already closed"); Qt.quit(); return }
-+                portalKind = j.kind || "open"
-+                portalTitle = j.title || ""
-+                portalName = j.current_name || ""
-+                portalMultiple = j.multiple === true
-+                portalFilter = j.current_filter || (j.filters && j.filters.length > 0 ? j.filters[0] : null)
-+                const f = portalFilter && portalFilter[1] ? portalFilter[1] : []
-+                portalPatterns = f.map(function(p) { return p[1] || "" }).filter(function(x) { return x.indexOf("*") >= 0 })
-+                if (j.current_folder) go(j.current_folder, true)
-+                else if (portalKind === "save" && j.current_file) {
-+                    const p = j.current_file
-+                    go(p.replace(/\/[^\/]*$/, "") || "/", true)
-+                    portalName = p.replace(/^.*\//, "")
-+                }
-+                if (portalName !== "") Qt.callLater(function() { nameField.text = portalName })
-+                view_.forceActiveFocus()
-+            })
-+        } else if (a !== "") {
-             Sys.run(["stat", a], function(r) {
-                 if (!r || r.length === 0) return
-                 if (r[0].fileIsDir) go(r[0].filePath, true)
-@@ -84,6 +113,7 @@ Item {
-         showDotAndDotDot: false
-         showHidden: files.hidden
-         showOnlyReadable: false
-+        nameFilters: files.portalPatterns.length > 0 ? files.portalPatterns : ["*"]
-         sortCaseSensitive: false
-         caseSensitive: false
-         sortReversed: files.rev
-@@ -253,6 +283,36 @@ Item {
-         return m
-     }
-     function selPaths() { return selected().map(function(e) { return e.path }) }
++def poll(state):
++    if state["done"]:
++        return False
++    try:
++        if os.path.exists(state["response_file"]):
++            with open(state["response_file"]) as f:
++                answer = json.load(f)
++            finish(state, answer)
++            return False
++    except Exception as e:
++        log("poll error", e)
++        finish(state, {"action": "error"})
++        return False
++    proc = state.get("proc")
++    if proc and proc.poll() is not None:
++        finish(state, {"action": "cancel"})
++        return False
++    return True
 +
-+    // ---------------------------------------------------------------- portal picker
-+    property bool portalDone: false
-+    function portalURI(p) { return "file://" + String(p).split("/").map(function(x) { return encodeURIComponent(x) }).join("/") }
-+    function portalSend(j) {
-+        if (portalDone) return
-+        portalDone = true
-+        Sys.run(["portal-response", portalRequest, JSON.stringify(j)], function() { Qt.quit() })
-+    }
-+    function portalCancel() { portalSend({ action: "cancel" }) }
-+    function portalAccept(paths) {
-+        const ps = (paths || []).filter(function(x) { return !!x })
-+        if (ps.length === 0) { Ui.snack("Choose something first"); return }
-+        const r = { action: "accept", uris: ps.map(portalURI), current_folder: cur }
-+        if (portalName !== "") r.current_name = portalName
-+        if (portalFilter) r.current_filter = portalFilter
-+        portalSend(r)
-+    }
-+    function portalChoose() {
-+        if (portalKind === "folder" || portalKind === "savefiles") { portalAccept([cur]); return }
-+        if (portalKind === "save") {
-+            const n = (nameField.text || "").trim()
-+            if (n === "") { Ui.snack("Give the file a name"); nameField.forceActiveFocus(); return }
-+            portalAccept([cur.replace(/\/$/, "") + "/" + n.replace(/^\//, "")])
++
++class FileChooser(dbus.service.Object):
++    def __init__(self):
++        # xdg-desktop-portal calls backend interfaces on /org/freedesktop/portal/desktop.
++        dbus.service.Object.__init__(self, bus, "/org/freedesktop/portal/desktop")
++
++    def start(self, method, handle, app_id, title, opts, kind, state):
++        token = str(handle).rstrip("/").split("/")[-1] or "request"
++        safe = "".join(c for c in token if c.isalnum() or c in "-_") or "request"
++        log("request", method, "app_id=" + str(app_id), "title=" + str(title),
++            "options=" + json.dumps(plain(opts), default=str))
++        state.update({
++            "request_file": os.path.join(CACHE, safe + ".json"),
++            "response_file": os.path.join(CACHE, safe + ".response.json"),
++            "options": plain(opts),
++            "method": method,
++            "handle": str(handle),
++            "done": False,
++        })
++        descriptor = {
++            "kind": kind,
++            "title": str(title) or "",
++            "app_id": str(app_id) or "",
++            "multiple": bool(state["options"].get("multiple")),
++            "current_name": str(state["options"].get("current_name") or ""),
++            "current_folder": state["current_folder"],
++            "current_file": state["current_file"],
++            "filters": state["options"].get("filters") or [],
++            "current_filter": state["options"].get("current_filter"),
++            "choices": state["options"].get("choices") or [],
++        }
++        with open(state["request_file"], "w") as f:
++            json.dump(descriptor, f)
++        obj = Request(bus, str(handle), state)
++        state["obj"] = obj
++        obj.Created()
++        env = os.environ.copy()
++        env["RICE_PICK"] = state["request_file"]
++        try:
++            state["proc"] = subprocess.Popen(
++                [BIN + "/rice-app", "pick", state["request_file"]],
++                env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
++                start_new_session=True)
++        except Exception as e:
++            log("launch error", e)
++            finish(state, {"action": "error"})
 +            return
++        state["timer"] = GLib.timeout_add(100, poll, state)
++        log("opened", method, state["request_file"], state["proc"].pid)
++
++    def common(self, method, handle, app_id, parent_window, title, opts, kind, reply, error):
++        handle = str(handle)
++        if handle in states:
++            finish(states[handle], {"action": "cancel"})
++        o = plain(opts)
++        state = {
++            "reply": reply,
++            "error": error,
++            "current_folder": ay_text(o.get("current_folder")),
++            "current_file": ay_text(o.get("current_file")),
 +        }
-+        const ps = selPaths()
-+        if (ps.length === 0) { Ui.snack("Choose a file first"); return }
-+        portalAccept(portalMultiple ? ps : [ps.slice(0, 1)])
++        if not state["current_folder"] and state["current_file"] and kind == "save":
++            state["current_folder"] = os.path.dirname(state["current_file"])
++        states[handle] = state
++        self.start(method, handle, app_id, title, o, kind, state)
++
++    @dbus.service.method(FC, in_signature="osssa{sv}", out_signature="ua{sv}",
++                         async_callbacks=("reply", "error"))
++    def OpenFile(self, handle, app_id, parent_window, title, opts, reply, error):
++        o = plain(opts)
++        kind = "folder" if o.get("directory") else "open"
++        self.common("OpenFile", handle, app_id, parent_window, title, opts, kind, reply, error)
++
++    @dbus.service.method(FC, in_signature="osssa{sv}", out_signature="ua{sv}",
++                         async_callbacks=("reply", "error"))
++    def SaveFile(self, handle, app_id, parent_window, title, opts, reply, error):
++        self.common("SaveFile", handle, app_id, parent_window, title, opts, "save", reply, error)
++
++    @dbus.service.method(FC, in_signature="osssa{sv}", out_signature="ua{sv}",
++                         async_callbacks=("reply", "error"))
++    def SaveFiles(self, handle, app_id, parent_window, title, opts, reply, error):
++        self.common("SaveFiles", handle, app_id, parent_window, title, opts, "savefiles", reply, error)
++
++
++FileChooser()
++log("backend started")
++GLib.MainLoop().run()
+diff --git a/bin/rice-idle-guard b/bin/rice-idle-guard
+new file mode 100644
+index 0000000..0653562
+--- /dev/null
++++ b/bin/rice-idle-guard
+@@ -0,0 +1,8 @@
++#!/usr/bin/env bash
++# hypridle condition_cmd for every idle timer.
++# exit 0 = no media playing -> let hypridle lock / blank / suspend.
++# exit 1 = something is playing -> defer the action; hypridle retries in 30s.
++if command -v playerctl >/dev/null 2>&1; then
++    playerctl -a status 2>/dev/null | grep -qx 'Playing' && exit 1
++fi
++exit 0
+diff --git a/bin/rice-walls b/bin/rice-walls
+index a2422a3..02dd38e 100755
+--- a/bin/rice-walls
++++ b/bin/rice-walls
+@@ -426,6 +426,15 @@ def apply_picture(p, live=False):
+                 break
+         os.makedirs(os.path.dirname(CURRENT), exist_ok=True)
+         open(CURRENT, "w").write(p)
++        # BTechOS: keep the flake's Plymouth wallpaper in sync so the next
++        # rebuild tints the boot splash from the picture actually on screen.
++        btechos = os.environ.get("BTECHOS_FLAKE", HOME + "/BTechOS")
++        target = btechos + "/wallpapers/current.jpg"
++        if os.path.isdir(btechos):
++            try:
++                shutil.copyfile(p, target)
++            except OSError:
++                pass
+     # the login screen (SDDM) follows the wallpaper, when it is the shell's (commands.sh does it itself)
+     if os.path.isfile(APPLY):
+         return
+diff --git a/portal/darkshadow.portal b/portal/darkshadow.portal
+new file mode 100644
+index 0000000..015860d
+--- /dev/null
++++ b/portal/darkshadow.portal
+@@ -0,0 +1,4 @@
++[portal]
++DBusName=org.freedesktop.impl.portal.desktop.darkshadow
++Interfaces=org.freedesktop.impl.portal.FileChooser
++UseIn=Hyprland;hyprland;wlroots;sway;Wayfire;river;
+diff --git a/portal/hyprland-portals.conf b/portal/hyprland-portals.conf
+new file mode 100644
+index 0000000..2422e2f
+--- /dev/null
++++ b/portal/hyprland-portals.conf
+@@ -0,0 +1,3 @@
++[preferred]
++default=hyprland;gtk
++org.freedesktop.impl.portal.FileChooser=darkshadow
+diff --git a/portal/org.freedesktop.impl.portal.desktop.darkshadow.service b/portal/org.freedesktop.impl.portal.desktop.darkshadow.service
+new file mode 100644
+index 0000000..a33fe2e
+--- /dev/null
++++ b/portal/org.freedesktop.impl.portal.desktop.darkshadow.service
+@@ -0,0 +1,3 @@
++[D-BUS Service]
++Name=org.freedesktop.impl.portal.desktop.darkshadow
++Exec=/home/banumath/.local/bin/darkshadow-portal
+diff --git a/portal/portals.conf b/portal/portals.conf
+new file mode 100644
+index 0000000..b16586c
+--- /dev/null
++++ b/portal/portals.conf
+@@ -0,0 +1,3 @@
++[preferred]
++default=gtk
++org.freedesktop.impl.portal.FileChooser=darkshadow
+diff --git a/quickshell/rice-desktop/MediaPick.qml b/quickshell/rice-desktop/MediaPick.qml
+new file mode 100644
+index 0000000..4d041e3
+--- /dev/null
++++ b/quickshell/rice-desktop/MediaPick.qml
+@@ -0,0 +1,43 @@
++pragma Singleton
++import Quickshell
++import Quickshell.Services.Mpris
++import QtQuick
++
++// Prefer the Plasma Browser Integration MPRIS bridge when it is playing: it
++// carries media-session titles, artwork, duration and seek support from the
++// browser extension. A normal playing player still wins over an idle bridge.
++Singleton {
++    id: mediaPick
++
++    function isPlasmaBridge(p) {
++        if (!p) return false
++        const s = (String(p.dbusName || "") + " " + String(p.identity || "") + " " + String(p.desktopEntry || "")).toLowerCase()
++        return s.indexOf("plasma-browser-integration") >= 0
 +    }
-     // what the details pane and Quick look show: the one you clicked last
-     readonly property var focusE: { const _ = sel; const r = selN; return selN === 1 ? (selected()[0] || null) : null }
-     function selSize() { let t = 0; const l = selected(); for (let i = 0; i < l.length; i++) if (!l[i].dir) t += Number(l[i].size) || 0; return t }
-@@ -260,6 +320,11 @@ Item {
-     // ---------------------------------------------------------------- doing things
-     function openE(e, newWin) {
-         if (!e) return
-+        if (portalRequest !== "") {
-+            if (e.dir) { go(e.path); return }
-+            if (portalKind === "save" || portalKind === "savefiles") { portalName = e.name; nameField.text = e.name; return }
-+            portalAccept([e.path]); return
++
++    function rank(p) {
++        if (!p) return -1
++        if (p.isPlaying) return isPlasmaBridge(p) ? 3 : 2
++        return isPlasmaBridge(p) ? 1 : 0
++    }
++
++    // fallback=true keeps the old "show the first player even when paused"
++    // behaviour for panels such as the dock and the music widget.
++    function pick(fallback) {
++        const l = Mpris.players.values
++        let best = null
++        let bestRank = -1
++        let first = null
++        for (let i = 0; i < l.length; i++) {
++            const p = l[i]
++            if (!first) first = p
++            const r = rank(p)
++            if (r > bestRank) {
++                best = p
++                bestRank = r
++            }
 +        }
-         if (e.dir) { if (newWin) Sys.app("files", [e.path]); else if (mode === "trash") return; else go(e.path); return }
-         if (mode === "trash") { quick.show(e); return }
-         Sys.open(e.path)
-@@ -501,13 +566,13 @@ Item {
-         else if (k.key === Qt.Key_Down) { move(cols); k.accepted = true }
-         else if (k.key === Qt.Key_Home) { move(-count); k.accepted = true }
-         else if (k.key === Qt.Key_End) { move(count); k.accepted = true }
--        else if (k.key === Qt.Key_Return || k.key === Qt.Key_Enter) { openSel(); k.accepted = true }
-+        else if (k.key === Qt.Key_Return || k.key === Qt.Key_Enter) { if (portalRequest !== "" && !bar.searching && query === "") portalChoose(); else openSel(); k.accepted = true }
-         else if (k.key === Qt.Key_Space && selN === 1) { quick.show(focusE); k.accepted = true }
-         else if (k.key === Qt.Key_Delete) { if (shift) deleteSel(); else trashSel(); k.accepted = true }
-         else if (k.key === Qt.Key_F2) { renameSel(); k.accepted = true }
-         else if (k.key === Qt.Key_Menu || (shift && k.key === Qt.Key_F10)) { keyMenu(); k.accepted = true }
-         else if (k.key === Qt.Key_F5) { if (model === fm) { const c = cur; cur = ""; cur = c } else reloadList(); loadPlaces(); k.accepted = true }
--        else if (k.key === Qt.Key_Escape) { if (query !== "" || bar.searching) bar.closeSearch(); else clearSel(); k.accepted = true }
-+        else if (k.key === Qt.Key_Escape) { if (portalRequest !== "") portalCancel(); else if (query !== "" || bar.searching) bar.closeSearch(); else clearSel(); k.accepted = true }
-         else if (ctrl && k.key === Qt.Key_A) { selectAll(); k.accepted = true }
-         else if (ctrl && k.key === Qt.Key_C) { clip("copy"); k.accepted = true }
-         else if (ctrl && k.key === Qt.Key_X) { clip("cut"); k.accepted = true }
-@@ -607,10 +672,11 @@ Item {
-         Item {
-             id: status
-             anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
--            height: 40
-+            height: portalRequest !== "" ? 64 : 40
-             T {
-                 x: 20; anchors.verticalCenter: parent.verticalCenter
-                 role: "small"; color: Theme.inkVar
-+                visible: portalRequest === ""
-                 text: files.selN > 0 ? files.plural(files.selN, "item", "items") + " selected" + (files.selSize() > 0 ? " · " + Theme.size(files.selSize()) : "")
-                       : files.plural(files.count, "item", "items") + (files.mode === "folder" ? "" : "")
-             }
-@@ -618,6 +684,7 @@ Item {
-                 anchors.right: parent.right; anchors.rightMargin: 16
-                 anchors.verticalCenter: parent.verticalCenter
-                 spacing: 8
-+                visible: portalRequest === ""
-                 Ic { name: "photo_size_select_small"; size: 16; color: Theme.inkVar; visible: files.view === "grid"; anchors.verticalCenter: parent.verticalCenter }
-                 Slider {
-                     visible: files.view === "grid"
-@@ -627,6 +694,35 @@ Item {
-                     anchors.verticalCenter: parent.verticalCenter
-                 }
-             }
-+            // the Open/Save bar: this is the Files window an app is waiting on
-+            Row {
-+                visible: portalRequest !== ""
-+                anchors.left: parent.left; anchors.leftMargin: 16
-+                anchors.verticalCenter: parent.verticalCenter
-+                spacing: 10
-+                Search {
-+                    id: nameField
-+                    visible: portalKind === "save"
-+                    width: 260
-+                    icon: "edit"
-+                    hint: portalName || "File name"
-+                    text: portalName
-+                    onAccepted: files.portalChoose()
-+                }
-+                T { visible: portalKind !== "save"; role: "small"; color: Theme.inkVar
-+                    text: portalKind === "folder" || portalKind === "savefiles" ? "Current folder: " + cur
-+                          : (portalMultiple ? files.plural(files.selN, "item", "items") + " selected" : (files.selN > 0 ? files.selected()[0].name : "Choose a file")) }
-+            }
-+            Row {
-+                visible: portalRequest !== ""
-+                anchors.right: parent.right; anchors.rightMargin: 16
-+                anchors.verticalCenter: parent.verticalCenter
-+                spacing: 8
-+                Btn { kind: "text"; icon: "close"; text: "Cancel"; onClicked: files.portalCancel() }
-+                Btn { icon: portalKind === "folder" || portalKind === "savefiles" ? "folder_open" : (portalKind === "save" ? "save" : "open_in_new")
-+                      text: portalKind === "folder" || portalKind === "savefiles" ? "Select folder" : (portalKind === "save" ? "Save" : "Open")
-+                      onClicked: files.portalChoose() }
-+            }
-         }
-     }
-     QuickLook { id: quick; fa: files; anchors.fill: parent }
-diff --git a/quickshell/rice-desktop/Bar.qml b/quickshell/rice-desktop/Bar.qml
-index 51a2be4..5d680cc 100644
---- a/quickshell/rice-desktop/Bar.qml
-+++ b/quickshell/rice-desktop/Bar.qml
-@@ -289,11 +289,7 @@ PanelWindow {
-     function goWs(id) { Wm.goWs(id) }
-     function run(cmd) { Quickshell.execDetached(["bash", "-c", cmd]) }
- 
--    function pickPlayer() {
--        const l = Mpris.players.values
--        for (let i = 0; i < l.length; i++) if (l[i].isPlaying) return l[i]
--        return null
--    }
-+    function pickPlayer() { return MediaPick.pick(false) }
-     readonly property var player: pickPlayer()
-     readonly property string track: player ? ((player.trackArtist ? player.trackArtist + " - " : "") + (player.trackTitle || "")) : ""
- 
-diff --git a/quickshell/rice-desktop/ControlCenter.qml b/quickshell/rice-desktop/ControlCenter.qml
-index e4a226b..9903ba7 100644
---- a/quickshell/rice-desktop/ControlCenter.qml
-+++ b/quickshell/rice-desktop/ControlCenter.qml
-@@ -515,13 +515,13 @@ PanelWindow {
-                                     color: gxm.containsMouse ? cc.cardHi : cc.card
-                                     MIcon { anchors.centerIn: parent; size: 16; name: "close"; glyph: ""; color: cc.fg }
-                                     MouseArea { id: gxm; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
--                                        onClicked: { Sfx.play("remove"); const l = grp.modelData.items.slice(); for (const n of l) cc.nf.dismiss(n) } }
-+                                        onClicked: { if (!cc.nf) return; Sfx.play("remove"); const l = grp.modelData.items.slice(); for (const n of l) cc.nf.dismiss(n) } }
-                                 }
-                             }
-                         }
-                         Repeater {
-                             model: grp.many && !grp.opened ? [grp.modelData.items[0]] : grp.modelData.items
--                            delegate: NotifCard { width: grp.width; n: modelData; nf: cc.nf; onClosed: cc.nf.dismiss(modelData) }
-+                            delegate: NotifCard { width: grp.width; n: modelData; nf: cc.nf; onClosed: { if (cc.nf) cc.nf.dismiss(modelData) } }
-                         }
-                         // the stack: the cards under the newest one peek out at its bottom
-                         Item {
-diff --git a/quickshell/rice-desktop/Dock.qml b/quickshell/rice-desktop/Dock.qml
-index 71118b3..98767e0 100644
---- a/quickshell/rice-desktop/Dock.qml
-+++ b/quickshell/rice-desktop/Dock.qml
-@@ -100,11 +100,7 @@ Scope {
-         setApps(l)
-     }
- 
--    function pickPlayer() {
--        const l = Mpris.players.values
--        for (let i = 0; i < l.length; i++) if (l[i].isPlaying) return l[i]
--        return l.length > 0 ? l[0] : null
--    }
-+    function pickPlayer() { return MediaPick.pick(true) }
-     readonly property var player: pickPlayer()
-     // V4.92: the modules (Edit mode > Dock > Modules): "music" is the song that plays, the others are DockMod.qml
-     readonly property var mods: Array.isArray(dc.mods) ? dc.mods : ["music"]
-diff --git a/quickshell/rice-desktop/DynIsland.qml b/quickshell/rice-desktop/DynIsland.qml
-index 2c1abdd..0619c03 100644
---- a/quickshell/rice-desktop/DynIsland.qml
-+++ b/quickshell/rice-desktop/DynIsland.qml
-@@ -813,8 +813,6 @@ Item {
-                     anchors.horizontalCenter: parent.horizontalCenter; y: 6
-                     spacing: 26
-                     Ring { label: "CPU"; value: isl.st.cpu ? isl.st.cpu.usage / 100 : 0; temp: isl.st.cpu ? isl.st.cpu.temp : null }
--                    Ring { label: "GPU"; value: isl.st.gpu && isl.st.gpu.usage !== null ? isl.st.gpu.usage / 100 : 0; temp: isl.st.gpu ? isl.st.gpu.temp : null
--                        none: !isl.st.gpu || isl.st.gpu.usage === null }
-                     Ring { label: "RAM"; value: isl.st.mem ? isl.st.mem.pct / 100 : 0
-                         sub: isl.st.mem ? isl.gb(isl.st.mem.used) + " / " + isl.gb(isl.st.mem.total) : "" }
-                 }
-diff --git a/quickshell/rice-desktop/GamePanel.qml b/quickshell/rice-desktop/GamePanel.qml
-index c9ac88b..000d179 100644
---- a/quickshell/rice-desktop/GamePanel.qml
-+++ b/quickshell/rice-desktop/GamePanel.qml
-@@ -316,13 +316,13 @@ PanelWindow {
-                 }
-                 Text { width: parent.width; elide: Text.ElideRight; text: gp.game; color: gp.dim; font.family: Fonts.main; font.pixelSize: 12 }
- 
--                // ---- CPU and GPU
-+                // ---- CPU and memory dials
-                 Row {
-                     opacity: gp.stg(1); transform: Translate { x: (1 - gp.stg(1)) * -26 }
-                     anchors.horizontalCenter: parent.horizontalCenter
-                     spacing: 18
-                     Ring { name: "CPU"; v: gp.st.cpu; heat: gp.st.temp }
--                    Ring { name: "GPU"; v: gp.st.gpu; heat: gp.st.gtemp; na: !gp.haveGpu }
-+                    Ring { name: Tr.t("Memory"); v: gp.st.ram; heat: 0; na: gp.st.ram === undefined }
-                 }
- 
-                 // ---- FPS
-diff --git a/quickshell/rice-desktop/Player.qml b/quickshell/rice-desktop/Player.qml
-index 63de7dd..63a03df 100644
---- a/quickshell/rice-desktop/Player.qml
-+++ b/quickshell/rice-desktop/Player.qml
-@@ -12,11 +12,8 @@ Singleton {
-     function hold() { users++ }
-     function release() { users = Math.max(0, users - 1) }
-     readonly property bool running: users > 0
--    function pick() {
--        const l = Mpris.players.values
--        for (let i = 0; i < l.length; i++) if (l[i].isPlaying) return l[i]
--        return l.length > 0 ? l[0] : null
--    }
-+    // Plasma Browser Integration is preferred when it is the active player.
-+    function pick() { return MediaPick.pick(true) }
-     readonly property var p: pick()
-     readonly property bool has: p !== null
-     readonly property bool playing: p ? p.isPlaying : false
-diff --git a/quickshell/rice-desktop/VBar.qml b/quickshell/rice-desktop/VBar.qml
-index 6c56497..85e065b 100644
---- a/quickshell/rice-desktop/VBar.qml
-+++ b/quickshell/rice-desktop/VBar.qml
-@@ -150,7 +150,7 @@ PanelWindow {
-     }
- 
-     // ---------- what it shows ----------
--    readonly property var player: { const l = Mpris.players.values; for (let i = 0; i < l.length; i++) if (l[i].isPlaying) return l[i]; return l.length ? l[0] : null }
-+    readonly property var player: MediaPick.pick(true)
-     readonly property var sink: Pipewire.defaultAudioSink
-     PwObjectTracker { objects: [vb.sink] }
-     readonly property real vol: Vol.of(sink)
-diff --git a/quickshell/rice-lockscreen/LockPlayer.qml b/quickshell/rice-lockscreen/LockPlayer.qml
-index cf91da4..7c849c5 100644
---- a/quickshell/rice-lockscreen/LockPlayer.qml
-+++ b/quickshell/rice-lockscreen/LockPlayer.qml
-@@ -6,11 +6,8 @@ import QtQuick
- QtObject {
-     id: pl
-     property bool running: true
--    function pick() {
--        const l = Mpris.players.values
--        for (let i = 0; i < l.length; i++) if (l[i].isPlaying) return l[i]
--        return l.length > 0 ? l[0] : null
--    }
-+    // Prefer Plasma Browser Integration media on the lock screen too.
-+    function pick() { return MediaPick.pick(true) }
-     readonly property var p: pick()
-     readonly property bool has: p !== null
-     readonly property bool playing: p ? p.isPlaying : false
-diff --git a/quickshell/rice-settings/WallpaperPage.qml b/quickshell/rice-settings/WallpaperPage.qml
-index d0c4761..4d5d213 100644
---- a/quickshell/rice-settings/WallpaperPage.qml
-+++ b/quickshell/rice-settings/WallpaperPage.qml
-@@ -35,6 +35,10 @@ Item {
-         stdout: StdioCollector { onStreamFinished: { const d = text.trim(); if (d) page.walls(["folder", "add", d], I18n.t("Folder added")) } }
-     }
-     function home(p) { return (p || "").replace(Quickshell.env("HOME"), "~") }
-+    function openFolder(p) {
-+        if (!p) return
-+        Quickshell.execDetached(["bash", "-c", "\"$HOME/.local/bin/rice-app\" files \"$1\"", "_", p])
++        if (bestRank > 0) return best
++        return fallback ? first : null
 +    }
-     readonly property bool liveOn: (st.live && st.live.now) ? true : false
-     Process {
-         id: wallsProc
-@@ -115,7 +119,7 @@ Item {
-                     spacing: 8
-                     Btn { text: I18n.t("Surprise me"); sym: "shuffle"; icon: ""; primary: true; onClicked: page.randomWall() }
-                     Btn { text: I18n.t("Theme"); sym: "palette"; icon: ""; onClicked: page.ctl.page = 8 }
--                    Btn { text: I18n.t("Folder"); sym: "folder_open"; icon: ""; onClicked: if (page.w.dir) Quickshell.execDetached(["xdg-open", page.w.dir]) }
-+                    Btn { text: I18n.t("Folder"); sym: "folder_open"; icon: ""; onClicked: page.openFolder(page.w.dir) }
-                 }
-             }
-             // a live wallpaper plays now
-@@ -374,7 +378,7 @@ Item {
-                 Row {
-                     anchors.right: parent.right; anchors.rightMargin: 12; anchors.verticalCenter: parent.verticalCenter
-                     spacing: 8
--                    Btn { text: I18n.t("Open"); sym: "folder_open"; icon: ""; variant: "text"; onClicked: Quickshell.execDetached(["xdg-open", modelData.path]) }
-+                    Btn { text: I18n.t("Open"); sym: "folder_open"; icon: ""; variant: "text"; onClicked: page.openFolder(modelData.path) }
-                     Btn { visible: modelData.from === "yours"; text: I18n.t("Remove"); sym: "close"; icon: ""
-                         onClicked: page.walls(["folder", "remove", modelData.path], I18n.t("Folder removed")) }
-                 }
++}

@@ -74,20 +74,5 @@ in
         }) // {
             plymouth-quit.serviceConfig.ExecStartPre = [ "${splashWait}" ];
         };
-
-        home-manager.users.${config.btechos.user.name} =
-            { lib, ... }:
-            {
-                # Copy the shell's current wallpaper into the flake so the next
-                # rebuild tints the splash from exactly what is on screen. The
-                # state file is always a still image, even for live wallpapers.
-                home.activation.btechosPlymouthWallpaper = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-                    state="$HOME/.cache/hyprquickpaper-current"
-                    [ -f "$state" ] || return 0
-                    picture=$(cat "$state")
-                    [ -f "$picture" ] || return 0
-                    cp -f "$picture" "${config.btechos.flake}/wallpapers/current.jpg" 2>/dev/null || true
-                '';
-            };
     };
 }
