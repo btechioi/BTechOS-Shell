@@ -1,0 +1,19 @@
+--- a/quickshell/rice-desktop/NotifCard.qml
++++ b/quickshell/rice-desktop/NotifCard.qml
+@@ -23,8 +23,14 @@
+     // "dialog-information") is resolved by Quickshell into a broken 256px
+     // image, which paints a magenta/black checkerboard in the card.
+     readonly property string img: {
+-        const v = n && n.image && (!nf || nf.images) ? String(n.image) : ""
+-        return v.indexOf("/") === 0 || v.indexOf("file:") === 0 || v.indexOf("image://") === 0 ? v : ""
++        const isPath = function(v) { const s = String(v || ""); return s.indexOf("/") === 0 || s.indexOf("file:") === 0 || s.indexOf("image://") === 0 }
++        const fromImage = n && n.image && (!nf || nf.images) ? String(n.image) : ""
++        // Screenshots arrive via notify-send -i FILE, which Quickshell puts in
++        // appIcon rather than image — show that real file as the large preview.
++        const fromIcon = n && n.appIcon ? String(n.appIcon) : ""
++        if (isPath(fromImage)) return fromImage
++        if (isPath(fromIcon)) return fromIcon
++        return ""
+     }
+     implicitHeight: body.implicitHeight + 30
+     height: implicitHeight

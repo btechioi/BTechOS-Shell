@@ -96,7 +96,13 @@ in
         "i915.enable_psr=1"
         "intel_pstate=active"
     ];
-    services.thermald.enable = lib.mkDefault (config.btechos.gpu == "intel" || config.btechos.gpu == "auto");
+    # thermald: adaptive mode (DPTF tables) already throttles by temperature;
+    # power-profiles-daemon still owns the performance/saver choice from the
+    # shell. thermald only acts on heat, so the two do not fight.
+    services.thermald = lib.mkIf (config.btechos.gpu == "intel" || config.btechos.gpu == "auto") {
+        enable = true;
+        configFile = null; # --adaptive
+    };
     hardware.graphics.enable = lib.mkDefault true;
     hardware.graphics.extraPackages = lib.optionals (config.btechos.gpu == "intel" || config.btechos.gpu == "auto") (with pkgs; [
         intel-media-driver intel-vaapi-driver libva-vdpau-driver vpl-gpu-rt
