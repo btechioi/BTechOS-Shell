@@ -33,8 +33,12 @@ let
         patch -p1 --forward < ${patch}
     '';
 
-    scripts = [ "darkshadow-portal" "rice-app" "rice-apps-helper" "rice-hotcorner"
-        "rice-dashboard" "rice-desktop" "rice-idle-guard" "rice-lock" "rice-media" "rice-sddm" "rice-stats" "rice-theme" ];
+    # Every binary the shell ships: keybinds and QML call many of these, so a
+    # short list left the other machine with keybinds that did nothing.
+    scripts = let
+        dir = ../patches/darkshadow;
+    in lib.mapAttrsToList (name: _: name)
+        (builtins.readDir "${inputs.darkshadowShell.outPath}/bin");
 
     # Install every file under quickshell/ from the shell source, so a new QML
     # type added in a version bump (e.g. ScreenFrame.qml in V6.82) is never
