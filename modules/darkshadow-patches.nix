@@ -31,7 +31,6 @@ let
         chmod -R u+w $out
         cd $out
         patch -p1 --forward < ${patch}
-        patch -p1 --forward < ${../patches/darkshadow/busy-screen.patch}
     '';
 
     scripts = [ "darkshadow-portal" "rice-app" "rice-apps-helper" "rice-hotcorner"
