@@ -184,14 +184,11 @@ in
                 }
                 install_code() {
                     target="$HOME/$2"
-                    # Replace a Home Manager symlink, but keep real user data.
-                    if [ -L "$target" ] || [ ! -e "$target" ]; then
-                        rm -f "$target"
-                        mkdir -p "$(dirname "$target")"
-                        cp "$1" "$target"
-                    else
-                        cp "$1" "$target"
-                    fi
+                    # The shell installs its scripts read-only (0444/0555), so
+                    # cp cannot write over them: remove first, then copy.
+                    mkdir -p "$(dirname "$target")"
+                    rm -f "$target"
+                    cp "$1" "$target"
                 }
                 ${lib.concatMapStringsSep "\n" (pair:
                     "install_code ${lib.escapeShellArg pair.src} ${lib.escapeShellArg pair.dst}")
