@@ -49,6 +49,23 @@ let
             }))
         ];
 
+    # DarkShadowShell's Hyprland Lua config and its rice-* modules. Home Manager
+    # owns hypridle.conf/hyprlock.conf, so only the Lua files are installed here;
+    # user.lua is a user file and stays copy-if-missing.
+    allHyprLuaFiles =
+        lib.pipe (lib.filesystem.listFilesRecursive inputs.darkshadowShell)
+        [
+            (lib.filter (p:
+                let s = builtins.toString p; in
+                lib.hasSuffix ".lua" s && (
+                    lib.hasPrefix "${inputs.darkshadowShell.outPath}/config/hypr/" s ||
+                    lib.hasPrefix "${inputs.darkshadowShell.outPath}/lua/" s)))
+            (map (p: {
+                src = "${patched}/${lib.removePrefix "${inputs.darkshadowShell.outPath}/" (builtins.toString p)}";
+                dst = ".config/hypr/${builtins.baseNameOf (builtins.toString p)}";
+            }))
+        ];
+
     scriptPackage = pkgs.runCommand "darkshadow-patched-scripts" { } ''
         mkdir -p $out/bin
         ${lib.concatMapStringsSep "\n" (n: "install -Dm0755 ${patched}/bin/${n} $out/bin/${n}") scripts}
@@ -100,7 +117,7 @@ let
 
     # Patched code (scripts, QML, portal config): always reinstall so fixes and
     # new patches actually reach the running shell. These are not user settings.
-    codeFiles = allQuickshellFiles ++ lib.concatMap
+    codeFiles = allQuickshellFiles ++ allHyprLuaFiles ++ lib.concatMap
         (pairs: lib.map (pair: {
             src = "${patched}/${builtins.elemAt pair 0}";
             dst = builtins.elemAt pair 1;
