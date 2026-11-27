@@ -189,8 +189,7 @@ in
                 if [ "$(cat "$stamp" 2>/dev/null || true)" != "$want" ]; then
                     mkdir -p "$(dirname "$stamp")"
                     printf '%s\n' "$want" > "$stamp"
-                    if [ -x "$HOME/.local/bin/rice-desktop" ] \\
-                        && "$HOME/.local/bin/rice-desktop" status >/dev/null 2>&1; then
+                    if [ -x "$HOME/.local/bin/rice-desktop" ] && "$HOME/.local/bin/rice-desktop" status >/dev/null 2>&1; then
                         setsid -f "$HOME/.local/bin/rice-desktop" restart >/dev/null 2>&1 </dev/null &
                     fi
                 fi
