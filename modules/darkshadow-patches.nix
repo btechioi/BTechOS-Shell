@@ -123,9 +123,22 @@ let
         ]
     ];
 
+    # Assets from the shell's install.sh that are not user settings: sounds,
+    # app icon and pinned download hashes. Installed through Nix so no separate
+    # ./install.sh run is needed.
+    allAssetFiles =
+        (lib.map (p: {
+            src = "${patched}/sounds/${builtins.baseNameOf (builtins.toString p)}";
+            dst = ".local/share/rice/sounds/${builtins.baseNameOf (builtins.toString p)}";
+        }) (lib.filesystem.listFilesRecursive "${inputs.darkshadowShell.outPath}/sounds"))
+        ++ [
+            { src = "${patched}/assets/icon.png"; dst = ".local/share/rice/icon.png"; }
+            { src = "${patched}/install/checksums.txt"; dst = ".local/share/rice/checksums.txt"; }
+        ];
+
     # Patched code (scripts, QML, portal config): always reinstall so fixes and
     # new patches actually reach the running shell. These are not user settings.
-    codeFiles = allQuickshellFiles ++ allHyprLuaFiles ++ lib.concatMap
+    codeFiles = allAssetFiles ++ allQuickshellFiles ++ allHyprLuaFiles ++ lib.concatMap
         (pairs: lib.map (pair: {
             src = "${patched}/${builtins.elemAt pair 0}";
             dst = builtins.elemAt pair 1;
@@ -248,6 +261,12 @@ in
                 # only create it when missing, from the saved settings.
                 if [ ! -f "$HOME/.config/hypr/rice-settings.lua" ] && [ -x "$HOME/.local/bin/hypr-set" ]; then
                     "$HOME/.local/bin/hypr-set" regen >/dev/null 2>&1 || true
+                fi
+
+                # Register DarkShadow's own apps (Files, Photos, Music, Videos) in
+                # the desktop menu — install.sh does this once; keep it in Nix.
+                if [ -x "$HOME/.local/bin/rice-app" ]; then
+                    "$HOME/.local/bin/rice-app" install >/dev/null 2>&1 || true
                 fi
 
                 # Old installs have the plain Adwaita theme; move them to adw-gtk3
