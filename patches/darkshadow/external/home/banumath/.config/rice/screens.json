@@ -1,4 +1,5 @@
 {
  "main": "DP-2",
- "widgets": "eDP-1"
+ "widgets": "eDP-1",
+ "bar_all": true
 }
