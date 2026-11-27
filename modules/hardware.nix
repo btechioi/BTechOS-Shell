@@ -57,6 +57,13 @@ in
     security.pam.services = lib.genAttrs [ "sudo" "su" "login" "polkit-1" "greetd" ] skipFingerprint //
     {
         hyprlock.fprintAuth = false;
+        # Unlock the login keyring with the account password at every login.
+        # SDDM's PAM stack substacks the `login` service, so both are needed;
+        # hyprlock and sudo unlock it too when they ask for the same password.
+        login.enableGnomeKeyring = true;
+        sddm.enableGnomeKeyring = true;
+        hyprlock.enableGnomeKeyring = true;
+        sudo.enableGnomeKeyring = true;
         greetd.enableGnomeKeyring = true;
     };
     zramSwap.enable = lib.mkDefault true;

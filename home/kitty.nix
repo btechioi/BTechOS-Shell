@@ -26,7 +26,12 @@ in
 			dynamic_background_opacity = true;
 		};
 
-		extraConfig = "geninclude ${glass}";
+		# matugen (DarkShadow's dynamic theming) writes current-theme.conf on
+		# every wallpaper/colour change and reloads kitty with SIGUSR1.
+		extraConfig = ''
+			include current-theme.conf
+			geninclude ${glass}
+		'';
 
 		keybindings =
 		{
