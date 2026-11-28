@@ -236,6 +236,14 @@ in
             # Create the shell's files once, but never overwrite what
             # DarkShadowShell (or the user, through its Settings app) changed.
             home.activation.btechosDarkshadowConfigs = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+                # Stop the shell before replacing QML files: quickshell scans the
+                # directory live and a half-replaced set makes every type look
+                # "unavailable". The restart block below brings it back.
+                shell_was_running=0
+                if [ -x "$HOME/.local/bin/rice-desktop" ] && "$HOME/.local/bin/rice-desktop" status >/dev/null 2>&1; then
+                    shell_was_running=1
+                    "$HOME/.local/bin/rice-desktop" stop >/dev/null 2>&1 || true
+                fi
                 copy_if_missing() {
                     [ -e "$HOME/$2" ] || [ -L "$HOME/$2" ] && return 0
                     mkdir -p "$(dirname "$HOME/$2")"
@@ -297,18 +305,20 @@ in
                         sed -i 's/^gtk-theme-name=Adwaita-dark$/gtk-theme-name=adw-gtk3-dark/' "$f"
                 done
             '';
-            # A rebuild can change the patched shell files. Restart the running
-            # shell once so the new QML/scripts take effect, but only when the
-            # patched tree actually changed (a plain login does not restart it).
+            # Bring the shell back after the file swap. If it was running when
+            # we stopped it, always restart; otherwise only restart when the
+            # patched tree changed (e.g. the shell was down but the patch moved).
             home.activation.btechosDarkshadowRestart = lib.hm.dag.entryAfter [ "btechosDarkshadowConfigs" ] ''
                 stamp="$HOME/.cache/btechos/darkshadow-shell-rev"
                 want="${patched}"
+                changed=0
                 if [ "$(cat "$stamp" 2>/dev/null || true)" != "$want" ]; then
                     mkdir -p "$(dirname "$stamp")"
                     printf '%s\n' "$want" > "$stamp"
-                    if [ -x "$HOME/.local/bin/rice-desktop" ] && "$HOME/.local/bin/rice-desktop" status >/dev/null 2>&1; then
-                        setsid -f "$HOME/.local/bin/rice-desktop" restart >/dev/null 2>&1 </dev/null &
-                    fi
+                    changed=1
+                fi
+                if [ -x "$HOME/.local/bin/rice-desktop" ] && { [ "''${shell_was_running:-0}" = 1 ] || [ "$changed" = 1 ]; }; then
+                    setsid -f "$HOME/.local/bin/rice-desktop" start >/dev/null 2>&1 </dev/null &
                 fi
             '';
             # DarkShadow owns the look: stop home-manager from writing GTK files
