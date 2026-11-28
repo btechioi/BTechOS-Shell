@@ -2,6 +2,7 @@
 { config, lib, pkgs, inputs, ... }:
 let
     user = config.btechos.user.name;
+    fonts = config.btechos.tokens.fonts;
     agent = "${inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.hyprpolkitagent}/libexec/hyprpolkitagent";
 
     # hyprtoolkit.conf keys, from the shell's matugen palette (material colours).
@@ -28,16 +29,17 @@ let
             accent = $(hex primary)
             accent_secondary = $(hex tertiary)
 
-            font_family = Inter
-            font_family_monospace = JetBrains Mono
+            font_family = ${fonts.sans}
+            font_family_monospace = ${fonts.code}
             font_size = 11
             small_font_size = 10
             h1_size = 19
             h2_size = 15
             h3_size = 13
 
-            rounding_large = 0
-            rounding_small = 0
+            # Match the shell's rounded windows and buttons (12px).
+            rounding_large = ${toString config.btechos.tokens.windows.rounding}
+            rounding_small = ${toString (config.btechos.tokens.windows.rounding / 2)}
             EOF
             if [ -f "$out" ] && cmp -s "$tmp" "$out"; then
                 rm -f "$tmp"
