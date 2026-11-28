@@ -129,7 +129,7 @@ in
                 description = "Tint Plymouth from this machine's live wallpaper";
                 serviceConfig = {
                     Type = "oneshot";
-                    ExecStart = syncWallpaper;
+                    ExecStart = "${syncWallpaper}/bin/btechos-plymouth-wallpaper";
                     TimeoutStartSec = 1800;
                 };
             };
