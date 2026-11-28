@@ -136,9 +136,17 @@ let
             { src = "${patched}/install/checksums.txt"; dst = ".local/share/rice/checksums.txt"; }
         ];
 
+    # matugen templates: the color engine needs these to write palette.json,
+    # kitty/waybar/btop colors and border colors on every wallpaper change.
+    allMatugenTemplates =
+        lib.map (p: {
+            src = "${patched}/${lib.removePrefix "${inputs.darkshadowShell.outPath}/" (builtins.toString p)}";
+            dst = ".config/matugen/templates/${builtins.baseNameOf (builtins.toString p)}";
+        }) (lib.filesystem.listFilesRecursive "${inputs.darkshadowShell.outPath}/config/matugen/templates");
+
     # Patched code (scripts, QML, portal config): always reinstall so fixes and
     # new patches actually reach the running shell. These are not user settings.
-    codeFiles = allAssetFiles ++ allQuickshellFiles ++ allHyprLuaFiles ++ lib.concatMap
+    codeFiles = allAssetFiles ++ allQuickshellFiles ++ allHyprLuaFiles ++ allMatugenTemplates ++ lib.concatMap
         (pairs: lib.map (pair: {
             src = "${patched}/${builtins.elemAt pair 0}";
             dst = builtins.elemAt pair 1;
@@ -294,6 +302,18 @@ in
                 # the desktop menu — install.sh does this once; keep it in Nix.
                 if [ -x "$HOME/.local/bin/rice-app" ]; then
                     "$HOME/.local/bin/rice-app" install >/dev/null 2>&1 || true
+                fi
+
+                # Regenerate the color files from the wallpaper the shell is
+                # showing if the palette is missing or older than the wallpaper.
+                wall="$HOME/.cache/hyprquickpaper-current"
+                palette="$HOME/.config/rice/palette.json"
+                if [ -f "$wall" ] && { [ -x "$HOME/.local/bin/matugen" ] || command -v matugen >/dev/null 2>&1; }; then
+                    if [ ! -f "$palette" ] || [ "$palette" -ot "$wall" ]; then
+                        matugen image "$(cat "$wall")" --source-color-index 0 -q \
+                            -c "$HOME/.config/matugen/config.toml" </dev/null >/dev/null 2>&1 || true
+                        [ -x "$HOME/.local/bin/rice-theme" ] && "$HOME/.local/bin/rice-theme" sync >/dev/null 2>&1 || true
+                    fi
                 fi
 
                 # Old installs have the plain Adwaita theme; move them to adw-gtk3
