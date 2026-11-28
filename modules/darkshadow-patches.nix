@@ -272,6 +272,16 @@ in
                     "$HOME/.local/bin/hypr-set" regen >/dev/null 2>&1 || true
                 fi
 
+                # Let rice-lock own the lock screen. Its hyprlock.conf is the
+                # fallback when the Quickshell lock screen cannot lock; after a
+                # switch Home Manager may have left the old NIHIL BTechOS lock
+                # file there, so replace it with rice-lock's generated one.
+                # Only replace files that still carry the old NIHIL markers.
+                if [ -x "$HOME/.local/bin/rice-lock" ] && grep -qE 'state/btechos|hyprlock-look' "$HOME/.config/hypr/hyprlock.conf" 2>/dev/null; then
+                    rm -f "$HOME/.config/hypr/hyprlock.conf"
+                    "$HOME/.local/bin/rice-lock" apply >/dev/null 2>&1 || true
+                fi
+
                 # Register DarkShadow's own apps (Files, Photos, Music, Videos) in
                 # the desktop menu — install.sh does this once; keep it in Nix.
                 if [ -x "$HOME/.local/bin/rice-app" ]; then

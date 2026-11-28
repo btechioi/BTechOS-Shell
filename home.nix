@@ -16,7 +16,7 @@
 		./home/viewers.nix
 		# ./home/wallpaper.nix  # replaced by DarkShadowShell
 		./home/hypridle.nix
-		./home/hyprlock.nix
+		# ./home/hyprlock.nix  # replaced by DarkShadow's rice-lock
 		./home/zen.nix
 		./home/bluetooth.nix
 		./home/cli.nix
