@@ -44,6 +44,13 @@ let
         cd $out
         patch -p1 --forward < ${patch}
 
+        # Minecraft's class here is com.mojang.minecraft, not the bare
+        # Minecraft the shell's game regex looks for; add it so the gaming
+        # workspace rule recognises it.
+        if [ -f bin/rice-rules ]; then
+            sed -i 's#[[]Mm[]]inecraft#com[.]mojang[.]minecraft|[Mm]inecraft#' bin/rice-rules
+        fi
+
         # Thunar's own .desktop has no NoDisplay, and Quickshell can pick up
         # that system copy over our hidden user copy. Leave it out of the
         # launcher and the dock by desktop id instead.

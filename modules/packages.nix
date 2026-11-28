@@ -29,6 +29,12 @@ in
         matugen
         imagemagick
 
+        # Game mode: MangoHud's FPS log feeds the shell's game bar, and
+        # gamemode gives games the daemon's performance tweaks when launched
+        # with `gamemoderun`.
+        mangohud
+        gamemode
+
         # Dev tooling
         uv
         fnm
