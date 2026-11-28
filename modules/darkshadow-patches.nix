@@ -31,6 +31,16 @@ let
         chmod -R u+w $out
         cd $out
         patch -p1 --forward < ${patch}
+
+        # The shell binds SUPER + Q, + R, + E etc. with capital letters, but
+        # Hyprland receives lowercase keysyms when Shift is not held: those
+        # binds never fire. The Settings keymap (rice-keymap.lua) already uses
+        # lowercase for the same actions, so lowercase the base binds too.
+        # Lines with SHIFT are left alone: SHIFT + V means the capital key.
+        for f in lua/*.lua config/hypr/*.lua; do
+            [ -f "$f" ] || continue
+            sed -i -E '/hl\.(bind|unbind)/{/SHIFT/! s/(\+ *)([A-Z])(")/\1\L\2\E\3/g}' "$f"
+        done
     '';
 
     # Every binary the shell ships: keybinds and QML call many of these, so a
