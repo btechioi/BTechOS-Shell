@@ -5,7 +5,7 @@
 
 	btechos.flake = "/home/banumath/BTechOS";
 
-	users.users.banumath.extraGroups = [ "input" "dialout" "uinput" ];
+	users.users.banumath.extraGroups = [ "input" "dialout" ];
 
 	btechos.darkshadow.enable = true;
 	btechos.darkshadow.user = config.btechos.user.name;
@@ -19,11 +19,9 @@
 	# Keep the machine's own disk layout and input device.
 	fileSystems = lib.genAttrs [ "/" "/home" "/nix" "/var/log" ] (_: { options = [ "compress=zstd" "noatime" ]; });
 	services.btrfs.autoScrub = { enable = true; fileSystems = [ "/" ]; };
-	hardware.uinput.enable = true;
 	hardware.amdgpu.initrd.enable = true;
 
-	# Open the KVM port and keep the PC's wired static address.
-	networking.firewall.allowedTCPPorts = [ 24850 ];
+	# Wired static address.
 	networking.networkmanager.ensureProfiles.profiles."btechos-wired" = {
 		connection = {
 			id = "btechos-wired";

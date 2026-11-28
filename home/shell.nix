@@ -84,8 +84,6 @@ let
 		shot = "${profile}/btechos-shot";
 		xdgUserDir = "${pkgs.xdg-user-dirs}/bin/xdg-user-dir";
 		hyprctl = "${osConfig.programs.hyprland.package}/bin/hyprctl";
-		hyprkvm = "/run/current-system/sw/bin/hyprkvm";
-		hyprkvmCtl = "/run/current-system/sw/bin/hyprkvm-ctl";
 		sudo = "/run/wrappers/bin/sudo";
 		btechos = "/run/current-system/sw/bin/btechos";
 		timedatectl = "${pkgs.systemd}/bin/timedatectl";
