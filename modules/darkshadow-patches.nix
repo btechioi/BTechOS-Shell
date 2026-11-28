@@ -256,6 +256,9 @@ in
                     [ -e "$HOME/$2" ] || [ -L "$HOME/$2" ] && return 0
                     mkdir -p "$(dirname "$HOME/$2")"
                     cp "$1" "$HOME/$2"
+                    # The shell and matugen rewrite these settings at runtime;
+                    # a Nix-store copy is 444 and would block them forever.
+                    chmod u+w "$HOME/$2"
                 }
                 install_code() {
                     target="$HOME/$2"
@@ -309,6 +312,9 @@ in
                 wall="$HOME/.cache/hyprquickpaper-current"
                 palette="$HOME/.config/rice/palette.json"
                 if [ -f "$wall" ] && { [ -x "$HOME/.local/bin/matugen" ] || command -v matugen >/dev/null 2>&1; }; then
+                    # Old installs copied palette.json from the Nix store as 444;
+                    # make it writable so matugen can refresh it.
+                    [ -f "$palette" ] && chmod u+w "$palette" 2>/dev/null || true
                     if [ ! -f "$palette" ] || [ "$palette" -ot "$wall" ]; then
                         matugen image "$(cat "$wall")" --source-color-index 0 -q \
                             -c "$HOME/.config/matugen/config.toml" </dev/null >/dev/null 2>&1 || true
