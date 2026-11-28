@@ -41,6 +41,11 @@ let
             [ -f "$f" ] || continue
             sed -i -E '/hl\.(bind|unbind)/{/SHIFT/! s/(\+ *)([A-Z])(")/\1\L\2\E\3/g}' "$f"
         done
+        # Infinite Desktop binds RI.keys.key_toggle later, so its key is not
+        # on an hl.bind line and needs lowercasing here too.
+        if [ -f lua/rice-infinite.lua ]; then
+            sed -i 's/key_toggle = "SUPER + F"/key_toggle = "SUPER + f"/' lua/rice-infinite.lua
+        fi
     '';
 
     # Every binary the shell ships: keybinds and QML call many of these, so a
