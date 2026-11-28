@@ -29,6 +29,9 @@
             user = config.btechos.darkshadow.user;
             inputGroup = true;
             sddm = false;
+            # Hyprland is the session here; niri (and its gammastep night
+            # light) is not used, so don't install it.
+            niri = false;
         };
     };
 }

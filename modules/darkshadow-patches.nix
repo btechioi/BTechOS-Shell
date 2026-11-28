@@ -32,6 +32,14 @@ let
         cd $out
         patch -p1 --forward < ${patch}
 
+        # Thunar's own .desktop has no NoDisplay, and Quickshell can pick up
+        # that system copy over our hidden user copy. Leave it out of the
+        # launcher and the dock by desktop id instead.
+        for f in quickshell/rice-desktop/Launcher.qml quickshell/rice-desktop/DockApps.qml; do
+            [ -f "$f" ] || continue
+            sed -i 's|return !e.noDisplay })|return !e.noDisplay \&\& e.id !== "thunar-settings.desktop" })|g' "$f"
+        done
+
         # The shell binds SUPER + Q, + R, + E etc. with capital letters, but
         # Hyprland receives lowercase keysyms when Shift is not held: those
         # binds never fire. The Settings keymap (rice-keymap.lua) already uses
@@ -229,8 +237,7 @@ in
             pkgs.cliphist
             pkgs.wtype
             pkgs.socat
-            pkgs.rofi
-            pkgs.cmatrix
+                pkgs.cmatrix
             pkgs.glib
             pkgs.gtk3
             pkgs.desktop-file-utils
