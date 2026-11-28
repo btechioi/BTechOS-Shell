@@ -4,7 +4,7 @@
 	system.stateVersion = "26.05";
 
 	# `btechos rebuild` / `btechos update` operate on this checkout, like the old
-	# `nihil rebuild` did on /etc/nixos.
+	# `btechos rebuild` did on /etc/nixos.
 	btechos.flake = "/home/banumath/BTechOS";
 
 	users.users.banumath.extraGroups = [ "input" "dialout" "uinput" ];

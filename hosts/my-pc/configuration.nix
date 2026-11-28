@@ -24,9 +24,9 @@
 
 	# Open the KVM port and keep the PC's wired static address.
 	networking.firewall.allowedTCPPorts = [ 24850 ];
-	networking.networkmanager.ensureProfiles.profiles."nihil-wired" = {
+	networking.networkmanager.ensureProfiles.profiles."btechos-wired" = {
 		connection = {
-			id = "nihil-wired";
+			id = "btechos-wired";
 			uuid = "970f961d-d241-42da-a7cf-1354b9cbf140";
 			type = "ethernet";
 			"interface-name" = "enp2s0";
