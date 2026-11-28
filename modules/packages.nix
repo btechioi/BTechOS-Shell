@@ -12,7 +12,6 @@ in
         wget
         git
         unzip
-        lxqt.lxqt-policykit
         fastfetch
         btop
         brightnessctl

@@ -18,6 +18,7 @@
         ./desktop.nix
         ./storage.nix
         ./nix.nix
+        ./polkit-agent.nix
         ./plymouth.nix
         ./boot-sound.nix
         ./direnv.nix
