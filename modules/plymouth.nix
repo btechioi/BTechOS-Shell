@@ -51,7 +51,7 @@ let
     # completely alone.
     syncWallpaper = pkgs.writeShellApplication {
         name = "btechos-plymouth-wallpaper";
-        runtimeInputs = [ pkgs.coreutils pkgs.util-linux ];
+        runtimeInputs = [ pkgs.coreutils pkgs.diffutils pkgs.util-linux ];
         text = ''
             set -eu
             cache=${lib.escapeShellArg wallpaperCache}
