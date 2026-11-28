@@ -8,6 +8,18 @@ let
     cfg = config.btechos.darkshadow.patches;
     user = config.btechos.user.name;
 
+    # The shell's Settings app saves monitors in ~/.config/rice/hypr.json.
+    # home/hyprland.nix (which used to write monitor rules from btechos.outputs)
+    # is disabled in favour of DarkShadowShell, so seed these values once for a
+    # fresh setup. Saved choices in Settings are never overwritten.
+    defaultMonitors = lib.mapAttrs (name: o: {
+        mode = o.mode;
+        position = o.position;
+        scale = o.scale;
+        transform = o.transform;
+        disabled = false;
+    }) config.btechos.outputs;
+
     src = inputs.darkshadowShell.outPath or null;
     version = if src == null then "" else lib.trim (builtins.readFile "${src}/VERSION");
     # One combined patch per supported base: custom portal/theme/media changes,
@@ -296,6 +308,26 @@ in
                 ${lib.concatMapStringsSep "\n" (pair:
                     "copy_if_missing ${lib.escapeShellArg pair.src} ${lib.escapeShellArg pair.dst}")
                     configCopies}
+
+                # Give a fresh install this host's monitor layout (scale
+                # included). Only fill an empty monitors object: anything the
+                # user saved in Settings stays exactly as it is.
+                hyprjson="$HOME/.config/rice/hypr.json"
+                if [ -f "$hyprjson" ]; then
+                    defs=${lib.escapeShellArg (builtins.toJSON defaultMonitors)}
+                    tmp="$hyprjson.btechos.tmp"
+                    if ${pkgs.jq}/bin/jq --argjson defs "$defs" \
+                        'if (.monitors | length) == 0 then .monitors = $defs else . end' \
+                        "$hyprjson" > "$tmp"; then
+                        if ! ${pkgs.coreutils}/bin/cmp -s "$tmp" "$hyprjson"; then
+                            ${pkgs.coreutils}/bin/mv -f "$tmp" "$hyprjson"
+                            [ -x "$HOME/.local/bin/hypr-set" ] && \
+                                "$HOME/.local/bin/hypr-set" regen >/dev/null 2>&1 || true
+                        else
+                            rm -f "$tmp"
+                        fi
+                    fi
+                fi
 
                 # install.sh substitutes @HOME@/@USER@ in the shipped configs;
                 # our Nix copy must do the same or keybind commands (Super+Shift+S
