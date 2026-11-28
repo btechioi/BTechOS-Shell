@@ -58,14 +58,26 @@ let
             pkgs.util-linux pkgs.openssh pkgs.xkbvalidate config.systemd.package config.nix.package ];
         text = ''
             flake=''${BTechOS_FLAKE:-${flake}}
-            # Multi-host: settings.json lives in hosts/<name>/, not at the flake root.
-            settings="$flake/settings.json"
-            if [ ! -f "$settings" ]; then
+            # Multi-host: settings.json lives in hosts/<name>/. Pick the one
+            # whose host.name is this machine, never the first one in the glob.
+            me=''${BTechOS_HOST:-$(uname -n)}
+            settings=""
+            if [ -f "$flake/settings.json" ] && [ "$(jq -r '.host.name // empty' "$flake/settings.json" 2>/dev/null)" = "$me" ]; then
+                settings="$flake/settings.json"
+            elif [ -f "$flake/hosts/$me/settings.json" ]; then
+                settings="$flake/hosts/$me/settings.json"
+            else
                 for candidate in "$flake"/hosts/*/settings.json; do
                     [ -f "$candidate" ] || continue
-                    settings="$candidate"
-                    break
+                    if [ "$(jq -r '.host.name // empty' "$candidate" 2>/dev/null)" = "$me" ]; then
+                        settings="$candidate"
+                        break
+                    fi
                 done
+            fi
+            if [ -z "$settings" ]; then
+                echo "BTechOS: no settings.json for host '$me' in $flake (set BTechOS_HOST to override)." >&2
+                exit 2
             fi
             run=/run/btechos
             aside=$run/aside
@@ -81,12 +93,11 @@ let
 
             # What changes the system runs as root, all of it, so that it holds the lock throughout.
             become_root() {
-                local keep_flake=()
+                local keep_env=()
                 if [ "$(id -u)" != 0 ]; then
-                    if [ -n "''${BTechOS_FLAKE:-}" ]; then
-                        keep_flake=(--preserve-env=BTechOS_FLAKE)
-                    fi
-                    exec sudo "''${keep_flake[@]}" "$(readlink -f "$0")" "$@"
+                    [ -n "''${BTechOS_FLAKE:-}" ] && keep_env+=(--preserve-env=BTechOS_FLAKE)
+                    [ -n "''${BTechOS_HOST:-}" ] && keep_env+=(--preserve-env=BTechOS_HOST)
+                    exec sudo "''${keep_env[@]}" "$(readlink -f "$0")" "$@"
                 fi
             }
 
@@ -264,7 +275,7 @@ let
             usage() {
                 echo "Usage: btechos rebuild | update [--unit] | check [--json] | settings | version | dev [path|off] | apply FILE | welcome | watch"
                 echo "       btechos generations [--json] | changes N | boot N | switch N [--unit] | clean DAYS [--unit]"
-                echo "The machine's flake: $flake"
+                echo "The machine's flake: $flake  (host: $me, settings: $settings)"
             }
 
             read_as_caller() {
